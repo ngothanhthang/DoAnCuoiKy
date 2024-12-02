@@ -13,9 +13,11 @@ public interface ProductService {
     List<Category> getAllCategories();
     
     // Lấy sản phẩm theo danh mục và phân trang
-    List<Product> getProductsByCategory(Long categoryId, int status, int page, int size);
+    Page<Product> getProductsByCategory(Long categoryId, int status, int page, int size);
 
 	Page<Product> getProducts(int pageNumber);
+
+	Product getProductById(Long productId);
     
     // Các phương thức khác, ví dụ: lấy sản phẩm mới, bán chạy, yêu thích, ...
 }

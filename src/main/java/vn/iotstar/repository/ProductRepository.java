@@ -9,8 +9,8 @@ import vn.iotstar.entity.Product;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    // Truy vấn các sản phẩm theo danh mục, ví dụ:
-    List<Product> findByCategoryIdAndStatus(Long categoryId, int status, Pageable pageable);
+	// Tìm sản phẩm theo categoryId và status, với phân trang
+    Page<Product> findByCategoryIdAndStatus(Long categoryId, int status, Pageable pageable);
     Page<Product> findAll(Pageable pageable);
     // Các truy vấn khác như: new arrivals, best sellers, etc.
 }

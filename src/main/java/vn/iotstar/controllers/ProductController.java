@@ -5,10 +5,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import vn.iotstar.entity.Category;
 import vn.iotstar.entity.Product;
+import vn.iotstar.entity.Review;
 import vn.iotstar.services.ProductService;
 
 import java.util.List;
@@ -36,23 +36,40 @@ public class ProductController {
         return "productList";  // Trang hiển thị danh sách sản phẩm
     }
 
-    // Sản phẩm theo danh mục
-    @GetMapping("/category/{categoryId}")
-    public String category(@PathVariable Long categoryId, 
-                           @RequestParam(defaultValue = "0") int page,
-                           @RequestParam(defaultValue = "20") int size,
-                           Model model) {
-        List<Product> products = productService.getProductsByCategory(categoryId, 1, page, size);
-        model.addAttribute("products", products);
-        return "category";  // Trang sản phẩm theo danh mục, trả về category.html
+ // Hiển thị sản phẩm theo danh mục với phân trang
+    @GetMapping("/category")
+    public String getProductsByCategory(@RequestParam("categoryId") Long categoryId,
+                                        @RequestParam(value = "status", defaultValue = "1") int status,
+                                        @RequestParam(value = "page", defaultValue = "0") int page,
+                                        @RequestParam(value = "size", defaultValue = "5") int size,
+                                        Model model) {
+        Page<Product> productPage = productService.getProductsByCategory(categoryId, status, page, size);
+        model.addAttribute("products", productPage.getContent());
+        model.addAttribute("totalPages", productPage.getTotalPages());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("categoryId", categoryId);
+        return "productList";  // Trang hiển thị sản phẩm của danh mục
     }
+ // Hiển thị chi tiết sản phẩm
+    @GetMapping("/product")
+    public String getProductDetails(@RequestParam("productId") Long productId, Model model) {
+        Product product = productService.getProductById(productId);
 
-    // Sản phẩm bán chạy
-    @GetMapping("/best-sellers")
-    public String bestSellers(Model model) {
-        // Giả sử sản phẩm bán chạy có status = 2
-        List<Product> bestSellers = productService.getProductsByCategory(null, 2, 0, 20);
-        model.addAttribute("products", bestSellers);
-        return "best-sellers";  // Trang sản phẩm bán chạy, trả về best-sellers.html
+        // Lấy danh sách đánh giá của sản phẩm
+        List<Review> reviews = product.getReviews();
+        
+     // Tính tổng số đánh giá và điểm trung bình
+        int totalReviews = reviews.size();
+        double averageRating = reviews.isEmpty() ? 0 : reviews.stream().mapToInt(Review::getRating).average().orElse(0);
+        
+     // Làm tròn điểm trung bình đến 1 chữ số thập phân
+        averageRating = Math.round(averageRating * 10.0) / 10.0;
+        
+     // Thêm các thông tin vào model
+        model.addAttribute("product", product);
+        model.addAttribute("totalReviews", totalReviews);
+        model.addAttribute("averageRating", averageRating);
+        
+        return "productDetail";  // Trang chi tiết sản phẩm
     }
 }

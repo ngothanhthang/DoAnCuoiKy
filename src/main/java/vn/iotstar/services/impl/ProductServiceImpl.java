@@ -2,7 +2,6 @@ package vn.iotstar.services.impl;
 
 import org.springframework.data.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import vn.iotstar.entity.Category;
 import vn.iotstar.entity.Product;
@@ -11,6 +10,7 @@ import vn.iotstar.repository.ProductRepository;
 import vn.iotstar.services.ProductService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -21,10 +21,14 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    // Lấy sản phẩm theo danh mục và phân trang
+    // Lấy sản phẩm theo danh mục, status và phân trang
     @Override
-    public List<Product> getProductsByCategory(Long categoryId, int status, int page, int size) {
-        return productRepository.findByCategoryIdAndStatus(categoryId, status, PageRequest.of(page, size));
+    public Page<Product> getProductsByCategory(Long categoryId, int status, int page, int size) {
+        // Tạo Pageable cho phân trang
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.asc("name"))); // Sắp xếp theo tên (hoặc bạn có thể thay đổi theo nhu cầu)
+        
+        // Truy vấn sản phẩm theo categoryId và status với phân trang
+        return productRepository.findByCategoryIdAndStatus(categoryId, status, pageable);
     }
 
     // Lấy tất cả các danh mục
@@ -32,12 +36,18 @@ public class ProductServiceImpl implements ProductService {
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
     }
-    
+
+    // Phân trang sản phẩm, giới hạn 20 sản phẩm mỗi trang
     @Override
- // Phân trang sản phẩm, giới hạn 20 sản phẩm mỗi trang
     public Page<Product> getProducts(int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber, 5);  // 20 sản phẩm mỗi trang
+        Pageable pageable = PageRequest.of(pageNumber, 5);  // 5 sản phẩm mỗi trang
         return productRepository.findAll(pageable);
     }
-    // Các phương thức khác như lấy sản phẩm mới, bán chạy, yêu thích, v.v.
+    
+    @Override
+    // Lấy sản phẩm theo ID
+    public Product getProductById(Long productId) {
+        Optional<Product> product = productRepository.findById(productId);
+        return product.orElse(null);  // Trả về sản phẩm nếu tìm thấy, nếu không trả về null
+    }
 }
