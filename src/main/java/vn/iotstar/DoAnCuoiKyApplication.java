@@ -9,6 +9,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
+import vn.iostar.configs.MySiteMeshFilter;
+
 
 //@SpringBootApplication
 @SpringBootApplication(scanBasePackages = "vn.iotstar")
@@ -37,4 +39,7 @@ public class DoAnCuoiKyApplication {
 	            .httpBasic(basic -> basic.disable())  // Tắt Basic Authentication nếu không cần thiết
 	            .build();
 	}
+
+
+
 }
