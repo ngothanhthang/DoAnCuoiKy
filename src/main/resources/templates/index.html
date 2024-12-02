@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Home Page</title>
+</head>
+<body>
+<div th:replace="~{layout :: fragment}"></div>
+  <section>
+    <h2>Welcome to My Website</h2>
+    <p>Welcome, <span th:text="${userName}">User</span></p>
+    <p>This is the home page content.</p>
+  </section>
+</div>
+</body>
+</html>

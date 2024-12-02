@@ -19,26 +19,26 @@ public class DoAnCuoiKyApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(DoAnCuoiKyApplication.class, args);
 	}
-	@Bean
-	public FilterRegistrationBean<MySiteMeshFilter> siteMeshFilter() {
-		FilterRegistrationBean<MySiteMeshFilter> filterRegistrationBean
-			=new FilterRegistrationBean<MySiteMeshFilter>();
-		filterRegistrationBean.setFilter(new MySiteMeshFilter()); // adding sitemesh filter ??
-		filterRegistrationBean.addUrlPatterns("/*");
-		return filterRegistrationBean;
-	}
+
+	/*
+	 * @Bean public FilterRegistrationBean<MySiteMeshFilter> siteMeshFilter() {
+	 * FilterRegistrationBean<MySiteMeshFilter> filterRegistrationBean =new
+	 * FilterRegistrationBean<MySiteMeshFilter>();
+	 * filterRegistrationBean.setFilter(new MySiteMeshFilter()); // adding sitemesh
+	 * filter ?? filterRegistrationBean.addUrlPatterns("/*"); return
+	 * filterRegistrationBean; }
+	 */
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	    return http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/admin/**").permitAll()  // Cho phép tất cả truy cập vào các trang /admin/**
-                                .requestMatchers("/customer/**").permitAll()  // Cho phép tất cả truy cập vào các trang /customer/**
-                                .anyRequest().permitAll()  // Cho phép tất cả các yêu cầu khác mà không cần xác thực
-                )
-                .formLogin(login -> login.disable())  // Vô hiệu hóa trang đăng nhập của Spring Security
-                .httpBasic(basic -> basic.disable())  // Tắt Basic Authentication nếu không cần thiết
-                .build();
+	    return http.csrf(csrf -> csrf.disable())  // Tắt CSRF nếu không cần thiết
+	            .authorizeHttpRequests(auth -> auth
+	                .anyRequest().permitAll()  // Cho phép tất cả các yêu cầu mà không cần xác thực
+	            )
+	            .formLogin(login -> login.disable())  // Vô hiệu hóa trang đăng nhập của Spring Security
+	            .httpBasic(basic -> basic.disable())  // Tắt Basic Authentication nếu không cần thiết
+	            .build();
 	}
+
 
 
 }
