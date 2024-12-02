@@ -8,6 +8,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,8 +35,8 @@ public class Order implements Serializable {/**
 	@Column(name = "status", nullable = false, length = 50)
 	private String status;
 
-	@Column(name = "created_at", nullable = false, updatable = false)
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private LocalDateTime createdAt;
+	 @CreationTimestamp
+	 @Column(name = "created_at", nullable = false, updatable = false)
+	 private LocalDateTime createdAt;
 
 }
