@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,11 +24,14 @@ public class Cart implements Serializable {
     @Column(name = "cart_id")
     private Long id;
 	
-	 @ManyToOne(fetch = FetchType.LAZY)
-	 @JoinColumn(name = "user_id", nullable = false)
-	 private User user;
+	@OneToOne(fetch = FetchType.LAZY)  // Thêm OneToOne để mỗi User chỉ có một Cart
+    @JoinColumn(name = "user_id", nullable = false, unique = true)  // Ràng buộc User chỉ có 1 Cart
+    private User user;
 
-	 @Column(name = "created_at")
-	 private LocalDateTime createdAt = LocalDateTime.now();
+	@Column(name = "created_at")
+	private LocalDateTime createdAt = LocalDateTime.now();
+	 
+	@OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)  // Quan hệ 1-nhiều với CartItem
+	private List<CartItem> cartItems;  // Một Cart có thể có nhiều CartItem
 
 }

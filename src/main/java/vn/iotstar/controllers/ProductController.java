@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import vn.iotstar.dto.ProductDTO;
 import vn.iotstar.entity.Category;
 import vn.iotstar.entity.Product;
+import vn.iotstar.entity.ProductLike;
 import vn.iotstar.entity.Review;
+import vn.iotstar.entity.User;
+import vn.iotstar.repository.UserRepository;
 import vn.iotstar.services.ProductService;
 
 import java.util.List;
@@ -20,7 +23,9 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
-
+    @Autowired
+    private UserRepository userRepository;
+    
     // Trang chủ
     @GetMapping("/")
     public String home(Model model) {
@@ -87,10 +92,20 @@ public class ProductController {
  // Hiển thị chi tiết sản phẩm
     @GetMapping("/product")
     public String getProductDetails(@RequestParam("productId") Long productId, Model model) {
+    	// Lấy user có id = 1 từ database
+        User user = userRepository.findByUserId((long) 1) ; // Tìm user có id = 1
+
+        if (user == null) {
+            // Nếu không tìm thấy user, có thể hiển thị lỗi hoặc thông báo gì đó
+            return "error";
+        }
+        
         Product product = productService.getProductById(productId);
 
         // Lấy danh sách đánh giá của sản phẩm
         List<Review> reviews = product.getReviews();
+        
+        int totalLikes= product.getProductLikes().size();
         
      // Tính tổng số đánh giá và điểm trung bình
         int totalReviews = reviews.size();
@@ -100,8 +115,10 @@ public class ProductController {
         averageRating = Math.round(averageRating * 10.0) / 10.0;
         
      // Thêm các thông tin vào model
+        model.addAttribute("user", user);
         model.addAttribute("product", product);
         model.addAttribute("totalReviews", totalReviews);
+        model.addAttribute("totalLikes", totalLikes);
         model.addAttribute("averageRating", averageRating);
         
         return "productDetail";  // Trang chi tiết sản phẩm

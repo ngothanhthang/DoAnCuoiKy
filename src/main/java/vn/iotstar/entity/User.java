@@ -38,4 +38,14 @@ public class User implements Serializable {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+    
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)  // Một User có thể có nhiều Review
+    private List<Review> reviews;  // Danh sách các Review mà người dùng đã viết
+    
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)  // Một User có thể thích nhiều sản phẩm
+    private List<ProductLike> productLikes;  // Danh sách các sản phẩm mà người dùng đã thích
+    
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private Cart cart;
+
 }

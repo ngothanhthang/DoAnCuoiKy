@@ -23,9 +23,9 @@ public class Review implements Serializable {
     private Long id;
 
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	 
-	@JoinColumn(name = "user_id", nullable = false) private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false) 
+    private User user;  // Liên kết tới người dùng
 	
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
@@ -38,6 +38,7 @@ public class Review implements Serializable {
     private String reviewText;  // N?i dung d�nh gi�
 
     @Column(name = "created_at", nullable = false, updatable = false)
+    
     @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp  // T? d?ng g�n th?i gian t?o
     private java.util.Date createdAt;
