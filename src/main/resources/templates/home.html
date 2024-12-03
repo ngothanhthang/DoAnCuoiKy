@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang chủ</title>
+</head>
+<body>
+    <h1>Danh mục sản phẩm</h1>
+
+    <div th:each="category : ${categories}">
+        <p th:text="${category.name}"></p>
+    </div>
+
+</body>
+</html>
