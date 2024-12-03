@@ -59,6 +59,10 @@ public class Product implements Serializable {
  // Thêm quan hệ OneToMany với Reviews
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Review> reviews;  // Một sản phẩm có thể có nhiều đánh giá
+    
+ // Quan hệ OneToMany với ProductLike (một sản phẩm có thể có nhiều like)
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<ProductLike> productLikes;  // Một sản phẩm có thể có nhiều lượt like
 	/*
 	 * @ManyToOne(fetch = FetchType.LAZY)
 	 * 

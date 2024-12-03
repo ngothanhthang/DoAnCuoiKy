@@ -51,9 +51,35 @@
             </div>
         </div>
     </section>
-
+	
+	
     <!-- Lựa chọn sắp xếp sản phẩm -->
     <div class="container py-3">
+        <div class="row">
+            <div class="col-md-6">
+                <h2 class="text-center">Product List</h2>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex justify-content-end">
+                    <!-- Form gửi yêu cầu với tham số sort -->
+                    <form action="#" method="get" id="sortForm">
+                        <input type="hidden" name="categoryId" th:value="${categoryId}" />
+                        <input type="hidden" name="page" th:value="${currentPage}" />
+                        <select name="sort" class="form-select w-auto" aria-label="Sort Products" onchange="this.form.submit()">
+                            <option value="newest" th:selected="${sortOption == 'newest'}">Mới nhất</option>
+                            <option value="best_selling" th:selected="${sortOption == 'best_selling'}">Bán chạy</option>
+                            <option value="ratings" th:selected="${sortOption == 'ratings'}">Đánh giá</option>
+                            <option value="popularity" th:selected="${sortOption == 'popularity'}">Phổ biến</option>
+                            <option value="price_low_to_high" th:selected="${sortOption == 'price_low_to_high'}">Giá: Từ thấp đến cao</option>
+                            <option value="price_high_to_low" th:selected="${sortOption == 'price_high_to_low'}">Giá: Từ cao đến thấp</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Lựa chọn sắp xếp sản phẩm -->
+    <!-- <div class="container py-3">
         <div class="row">
             <div class="col-md-6">
                 <h2 class="text-center">Product List</h2>
@@ -71,7 +97,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Danh sách sản phẩm -->
     <div class="container py-5 product-list">
@@ -97,19 +123,19 @@
     <ul class="pagination justify-content-center">
         <!-- Trang trước -->
         <li th:if="${currentPage > 0}" class="page-item">
-            <a th:href="@{/category(categoryId=${categoryId}, page=${currentPage - 1})}" class="page-link">Previous</a>
+            <a th:href="@{/category(categoryId=${categoryId}, page=${currentPage - 1}, sort=${sortOption})}" class="page-link">Previous</a>
         </li>
 
         <!-- Các số trang -->
         <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
             th:classappend="${i == currentPage} ? 'active' : ''" class="page-item">
-            <a th:href="@{/category(categoryId=${categoryId}, page=${i})}" 
+            <a th:href="@{/category(categoryId=${categoryId}, page=${i}, sort=${sortOption})}" 
                class="page-link" th:text="${i + 1}"></a>
         </li>
 
         <!-- Trang sau -->
         <li th:if="${currentPage < totalPages - 1}" class="page-item">
-            <a th:href="@{/category(categoryId=${categoryId}, page=${currentPage + 1})}" class="page-link">Next</a>
+            <a th:href="@{/category(categoryId=${categoryId}, page=${currentPage + 1}, sort=${sortOption})}" class="page-link">Next</a>
         </li>
     </ul>
 </div>
