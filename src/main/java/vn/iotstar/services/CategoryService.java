@@ -1,29 +1,25 @@
 package vn.iotstar.services;
 
+import org.springframework.data.domain.Page;
+import vn.iotstar.entity.Category;
+
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
-import vn.iotstar.entity.Category;
-
 public interface CategoryService {
 
-    void deleteById(Long id);
+    // Lấy tất cả danh mục
+    List<Category> getAllCategories();
 
-    Optional<Category> findById(Long id);
+    // Lấy danh mục theo ID
+    Optional<Category> getCategoryById(Long id);
 
-    List<Category> findAll();
+    // Lấy danh sách danh mục với phân trang
+    Page<Category> getCategoriesPage(int page, int size);
 
-    Page<Category> findAll(Pageable pageable);
+    // Lưu danh mục mới
+    Category saveCategory(Category category);
 
-    List<Category> findAll(Sort sort);
-
-    <S extends Category> S save(S entity);
-
-    Page<Category> findByNameContaining(String name, Pageable pageable);
-
-    Optional<Category> findByName(String name);
+    // Xóa danh mục theo ID
+    void deleteCategoryById(Long id);
 }

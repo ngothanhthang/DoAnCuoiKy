@@ -1,0 +1,233 @@
+	<!DOCTYPE html>
+	<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+	    <meta charset="UTF-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	    <title>Chi tiết sản phẩm</title>
+	
+	    <!-- Kết nối với Bootstrap CSS -->
+	    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	    
+	    
+	
+	    <!-- Kết nối với FontAwesome CSS để sử dụng sao -->
+	    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+	
+	    <!-- Kết nối với file CSS của bạn -->
+	    <link rel="stylesheet" href="/css/style.css">
+	    <style>
+	        /* Định dạng phần đánh giá */
+	        .review-card {
+	            background-color: #f8f9fa;
+	            padding: 20px;
+	            border-radius: 8px;
+	            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	        }
+	
+	        /* Định dạng mỗi đánh giá */
+	        .review {
+	            background-color: #ffffff;
+	            padding: 15px;
+	            margin-bottom: 20px; /* Khoảng cách giữa các đánh giá */
+	            border-radius: 8px;
+	            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	        }
+	
+	        .review-header {
+	            display: flex;
+	            justify-content: space-between;
+	            align-items: center;
+	            margin-bottom: 10px;
+	        }
+	
+	        .review-footer {
+	            font-size: 0.9em;
+	            color: #6c757d;
+	        }
+	
+	        .review .stars i {
+	            color: #ffcc00; /* Màu vàng cho sao */
+	        }
+	
+	        /* Định dạng phần sao dưới tên sản phẩm */
+	        .stars i {
+	            color: #ffcc00; /* Màu vàng cho sao */
+	        }
+	
+	        .product-info {
+	            font-weight: bold; /* In đậm cho con số đánh giá */
+	        }
+	    </style>
+	</head>
+	<body>
+	
+	    <!-- Navbar với Bootstrap -->
+	    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+	        <div class="container-fluid">
+	            <a class="navbar-brand" href="#">My Store</a>
+	            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+	                <span class="navbar-toggler-icon"></span>
+	            </button>
+	            <div class="collapse navbar-collapse" id="navbarNav">
+	                <ul class="navbar-nav ms-auto">
+	                    <li class="nav-item">
+	                        <a class="nav-link active" href="#">Trang chủ</a>
+	                    </li>
+	                    <li class="nav-item">
+	                        <a class="nav-link" href="#">Cửa hàng</a>
+	                    </li>
+	                </ul>
+	            </div>
+	        </div>
+	    </nav>
+	
+	    <!-- Chi tiết sản phẩm -->
+	    <div class="container mt-5">
+	        <div class="row">
+	            <div class="col-md-6">
+	                <img th:src="@{${product.imageUrl}}" alt="Hình ảnh sản phẩm" class="img-fluid" />
+	                <!-- Hiển thị số lượt thích -->
+	                <div class="text-center mt-3">
+	                    <i class="fas fa-thumbs-up"></i> 
+	                    <span th:text="${totalLikes}">0</span> Lượt thích
+	                </div>
+	            </div>
+	            <div class="col-md-6">
+	                <h1 th:text="${product.name}"></h1>
+	                <!-- Hiển thị điểm trung bình và sao đánh giá -->
+	                <div class="d-flex align-items-center">
+	                    <span class="product-info" th:text="${averageRating}"></span> <!-- In đậm số điểm -->
+	                    <div class="stars ms-2">
+	                        <i class="fas fa-star" th:if="${averageRating >= 1}"></i>
+	                        <i class="fas fa-star" th:if="${averageRating >= 2}"></i>
+	                        <i class="fas fa-star" th:if="${averageRating >= 3}"></i>
+	                        <i class="fas fa-star" th:if="${averageRating >= 4}"></i>
+	                        <i class="fas fa-star" th:if="${averageRating >= 5}"></i>
+	                        <i class="fas fa-star-half-alt" th:if="${averageRating > 4 && averageRating < 5}"></i> <!-- Sao rưỡi -->
+	                    </div>
+	                    <span>&nbsp;</span>
+	                    <span>|</span>
+	                    <span>&nbsp;</span>
+	            		<span class="product-info" th:text=" ${totalReviews} ">0</span> <span>&nbsp;</span> Đánh Giá <!-- In đậm số đánh giá -->
+	            		
+	            		<span>&nbsp;</span>
+	                    <span>|</span>
+	                    <span>&nbsp;</span>
+	            		<span class="product-info" th:text=" ${product.orderItems.size()} ">0</span> <span>&nbsp;</span> Đã Bán
+	                </div>
+	                
+	                <!-- Mô tả sản phẩm -->
+	                <p th:text="${product.description}">Mô tả sản phẩm sẽ hiển thị ở đây...</p>
+	
+	                <!-- Giá sản phẩm -->
+	                <p class="h4 text-success" th:text="${product.price}">Giá: 0</p>
+					
+					<!-- Phần chọn số lượng -->
+					<div class="d-flex align-items-center">
+				    <!-- Nút giảm số lượng -->
+				    <button class="btn btn-outline-secondary" id="decreaseBtn">-</button>
+				
+				    <!-- Ô nhập liệu cho số lượng sản phẩm -->
+				    <input type="number" name="quantityInput" id="quantityInput" class="form-control text-center mx-2" value="1" min="1" style="width: 80px;">
+				
+				    <!-- Nút tăng số lượng -->
+				    <button class="btn btn-outline-secondary" id="increaseBtn">+</button>
+				</div>
+	
+	                <!-- Form thêm vào giỏ hàng -->
+					<form id="addToCartForm">
+					    <input type="hidden" name="userId" id="userId" value="2"> <!-- userId -->
+					    <input type="hidden" name="productId" id="productId" value="${1}"> <!-- productId -->
+					    <!-- Nút thêm vào giỏ hàng với biểu tượng giỏ hàng -->
+						<!-- <button class="btn btn-primary mt-3" onclick="addToCart()">
+						    <i class="fas fa-shopping-cart"></i> Thêm vào giỏ hàng
+						</button> -->
+						<button type="button" class="fas fa-shopping-cart btn btn-primary mt-3" onclick="addToCart()">Thêm vào giỏ hàng</button>
+
+					</form>
+					
+					<!-- Thông báo sau khi thêm vào giỏ hàng -->
+					<div id="message"></div>
+	            </div>
+	        </div>
+	
+	        <!-- Phần Đánh giá sản phẩm -->
+	        <div class="container mt-5">
+	            <div class="review-card">
+	                <h3>Đánh giá của khách hàng</h3>
+	                <div th:each="review : ${product.reviews}" class="review">
+	                    <div class="review-header">
+	                        <strong th:text="${review.user.username}"></strong>
+	                        <div class="stars">
+	                            <i class="fas fa-star" th:if="${review.rating >= 1}"></i>
+	                            <i class="fas fa-star" th:if="${review.rating >= 2}"></i>
+	                            <i class="fas fa-star" th:if="${review.rating >= 3}"></i>
+	                            <i class="fas fa-star" th:if="${review.rating >= 4}"></i>
+	                            <i class="fas fa-star" th:if="${review.rating >= 5}"></i>
+	                        </div>
+	                    </div>
+	                    <p th:text="${review.reviewText}"></p>
+	                    <div class="review-footer">
+	                        <span th:text="${#dates.format(review.createdAt, 'yyyy-MM-dd HH:mm')}">Ngày: 01/01/2024</span>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	
+	    </div>
+	
+	    <!-- JavaScript: Cập nhật lượt thích -->
+	    <script>
+        // JavaScript để thay đổi số lượng
+        const decreaseBtn = document.getElementById('decreaseBtn');
+        const increaseBtn = document.getElementById('increaseBtn');
+        const quantityInput = document.getElementById('quantityInput');
+
+        // Giảm số lượng
+        decreaseBtn.addEventListener('click', function() {
+            let currentQuantity = parseInt(quantityInput.value);
+            if (currentQuantity > 1) {
+                quantityInput.value = currentQuantity - 1;
+            }
+        });
+
+        // Tăng số lượng
+        increaseBtn.addEventListener('click', function() {
+            let currentQuantity = parseInt(quantityInput.value);
+            quantityInput.value = currentQuantity + 1;
+        });
+     // Hàm lấy giá trị productId từ URL
+        function getProductIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('productId');
+        }
+
+        // Thêm sản phẩm vào giỏ hàng
+        function addToCart() {
+		    var userId = document.getElementById("userId").value;  // userId mặc định = 1
+		    var productId = getProductIdFromUrl();  // Lấy productId từ URL
+		    var quantity = document.getElementById("quantityInput").value;  // Số lượng từ ô nhập liệu
+		
+		    // Gửi request đến server để thêm sản phẩm vào giỏ hàng
+		    fetch("/cart/cart/add?userId=" + userId + "&productId=" + productId + "&quantity=" + quantity, {
+		        method: "POST"
+		    })
+		    .then(response => response.text())  // Nhận phản hồi dưới dạng văn bản
+		    .then(data => {
+		        // Hiển thị thông báo cho người dùng
+		        document.getElementById("message").innerText = data;
+		    })
+		    .catch(error => {
+		        console.error('Error:', error);
+		        document.getElementById("message").innerText = "Có lỗi xảy ra. Vui lòng thử lại.";
+		    });
+		}
+
+        
+    </script>
+		
+	    <!-- Kết nối với Bootstrap JS -->
+	    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+	
+	</body>
+	</html>
