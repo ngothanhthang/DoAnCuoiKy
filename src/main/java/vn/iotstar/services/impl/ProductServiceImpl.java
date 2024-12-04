@@ -78,4 +78,11 @@ public class ProductServiceImpl implements ProductService {
         Optional<Product> product = productRepository.findById(productId);
         return product.orElse(null);  // Trả về sản phẩm nếu tìm thấy, nếu không trả về null
     }
+
+	@Override
+	public Product save(Product product) {
+		// TODO Auto-generated method stub
+		 return productRepository.save(product);
+	}
+    
 }

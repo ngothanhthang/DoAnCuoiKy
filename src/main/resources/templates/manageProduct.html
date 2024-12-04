@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Trang quản lý sản phẩm dành cho người bán" />
+  <meta name="keywords" content="admin, dashboard, vendor, product management" />
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+  <title>Quản lý Sản Phẩm</title>
+
+  <style>
+    .custom-navbar {
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+
+    .custom-navbar .navbar-brand {
+      font-size: 32px;
+      font-weight: 600;
+    }
+
+    .custom-navbar .navbar-brand span {
+      color: #3b5d50;
+    }
+
+    .custom-navbar-nav .nav-link {
+      font-weight: 500;
+      color: #ffffff !important;
+      opacity: 0.5;
+      transition: .3s all ease;
+    }
+
+    .custom-navbar-nav .nav-link:hover,
+    .custom-navbar-nav .nav-link.active {
+      opacity: 1;
+    }
+
+    .dashboard-content {
+      padding: 2rem;
+    }
+
+    .product-btn {
+      font-weight: bold;
+      background-color: #3b5d50;
+      color: white;
+      margin: 5px;
+      border: none;
+      padding: 10px;
+      transition: background-color 0.3s;
+    }
+
+    .product-btn:hover {
+      background-color: #2c4d3c;
+    }
+
+    .product-actions {
+      display: inline-block;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+
+    .product-table th, .product-table td {
+      text-align: center;
+    }
+
+    .product-table .btn {
+      font-size: 14px;
+    }
+
+    .product-add-btn {
+      background-color: #3b5d50;
+      color: white;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    .product-add-btn:hover {
+      background-color: #2c4d3c;
+    }
+
+    .product-table th:nth-child(6), /* Thao tác */
+    .product-table td:nth-child(6) 
+    {
+      width: 150px; /* Điều chỉnh chiều rộng theo yêu cầu */
+    }
+    /* Điều chỉnh kích thước ảnh để vừa vặn và không quá lớn */
+	.product-image 
+	{
+	    max-width: 200px;  /* Giới hạn chiều rộng tối đa của ảnh */
+	    max-height: 200px; /* Giới hạn chiều cao tối đa của ảnh */
+	    object-fit: cover; /* Đảm bảo ảnh không bị méo mà vẫn lấp đầy khung */
+	    border-radius: 8px; /* Tạo bo góc cho ảnh nếu muốn */
+	}
+    
+  </style>
+</head>
+
+<body>
+  <!-- Start Header/Navigation -->
+  <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" aria-label="Vendor product management navigation bar">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">Vendor Management<span>.</span></a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsVendor" aria-controls="navbarsVendor" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsVendor">
+        <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
+          <li class="nav-item">
+            <a class="nav-link" href="#"><i class="fas fa-home me-2"></i>Trang Chủ</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="#"><i class="fas fa-cogs me-2"></i>Quản lý Sản Phẩm</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- End Header/Navigation -->
+
+  <!-- Start Product Management Content -->
+ <div class="dashboard-content">
+    <div class="container">
+        <h2>Quản lý Sản Phẩm</h2>
+
+        <!-- Button to Add New Product -->
+        <div class="mb-3">
+            <button class="btn product-add-btn" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                <i class="fas fa-plus-circle me-2"></i> Thêm Sản Phẩm
+            </button>
+        </div>
+
+        <!-- Product Table -->
+        <div id="productTableContainer">
+            <table class="table table-bordered product-table">
+                <thead>
+                    <tr>
+                        <th>Số Thứ Tự</th>
+                        <th>Tên Sản Phẩm</th>
+                        <th>Giá</th>
+                        <th>Số Lượng</th>
+                        <th>Trạng Thái</th>
+                        <th>Danh Mục</th>
+                        <th>Hình Ảnh</th> <!-- Cột hình ảnh -->
+                        <th style="width: 150px;">Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Loop through products -->
+                    <tr th:each="product, iterStat : ${products}">
+                        <td th:text="${iterStat.count}"></td>
+                        <td th:text="${product.name}"></td>
+                        <td th:text="${product.price}"></td>
+                        <td th:text="${product.quantity}"></td>
+                        <td th:text="${product.status == 1 ? 'Hoạt động' : 'Không hoạt động'}"></td>
+                        <td th:text="${product.category.name}"></td> <!-- Hiển thị tên danh mục -->
+                        <td>
+   					 <!-- Hiển thị hình ảnh sản phẩm -->
+						    <img th:src="@{${product.imageUrl}}" alt="Product Image" class="product-image"/>
+						</td>
+                        <td>
+                            <!-- Edit button -->
+                            <button class="btn btn-warning btn-sm" th:onclick="'openEditProductModal(' + ${product.id} + ')'">
+						    <i class="fas fa-edit"></i> Sửa
+						</button>
+
+
+
+                            <!-- Delete button -->
+                            <button class="btn btn-danger btn-sm" th:onclick="'deleteProduct(' + ${product.id} + ')'">
+                                <i class="fas fa-trash"></i> Xóa
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+  <!-- End Product Management Content -->
+
+  <!-- Modal Add Product -->
+  <!-- Modal Thêm Sản Phẩm -->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addProductModalLabel">Thêm Sản Phẩm Mới</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="productForm">
+          <!-- Tên sản phẩm -->
+          <div class="mb-3">
+            <label for="productName" class="form-label">Tên Sản Phẩm</label>
+            <input type="text" class="form-control" id="productName" required>
+          </div>
+          <!-- Giá sản phẩm -->
+          <div class="mb-3">
+            <label for="productPrice" class="form-label">Giá Sản Phẩm</label>
+            <input type="number" class="form-control" id="productPrice" required>
+          </div>
+          <!-- Số lượng -->
+          <div class="mb-3">
+            <label for="productQuantity" class="form-label">Số Lượng</label>
+            <input type="number" class="form-control" id="productQuantity" required>
+          </div>
+          <!-- Ảnh sản phẩm -->
+          <div class="mb-3">
+            <label for="productImage" class="form-label">Ảnh Sản Phẩm</label>
+            <input type="file" class="form-control" id="productImage" accept="image/*" onchange="previewImage(event)">
+          </div>
+          <!-- Ảnh preview -->
+          <div class="mb-3">
+            <img id="imagePreview" src="" alt="Ảnh Sản Phẩm" style="max-width: 100%; max-height: 200px; display: none;">
+          </div>
+          <!-- Danh mục -->
+          <div class="mb-3">
+            <label for="productCategory" class="form-label">Danh Mục</label>
+            <select class="form-select" id="productCategory" required>
+              <!-- Options sẽ được load bằng JavaScript -->
+            </select>
+          </div>
+          <!-- Trạng thái -->
+          <div class="mb-3">
+            <label for="productStatus" class="form-label">Trạng Thái</label>
+            <select class="form-select" id="productStatus" required>
+              <option value="1">Hoạt động</option>
+              <option value="0">Không hoạt động</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        <button type="button" class="btn btn-primary" onclick="addProduct()">Thêm</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editProductModalLabel">Sửa Sản Phẩm</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editProductForm">
+          <!-- Tên sản phẩm -->
+          <div class="mb-3">
+            <label for="editProductName" class="form-label">Tên Sản Phẩm</label>
+            <input type="text" class="form-control" id="editProductName" required>
+          </div>
+          <!-- Giá sản phẩm -->
+          <div class="mb-3">
+            <label for="editProductPrice" class="form-label">Giá Sản Phẩm</label>
+            <input type="number" class="form-control" id="editProductPrice" required>
+          </div>
+          <!-- Số lượng -->
+          <div class="mb-3">
+            <label for="editProductQuantity" class="form-label">Số Lượng</label>
+            <input type="number" class="form-control" id="editProductQuantity" required>
+          </div>
+          <!-- Ảnh sản phẩm -->
+          <div class="mb-3">
+            <label for="editProductImage" class="form-label">Ảnh Sản Phẩm</label>
+            <input type="file" class="form-control" id="editProductImage" accept="image/*" onchange="previewEditImage(event)">
+          </div>
+          <!-- Ảnh preview -->
+          <div class="mb-3">
+            <img id="editImagePreview" src="" alt="Ảnh Sản Phẩm" style="max-width: 100%; max-height: 200px; display: none;">
+          </div>
+          <!-- Danh mục -->
+          <div class="mb-3">
+            <label for="editProductCategory" class="form-label">Danh Mục</label>
+            <select class="form-select" id="editProductCategory" required>
+              <!-- Options sẽ được load bằng JavaScript -->
+            </select>
+          </div>
+          <!-- Trạng thái -->
+          <div class="mb-3">
+            <label for="editProductStatus" class="form-label">Trạng Thái</label>
+            <select class="form-select" id="editProductStatus" required>
+              <option value="1">Hoạt động</option>
+              <option value="0">Không hoạt động</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        <button type="button" class="btn btn-primary" onclick="updateProduct()">Lưu</button>
+      </div>
+    </div>
+  </div>
+</div>
+  <!-- Bootstrap JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+  function previewImage(event) 
+  {
+	  const reader = new FileReader();
+	  reader.onload = function ()
+	  {
+	    const imagePreview = document.getElementById('imagePreview');
+	    imagePreview.src = reader.result;
+	    imagePreview.style.display = 'block'; // Hiển thị ảnh tải lên
+	  };
+	  reader.readAsDataURL(event.target.files[0]);
+}
+  
+  function addProduct() {
+	    const productName = document.getElementById('productName').value;
+	    const productPrice = document.getElementById('productPrice').value;
+	    const productQuantity = document.getElementById('productQuantity').value;
+	    const productStatus = document.getElementById('productStatus').value;
+	    const productImage = document.getElementById('productImage').files[0];
+	    const productCategory = document.getElementById('productCategory').value; // Lấy danh mục đã chọn
+
+	    if (!productName || !productPrice || !productQuantity || !productImage || !productCategory) {
+	      alert('Vui lòng điền đầy đủ thông tin!');
+	      return;
+	    }
+
+	    const formData = new FormData();
+	    formData.append('name', productName);
+	    formData.append('price', productPrice);
+	    formData.append('quantity', productQuantity);
+	    formData.append('status', productStatus);
+	    formData.append('image', productImage);
+	    formData.append('category', productCategory); // Thêm danh mục vào FormData
+
+	    fetch('/vendor/add-products', {
+	      method: 'POST',
+	      body: formData
+	    })
+	    .then(response => response.json())  // Đảm bảo rằng phản hồi trả về là JSON
+	    .then(data => {
+	      if (data.success) {
+	        alert('Sản phẩm đã được thêm thành công!');
+	        location.reload();  // Làm mới trang để hiển thị sản phẩm mới
+	      } else {
+	        alert('Có lỗi xảy ra: ' + data.message);
+	      }
+	    })
+	    .catch(error => {
+	      console.error('Lỗi:', error);
+	      alert('Có lỗi xảy ra khi thêm sản phẩm!');
+	    });
+	  }
+  function loadCategories() {
+	    fetch('/vendor/show-categories')
+	        .then(response => {
+	            return response.text(); // Lấy phản hồi thô dưới dạng text
+	        })
+	        .then(text => {
+	            console.log(text);  // In ra dữ liệu thô trả về từ server để kiểm tra
+
+	            try {
+	                const data = JSON.parse(text); // Thử phân tích cú pháp JSON
+	                console.log(data);  // In ra dữ liệu đã phân tích
+
+	                // Kiểm tra nếu data là mảng
+	                if (Array.isArray(data)) {
+	                    const categorySelect = document.getElementById('productCategory');
+	                    categorySelect.innerHTML = ''; // Xóa các option hiện tại
+
+	                    // Thêm option mặc định
+	                    const defaultOption = document.createElement('option');
+	                    defaultOption.value = '';
+	                    defaultOption.textContent = 'Chọn danh mục';
+	                    categorySelect.appendChild(defaultOption);
+
+	                    // Duyệt qua danh sách danh mục và thêm vào combobox
+	                    data.forEach(category => {
+	                        const option = document.createElement('option');
+	                        option.value = category.id; // Gán id của danh mục làm value
+	                        option.textContent = category.name; // Hiển thị tên danh mục
+	                        categorySelect.appendChild(option);
+	                    });
+	                } else {
+	                    console.error('Dữ liệu trả về không phải là mảng');
+	                }
+	            } catch (e) {
+	                console.error('Lỗi khi phân tích cú pháp JSON:', e);
+	            }
+	        })
+	        .catch(error => {
+	            console.error('Lỗi khi tải danh mục:', error);
+	        });
+	}
+
+	// Gọi hàm load danh mục khi modal được mở
+	document.getElementById('addProductModal').addEventListener('show.bs.modal', loadCategories);
+
+  </script>
+ 
+  <style>
+  /* Căn chỉnh các trường trong modal */
+.modal-body .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.modal-body .form-label {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.modal-body .form-select,
+.modal-body .form-control {
+  height: 2.5rem; /* Giữ cho các trường có chiều cao đồng đều */
+  font-size: 1rem;
+}
+
+/* Cải thiện căn chỉnh cho trường Danh Mục */
+#productCategory {
+  padding: 0.375rem 0.75rem;
+}
+
+/* Điều chỉnh khoảng cách giữa các trường */
+.modal-body .mb-3 {
+  margin-bottom: 1.5rem; /* Khoảng cách đều giữa các trường */
+}
+
+/* Điều chỉnh độ rộng cho các trường */
+.form-control, .form-select {
+  width: 100%;
+}
+
+/* Cải thiện ảnh preview */
+#imagePreview {
+  display: block;
+  margin-top: 10px;
+  max-width: 100%;
+  height: auto;
+}
+  </style>
+</body>
+</html>

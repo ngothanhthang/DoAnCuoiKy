@@ -25,3 +25,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     	       "GROUP BY p.id")
      Page<Object[]> findByCategoryIdAndStatusWithAvgRating(Long categoryId, int status, Pageable pageable);
 }
+	
