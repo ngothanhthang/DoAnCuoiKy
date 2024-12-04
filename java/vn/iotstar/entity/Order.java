@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -38,5 +39,9 @@ public class Order implements Serializable {/**
 	 @CreationTimestamp
 	 @Column(name = "created_at", nullable = false, updatable = false)
 	 private LocalDateTime createdAt;
+	 
+	// Quan hệ OneToMany với OrderItem
+	 @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
+	 private List<OrderItem> orderItems;
 
 }

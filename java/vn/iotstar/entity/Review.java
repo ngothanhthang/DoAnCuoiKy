@@ -29,18 +29,18 @@ public class Review implements Serializable {
 	
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    private Product product;  // Tham chi?u t?i entity Product
+    private Product product;  // Tham chiếu tới entity product
 
     @Column(name = "rating", nullable = false)
-    private int rating;  // ��nh gi� c?a ngu?i d�ng (1-5)
+    private int rating;  // Đánh giá của người dùng
 
     @Column(name = "review_text", columnDefinition = "TEXT")
-    private String reviewText;  // N?i dung d�nh gi�
+    private String reviewText;  // Nội dung đánh giá
 
     @Column(name = "created_at", nullable = false, updatable = false)
     
     @Temporal(TemporalType.TIMESTAMP)
-    @CreationTimestamp  // T? d?ng g�n th?i gian t?o
+    @CreationTimestamp  // Tự động gán thời gian tạo
     private java.util.Date createdAt;
 
 }

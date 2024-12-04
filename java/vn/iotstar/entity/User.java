@@ -47,5 +47,9 @@ public class User implements Serializable {
     
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Cart cart;
+    
+ // Mối quan hệ One-to-Many với Address (mỗi user có thể có nhiều địa chỉ)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Address> addresses;
 
 }

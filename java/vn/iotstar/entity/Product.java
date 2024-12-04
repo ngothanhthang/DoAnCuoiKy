@@ -46,7 +46,7 @@ public class Product implements Serializable {
 
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "vendor_id", nullable = false)
     private User vendor;
     
     // Thời gian tạo sản phẩm :

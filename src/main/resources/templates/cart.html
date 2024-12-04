@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+    <!-- Header -->
+    <div th:replace="fragments/header :: header"></div>
+
+    <!-- Giỏ hàng -->
+    <div class="container mt-5">
+        <h2>Giỏ hàng của bạn</h2>
+
+        <div th:if="${cart != null}">
+        	<!-- <form id="cartForm" action="/order/create" method="POST"> -->
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Chọn</th>
+                        <th>Ảnh sản phẩm</th>
+                        <th>Mô tả</th>
+                        <th>Giá</th>
+                        <th>Số lượng</th>
+                        <th>Tổng</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${cart.cartItems}">
+                        <td>
+						    <!-- Checkbox chọn sản phẩm -->
+						    <input type="checkbox" class="product-checkbox" 
+						           th:value="${item.id}"  
+						           th:data-price="${item.product.price}" 
+						           th:data-quantity="${item.quantity}">
+						</td>
+
+                        <td>
+                                <img th:src="@{${item.product.imageUrl}}" alt="product image" class="img-thumbnail" style="width: 100px;">
+                            </td>
+                            <td th:text="${item.product.description}">Mô tả sản phẩm</td>
+                            <td th:text="${item.product.price}">Giá</td>
+                            <td>
+                                <button type="button" class="btn btn-outline-secondary" 
+                                    th:onclick="|window.location='@{/cart/decreaseQuantity?(cartItemId=${item.id})}'|">-</button>
+                                <input type="number" name="quantity" th:value="${item.quantity}" min="1" style="width: 60px;" readonly>
+                                <button type="button" class="btn btn-outline-secondary" 
+                                    th:onclick="|window.location='@{/cart/increaseQuantity?(cartItemId=${item.id})}'|">+</button>
+
+                            </td>
+                            <td th:text="${item.product.price * item.quantity}">Tổng</td>
+                            <td>
+                                <button type="button" class="btn btn-danger" th:onclick="|deleteItem(${item.id})|">Xóa</button>
+                            </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Hiển thị tổng tiền -->
+            	<h4>Total Price: <span id="total-price">0 VND</span></h4>
+            	
+            	<!-- Nút mua hàng -->
+            <button id="buyButton" class="btn btn-primary">Đặt hàng</button>
+            
+        </div>
+    </div>
+
+   <script>
+   function deleteItem(cartItemId) {
+       // Gửi yêu cầu xóa sản phẩm
+       if (confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+           window.location.href = '/cart/delete?cartItemId=' + cartItemId;
+       }
+   }
+
+    $(document).ready(function() {
+        // Lắng nghe sự kiện thay đổi của checkbox
+        $('.product-checkbox').change(function() {
+            var selectedItems = [];
+
+            // Lấy tất cả các checkbox đã được chọn
+            $('.product-checkbox:checked').each(function() {
+                selectedItems.push($(this).val());  // Lấy id của sản phẩm
+            });
+
+         // Kiểm tra xem có sản phẩm nào được chọn không
+            if (selectedItems.length === 0) {
+                // Nếu không có sản phẩm nào được chọn, gửi một mảng rỗng và cập nhật tổng tiền về 0
+                $('#total-price').text('0 VND');
+                selectedItems = [];
+            }
+
+            // Gửi AJAX request tới controller
+            $.ajax({
+                url: '/cart/update',  // URL của controller
+                type: 'POST',
+                data: {
+                    selectedItems: selectedItems  // Gửi danh sách id sản phẩm được chọn
+                },
+                success: function(response) {
+                    // Cập nhật tổng tiền từ response của server
+                    $('#total-price').text(response.totalPrice + ' VND');
+                },
+                
+            });
+            
+        });
+    });
+    $(document).ready(function() {
+        // Lắng nghe sự kiện khi người dùng nhấn nút "Đặt hàng"
+        $('#buyButton').click(function() {
+            var selectedItems = [];
+
+         // Lấy tất cả các checkbox đã được chọn
+            $('.product-checkbox:checked').each(function() {
+                selectedItems.push($(this).val());  // Lấy id của sản phẩm
+            });
+
+            // Kiểm tra nếu không có sản phẩm nào được chọn
+            if (selectedItems.length === 0) {
+                alert('Vui lòng chọn sản phẩm trước khi đặt hàng!');
+                return;
+            }
+
+            // Gửi AJAX request tới server
+            $.ajax({
+                url: '/order/create',  // URL của controller
+                type: 'POST',
+                data: {
+                    selectedItems: selectedItems  // Gửi danh sách id sản phẩm được chọn
+                },
+                success: function(orderId) {
+                    // Chuyển hướng đến trang hiển thị thông tin đơn hàng
+                    window.location.href = '/order/summary/' + orderId;
+                },
+                error: function() {
+                    alert('Có lỗi xảy ra khi đặt hàng.');
+                }
+            });
+        });
+    });
+</script>
+
+
+</body>
+</html>
