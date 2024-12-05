@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -117,12 +118,11 @@ public class OrderViewController {
         return "orderPurchase";
     }
     
-    @GetMapping("/purchases")
+	@GetMapping("/purchases")
     public String updateOrderStatus(@RequestParam("orderId") Long orderId,
                                     @RequestParam("selectedItem") List<Long> selectedItems,
                                     Model model,
                                     HttpSession session) {
-    	Logger logger = LoggerFactory.getLogger(OrderController.class);
     	Long userId = (Long) session.getAttribute("userId");
         if (userId == null) {
             userId = 1L;
@@ -134,64 +134,19 @@ public class OrderViewController {
             // Cập nhật trạng thái của đơn hàng
             order.setStatus("Chờ xác nhận");
             orderService.save(order);
-            
-         // Lấy giỏ hàng của người dùng
-            Cart cart = cartService.getCartByUserId(userId);
 
-            if (cart != null) {
-                // Duyệt qua danh sách selectedItems và xóa các sản phẩm trong giỏ hàng
-                List<CartItem> cartItems = cart.getCartItems();
-                
-                // Tạo một danh sách tạm để lưu các phần tử sẽ bị xóa
-                List<CartItem> itemsToRemove = new ArrayList<>();
-                for (Long selectedItem : selectedItems) {
-                    boolean found = false;
-                    for (CartItem item : cartItems) {
-                        // Kiểm tra nếu id của item trùng với selectedItem
-                        if (item.getId().equals(selectedItem)) {
-                            found = true;
-                            itemsToRemove.add(item);
-                            break; // Đã tìm thấy, không cần kiểm tra tiếp
-                        }
-                    }
+        }     
+        Cart cart = cartService.getCartByUserId(userId);
 
-                    // Log kiểm tra kết quả so sánh
-                    logger.info("Item ID: " + selectedItem + " found in cart: " + found);
-                }
+        if (cart != null) {
+            // Duyệt qua danh sách selectedItems và xóa các sản phẩm trong giỏ hàng
 
-                if (!itemsToRemove.isEmpty()) {
-                    boolean allItemsDeleted = true;  // Biến để kiểm tra tất cả các mục đã được xóa
-
-                    // Duyệt qua từng CartItem trong danh sách itemsToRemove và gọi deleteById() cho từng item
-                    for (CartItem item : itemsToRemove) {
-                        try {              
-                                cartItemService.deleteById(item.getId());
-                                logger.info("Item with ID " + item.getId() + " was successfully deleted.");
-                            
-                        } catch (Exception e) {
-                            // Xử lý ngoại lệ (nếu có lỗi xảy ra khi xóa)
-                            allItemsDeleted = false;
-                            logger.error("Failed to delete item with ID " + item.getId() + ": " + e.getMessage());
-                        }
-                    }
-
-                    // Log kết quả tổng thể việc xóa
-                    if (allItemsDeleted) {
-                        logger.info("All selected items were successfully deleted.");
-                    } else {
-                        logger.warn("Some items could not be deleted.");
-                    }
-
-                    // Lưu lại giỏ hàng sau khi xóa sản phẩm
-                    cartService.save(cart);
-                    // Log giỏ hàng sau khi xóa
-                    logger.info("Cart after removal: " + cart.getCartItems().size() + " items remaining.");
-                } else {
-                    logger.warn("No items were removed from the cart.");
-                }
-
+            for (Long selectedItemId : selectedItems) {
+               cartItemService.deleteCardItem(selectedItemId);
             }
-        }       
+            // Lưu lại giỏ hàng sau khi xóa sản phẩm
+            cartService.save(cart);
+        }
         // Sau khi cập nhật, chuyển hướng đến trang danh sách đơn hàng
         return "redirect:/order/purchase";
     }

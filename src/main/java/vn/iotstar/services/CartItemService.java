@@ -2,6 +2,6 @@ package vn.iotstar.services;
 
 public interface CartItemService {
 
-	void deleteById(Long id);
+	void deleteCardItem(Long id);
 
 }
