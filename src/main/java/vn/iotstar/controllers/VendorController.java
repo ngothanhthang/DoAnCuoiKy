@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import utils.ApiResponse;
+import vn.iotstar.dto.CategoryDTOService;
+import vn.iotstar.dto.CategoryDTO_2;
 import vn.iotstar.dto.ProductDTOService;
 import vn.iotstar.dto.ProductDTO_2;
 import vn.iotstar.entity.Category;
@@ -46,6 +48,8 @@ public class VendorController {
     private CategoryRepository categoryRepository;
     @Autowired
     private ProductDTOService productDTOService;
+    @Autowired
+    private CategoryDTOService categoryDTO_2Service;
 
     @GetMapping("/manage_products")
     public String getProducts(@RequestParam(value = "page", defaultValue = "0") int page, Model model) {
@@ -107,10 +111,10 @@ public class VendorController {
     }
     
     @GetMapping("/show-categories")
-    public ResponseEntity<List<Category>> getCategories() 
+    public ResponseEntity<List<CategoryDTO_2>> getCategories() 
     {
         // Lấy danh sách các categories từ service
-        List<Category> categories = categoryService.getAllCategories();
+        List<CategoryDTO_2> categories = categoryDTO_2Service.getAllCategories();
         
         // Kiểm tra nếu không có category nào
         if (categories.isEmpty()) {

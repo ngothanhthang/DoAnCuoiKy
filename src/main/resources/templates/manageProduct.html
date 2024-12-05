@@ -377,24 +377,30 @@
 	      alert('Có lỗi xảy ra khi thêm sản phẩm!');
 	    });
 	  }
-  function loadCategories(selectId) {
+  function loadCategories(selectId, selectedCategoryId = null) {
 	    fetch('/vendor/show-categories')
-	        .then(response => response.json())  // Lấy dữ liệu JSON từ server
+	        .then(response => response.json())
 	        .then(data => {
-	            const categorySelect = document.getElementById(selectId); // Dùng ID được truyền vào
-	            categorySelect.innerHTML = ''; // Xóa các option hiện tại
+	            const categorySelect = document.getElementById(selectId);
+	            categorySelect.innerHTML = ''; // Clear existing options
 
-	            // Thêm option mặc định
+	            // Add default option
 	            const defaultOption = document.createElement('option');
 	            defaultOption.value = '';
 	            defaultOption.textContent = 'Chọn danh mục';
 	            categorySelect.appendChild(defaultOption);
 
-	            // Duyệt qua danh sách danh mục và thêm vào combobox
+	            // Populate categories
 	            data.forEach(category => {
 	                const option = document.createElement('option');
-	                option.value = category.id;  // Gán id của danh mục làm value
-	                option.textContent = category.name; // Hiển thị tên danh mục
+	                option.value = category.id; // Set category ID as value
+	                option.textContent = category.name; // Display category name
+
+	                // If this category is the selected one, mark it as selected
+	                if (selectedCategoryId && category.id === selectedCategoryId) {
+	                    option.selected = true;
+	                }
+
 	                categorySelect.appendChild(option);
 	            });
 	        })
@@ -408,32 +414,29 @@
 });
 	
 	function openEditProductModal(productId) {
-	    // Fetch thông tin sản phẩm từ server
 	    fetch(`/vendor/get-product/${productId}`)
 	        .then(response => response.json())
 	        .then(data => {
-	            console.log(data); // Kiểm tra dữ liệu trả về
-
 	            if (data && data.id) {
-	                // Điền dữ liệu vào các trường trong modal
+	                // Fill modal fields with product data
 	                document.getElementById('editProductName').value = data.name;
 	                document.getElementById('editProductPrice').value = data.price;
 	                document.getElementById('editProductQuantity').value = data.quantity;
 	                document.getElementById('editProductStatus').value = data.status;
-	                //document.getElementById('editProductCategory').value = data.categoryName;
-	               loadCategories();
-	                document.getElementById('editImagePreview').src = data.imageUrl;
-	                document.getElementById('editImagePreview').style.display = 'block'; // Hiển thị ảnh nếu có
-	                
-	                // Mở modal bằng Bootstrap
-	               //document.getElementById('editProductModal').addEventListener('show.bs.modal', loadCategories);
-	                var myModal = new bootstrap.Modal(document.getElementById('editProductModal'));
-	                document.getElementById('editProductModal').addEventListener('show.bs.modal', function () {
-	                    loadCategories('EditproductCategory'); // Truyền ID của combo box trong modal sửa
-	                });
-	                myModal.show();  // Mở modal
+
+	                // Set image preview
+	                const imagePreview = document.getElementById('editImagePreview');
+	                imagePreview.src = data.imageUrl;
+	                imagePreview.style.display = 'block';
+
+	                // Load categories and mark the current category as selected
+	                loadCategories('EditproductCategory', data.categoryId);
+
+	                // Show the modal
+	                const editModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+	                editModal.show();
 	            } else {
-	                console.error("Dữ liệu trả về không hợp lệ", data);
+	                console.error('Invalid product data:', data);
 	                alert('Có lỗi xảy ra khi tải thông tin sản phẩm.');
 	            }
 	        })

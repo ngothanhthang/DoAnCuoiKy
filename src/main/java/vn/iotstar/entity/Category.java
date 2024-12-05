@@ -34,6 +34,5 @@ public class Category implements Serializable {
     private String description;
     
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference  // Quản lý tuần tự hóa quan hệ OneToMany
     private List<Product> products;  // Danh sách các sản phẩm thuộc danh mục này
 }

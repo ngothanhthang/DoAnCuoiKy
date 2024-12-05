@@ -42,14 +42,12 @@ public class Product implements Serializable {
     @Column(name = "image_url", columnDefinition = "varchar(255)")
     private String imageUrl;
 
-    @ManyToOne(fetch =FetchType.EAGER)
+    @ManyToOne(fetch =FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
-    @JsonBackReference  // Tránh vòng lặp khi tuần tự hóa
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference  // Tránh vòng lặp khi tuần tự hóa
     private User vendor;
 
     // Thời gian tạo sản phẩm :
@@ -57,14 +55,11 @@ public class Product implements Serializable {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-    @JsonManagedReference  // Quản lý tuần tự hóa quan hệ OneToMany
     private List<OrderItem> orderItems;  // Danh sách các OrderItem liên quan đến Product này
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonManagedReference  // Quản lý tuần tự hóa quan hệ OneToMany
     private List<Review> reviews;  // Một sản phẩm có thể có nhiều đánh giá
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonManagedReference  // Quản lý tuần tự hóa quan hệ OneToMany
     private List<ProductLike> productLikes;  // Một sản phẩm có thể có nhiều lượt like
 }
