@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quản lý Đơn hàng</title>
+    <!-- Liên kết với Bootstrap và FontAwesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <style>
+        /* Tùy chỉnh thanh điều hướng */
+        .nav-buttons a {
+            margin-right: 15px;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 30px;
+            background-color: #FF5C8D;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .nav-buttons a:hover {
+            background-color: #FF3881;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Trang trí cho danh sách đơn hàng */
+        .order-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .order-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Thêm hiệu ứng cho biểu tượng trạng thái */
+        .order-status {
+            font-size: 18px;
+            color: #4caf50;
+        }
+
+        .order-status.cancelled {
+            color: #f44336;
+        }
+
+        .order-status.in-progress {
+            color: #ff9800;
+        }
+
+        .order-status.completed {
+            color: #3f51b5;
+        }
+
+        .order-card .order-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .order-card .order-body {
+            margin-top: 10px;
+        }
+
+        .order-card .order-body span {
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* Thêm hình ảnh sản phẩm */
+        .order-img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        /* Không có đơn hàng */
+        .no-orders-message {
+            text-align: center;
+            color: #888;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        /* Màu nền đẹp */
+        .header {
+            background-color: #ff5c8d;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .container {
+            padding-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center header mb-4">Quản lý Đơn hàng</h1>
+
+        <!-- Thanh điều hướng -->
+        <div class="nav-buttons d-flex justify-content-center mb-4">
+            <a href="#" th:href="@{/order/purchase?status=0}" class="btn"><i class="fas fa-list"></i> Tất cả</a>
+            <a href="#" th:href="@{/order/purchase?status=1}" class="btn"><i class="fas fa-check-circle"></i> Đã xác nhận</a>
+            <a href="#" th:href="@{/order/purchase?status=2}" class="btn"><i class="fas fa-truck-moving"></i> Đang giao</a>
+            <a href="#" th:href="@{/order/purchase?status=3}" class="btn"><i class="fas fa-box"></i> Đã giao</a>
+            <a href="#" th:href="@{/order/purchase?status=4}" class="btn"><i class="fas fa-ban"></i> Hủy</a>
+            <a href="#" th:href="@{/order/purchase?status=5}" class="btn"><i class="fas fa-sync-alt"></i> Trả hàng/Hoàn tiền</a>
+        </div>
+
+        <!-- Hiển thị danh sách đơn hàng -->
+        <h2 class="mb-4">Danh sách đơn hàng</h2>
+        <div th:if="${orders != null}">
+            <div class="row">
+                <div class="col-md-4" th:each="order : ${orders}">
+                    <div class="order-card">
+                        <div class="order-header">
+                            Đơn hàng ID: <span th:text="${order.id}">Order ID</span>
+                        </div>
+                        <div class="order-body">
+                            <img class="order-img" src="https://via.placeholder.com/150" alt="Product Image">
+                            <div>
+                                <strong>Status: </strong>
+                                <span th:text="${order.status}" th:class="${order.status == 'Hủy' ? 'order-status cancelled' : (order.status == 'Đang giao' ? 'order-status in-progress' : 'order-status completed')}">
+                                    Status
+                                </span>
+                            </div>
+                            <div>
+                                <strong>Tổng số tiền: </strong><span th:text="${order.totalAmount}">Total Amount</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div th:if="${orders == null or orders.isEmpty()}">
+            <p class="no-orders-message">Không có đơn hàng nào trong trạng thái này.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
