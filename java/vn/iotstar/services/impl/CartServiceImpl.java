@@ -11,8 +11,6 @@ import vn.iotstar.repository.CartItemRepository;
 import vn.iotstar.repository.ProductRepository;
 import vn.iotstar.repository.UserRepository;
 import vn.iotstar.services.CartService;
-
-import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -111,6 +109,17 @@ public class CartServiceImpl implements CartService {
  // Phương thức để lấy CartItem theo itemId
     public CartItem getItemById(Long itemId) {
         return cartItemRepository.findById(itemId).orElseThrow(() -> new RuntimeException("Cart item not found"));
+    }
+    
+    @Override
+ // Phương thức để lưu giỏ hàng sau khi đã thay đổi
+    public void save(Cart cart) {
+        // Lưu lại các mục trong giỏ hàng
+        for (CartItem item : cart.getCartItems()) {
+            cartItemRepository.save(item);  // Lưu các mục trong giỏ hàng
+        }
+        // Lưu lại chính giỏ hàng
+        cartRepository.save(cart);
     }
 
 }

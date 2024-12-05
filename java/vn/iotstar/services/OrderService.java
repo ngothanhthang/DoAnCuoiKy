@@ -18,4 +18,6 @@ public interface OrderService {
 
 	List<Order> findOrdersByUserId(Long userId);
 
+	void save(Order order);
+
 }

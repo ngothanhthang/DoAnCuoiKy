@@ -1,3 +1,50 @@
+<head>
+    <!-- Thêm Bootstrap Icons nếu chưa có -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+    /* Giỏ hàng */
+.navbar .btn-cart {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    background-color: #ffc107; /* Màu nền nổi bật */
+    color: #000;  /* Màu chữ giống như phần còn lại */
+    border: 2px solid #ffc107;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+    text-decoration: none; /* Không có gạch chân */
+}
+
+/* Khi hover vào giỏ hàng */
+.navbar .btn-cart:hover {
+    background-color: #e0a800;
+    color: #fff;
+    text-decoration: none; /* Không gạch chân khi hover */
+}
+
+/* Đảm bảo màu chữ của giỏ hàng và badge giống nhau */
+.navbar .btn-cart .fs-5 {
+    color: inherit;  /* Thừa kế màu chữ từ btn-cart */
+    margin-right: 0.5rem; /* Khoảng cách giữa "Giỏ hàng" và số lượng */
+}
+
+/* Số lượng giỏ hàng (badge) */
+.navbar .btn-cart .badge {
+    position: absolute;
+    top: -10px; /* Đưa số 3 lên trên */
+    right: -10px; /* Đưa số 3 ra ngoài góc trên bên phải */
+    background-color: #dc3545;
+    color: #fff;
+    font-size: 1rem;
+    padding: 0.5rem;
+    border-radius: 50%;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+}
+    </style>
+</head>
+
 <header>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -30,10 +77,13 @@
                         <span class="fs-5">Hỗ trợ</span> <!-- Thay icon bằng văn bản -->
                     </a>
                 </div>
-                <!-- Giỏ hàng -->
-					<a href="/cart/view" class="btn btn-outline-light ms-3">
-					    <i class="bi bi-cart"></i> Giỏ hàng
-					</a>
+				<!-- Giỏ hàng -->
+<a href="/cart/view" class="btn-cart">
+    <span class="fs-5">Giỏ hàng</span> <!-- Thay đổi icon thành chữ -->
+    <span class="badge">3</span> <!-- Số lượng giỏ hàng -->
+</a>
+
+
 
             </div>
         </div>

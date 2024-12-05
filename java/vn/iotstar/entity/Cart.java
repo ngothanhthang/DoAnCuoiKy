@@ -31,7 +31,7 @@ public class Cart implements Serializable {
 	@Column(name = "created_at")
 	private LocalDateTime createdAt = LocalDateTime.now();
 	 
-	@OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)  // Quan hệ 1-nhiều với CartItem
+	@OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)  // Quan hệ 1-nhiều với CartItem
 	private List<CartItem> cartItems;  // Một Cart có thể có nhiều CartItem
 
 }

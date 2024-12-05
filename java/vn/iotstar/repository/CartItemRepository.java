@@ -8,5 +8,6 @@ import vn.iotstar.entity.CartItem;
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     CartItem findByCartIdAndProductId(Long cartId, Long productId);
     // Tạo truy vấn để tìm các CartItem của người dùng dựa trên danh sách sản phẩm được chọn
-    List<CartItem> findByIdInAndCartUserUserId(List<Long> productIds, Long userId);     
+    List<CartItem> findByIdInAndCartUserUserId(List<Long> productIds, Long userId);  
+    void deleteById(Long id);
 }

@@ -17,11 +17,23 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 	 */
     Page<Product> findAll(Pageable pageable);
     // Các truy vấn khác như: new arrivals, best sellers, etc.
-    @Query("SELECT p, AVG(r.rating) AS averageRating, COALESCE(SUM(oi.quantity), 0) AS totalSold " +
+	/*
+	 * @Query("SELECT p, AVG(r.rating) AS averageRating, COALESCE(SUM(oi.quantity), 0) AS totalSold "
+	 * + "FROM Product p " + "LEFT JOIN p.reviews r " + "LEFT JOIN p.orderItems oi "
+	 * + "WHERE p.category.id = :categoryId AND p.status = :status " +
+	 * "GROUP BY p.id")
+	 */
+    @Query("SELECT p, " +
+    	       "(SELECT AVG(r.rating) FROM p.reviews r WHERE r.product.id = p.id) AS averageRating, " +
+    	       "(SELECT COALESCE(SUM(oi.quantity), 0) FROM p.orderItems oi WHERE oi.product.id = p.id) AS totalSold " +
     	       "FROM Product p " +
-    	       "LEFT JOIN p.reviews r " +
-    	       "LEFT JOIN p.orderItems oi " +
-    	       "WHERE p.category.id = :categoryId AND p.status = :status " +
-    	       "GROUP BY p.id")
+    	       "WHERE p.category.id = :categoryId " +
+    	       "AND p.status = :status")
      Page<Object[]> findByCategoryIdAndStatusWithAvgRating(Long categoryId, int status, Pageable pageable);
+     
+     @Query("SELECT p FROM Product p " +
+    	       "JOIN p.orderItems oi ON oi.product.id = p.id " +
+    	       "GROUP BY p.id ORDER BY SUM(oi.quantity) DESC")
+    	List<Product> findBestSellingProducts();
+
 }

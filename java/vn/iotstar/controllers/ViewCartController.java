@@ -1,5 +1,7 @@
 package vn.iotstar.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -7,7 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
 import vn.iotstar.services.CartService;
+import vn.iotstar.services.ProductService;
 import vn.iotstar.entity.Cart;
+import vn.iotstar.entity.Product;
 
 @Controller
 @RequestMapping("/cart")
@@ -15,6 +19,8 @@ public class ViewCartController {
 
     @Autowired
     private CartService cartService;
+    @Autowired
+    private ProductService productService;
 
  // Xem giỏ hàng
     @GetMapping("/view")
@@ -23,10 +29,12 @@ public class ViewCartController {
         if (userId == null) {
             userId = 1L; // Mặc định là userId = 1
         }
+        List<Product> bestSellingProducts = productService.getBestSellingProducts();
 
         // Lấy giỏ hàng của user
         var cart = cartService.getCartByUserId(userId);
         model.addAttribute("cart", cart);
+        model.addAttribute("bestSellingProducts", bestSellingProducts);
 
         // Chuyển tới trang giỏ hàng
         return "cart";  // Giả sử bạn có một trang cart.html trong thư mục templates

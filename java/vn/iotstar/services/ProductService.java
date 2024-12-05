@@ -20,6 +20,8 @@ public interface ProductService {
 	Page<Product> getProducts(int pageNumber);
 
 	Product getProductById(Long productId);
+
+	List<Product> getBestSellingProducts();
     
     // Các phương thức khác, ví dụ: lấy sản phẩm mới, bán chạy, yêu thích, ...
 }

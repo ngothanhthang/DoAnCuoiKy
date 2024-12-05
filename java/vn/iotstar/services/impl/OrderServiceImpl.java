@@ -113,5 +113,10 @@ public class OrderServiceImpl implements OrderService{
     public List<Order> findOrdersByUserId(Long userId) {
         return orderRepository.findByUserUserId(userId);
     }
+    
+    @Override
+    public void save(Order order) {
+        orderRepository.save(order);
+    }
 
 }
