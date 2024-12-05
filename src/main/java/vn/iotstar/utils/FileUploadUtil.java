@@ -1,4 +1,4 @@
-package utils;
+package vn.iotstar.utils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;

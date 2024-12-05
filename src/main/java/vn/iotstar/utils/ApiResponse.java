@@ -1,4 +1,4 @@
-package utils;
+package vn.iotstar.utils;
 
 import vn.iotstar.entity.Product;
 

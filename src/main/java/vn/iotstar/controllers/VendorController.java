@@ -19,10 +19,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import utils.ApiResponse;
 import vn.iotstar.dto.CategoryDTOService;
 import vn.iotstar.dto.CategoryDTO_2;
 import vn.iotstar.dto.ProductDTOService;
@@ -32,6 +30,7 @@ import vn.iotstar.entity.Product;
 import vn.iotstar.repository.CategoryRepository;
 import vn.iotstar.services.CategoryService;
 import vn.iotstar.services.ProductService;
+import vn.iotstar.utils.ApiResponse;
 
 @Controller
 @RequestMapping("/vendor")
