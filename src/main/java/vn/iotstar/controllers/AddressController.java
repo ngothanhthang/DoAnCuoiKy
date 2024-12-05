@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -28,7 +29,9 @@ public class AddressController {
 
     // Hiển thị form thêm hoặc cập nhật địa chỉ
     @PostMapping("/save")
-    public String saveAddress(@ModelAttribute Address address, @RequestParam String orderId, @RequestParam boolean isDefault, HttpSession session, Model model) {
+    public String saveAddress(@ModelAttribute Address address, @RequestParam String orderId, @RequestParam List<String> selectedItems, @RequestParam boolean isDefault, HttpSession session, Model model
+    		,RedirectAttributes redirectAttributes) {
+    	Logger logger = LoggerFactory.getLogger(this.getClass());
     	Long orderIdLong;
         try {
             orderIdLong = Long.parseLong(orderId);
@@ -36,20 +39,8 @@ public class AddressController {
             // Xử lý khi không parse được
             orderIdLong = null; // hoặc giá trị mặc định
         }
-    	// Tạo Logger để ghi lại thông tin
-		/*
-		 * Logger logger = LoggerFactory.getLogger(this.getClass());
-		 * 
-		 * // Log toàn bộ thuộc tính của Address
-		 * logger.info("Address trước khi lưu vào cơ sở dữ liệu: ");
-		 * logger.info("ID: {}", address.getId()); logger.info("Street Address: {}",
-		 * address.getStreetAddress()); logger.info("City: {}", address.getCity());
-		 * logger.info("State: {}", address.getState()); logger.info("Postal Code: {}",
-		 * address.getPostalCode()); logger.info("Country: {}", address.getCountry());
-		 * logger.info("Is Default: {}", address.isDefault());
-		 */
-
-    	
+        logger.info("Is Default: {}", orderIdLong);
+        
         Long userId = (Long) session.getAttribute("userId");
         if (userId == null) {
             userId = 1L;  // Nếu không có userId trong session, giả sử là userId = 1
@@ -79,7 +70,7 @@ public class AddressController {
         }
 		/* logger.info("Is Default: {}", isDefault); */
         // Điều hướng đến trang thông tin đơn hàng với orderId
-        return "redirect:/order/summary/" + orderIdLong;
+        return "redirect:/order/summary/" + orderIdLong + "?selectedItems=" + String.join(",", selectedItems);
     }
 
 }

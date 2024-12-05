@@ -100,6 +100,7 @@
 			            <div class="modal-body">
 			                <form th:action="@{/address/save}" method="post">
 			                <input type="hidden" name="orderId" id="orderId" />
+			                <input type="hidden" name="selectedItems" id="selectedItems" />
 			                    <input type="hidden" name="id" id="addressId" />
 			                    <div class="mb-3">
 			                        <label for="streetAddress" class="form-label">Địa chỉ đường</label>
@@ -140,15 +141,68 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
 		<script>
+		
+		/* // Lấy tất cả các giá trị của tham số selectedItems trong URL
+	    var urlParams = new URLSearchParams(window.location.search);
+	    var selectedItems = urlParams.getAll('selectedItems');  // Trả về một mảng các giá trị
+
+	    // Kiểm tra và in kết quả ra console
+	    console.log(selectedItems);  // Ví dụ: ["21", "22"]
+
+	    // Gán tất cả giá trị vào input hidden dưới dạng chuỗi "21,22"
+	    document.getElementById('selectedItem').value = selectedItems.join(','); */
+
     // Lấy orderId từ URL
-    var url = window.location.href;
-    var segments = url.split('/');
-    var orderId = segments.find(function(segment) {
-        return !isNaN(segment) && segment !== '' && segment !== 'summary';
-    });
- // Gán giá trị orderId vào ô input
-    document.getElementById("orderId").value = orderId || '';
+    var url = window.location.href;  // Lấy URL hiện tại
+	var urlWithoutQuery = url.split('?')[0];  // Cắt URL để loại bỏ phần query string (bỏ qua ?selectedItems=18)
+	var segments = urlWithoutQuery.split('/');  // Tách URL đã cắt theo dấu "/"
+	
+	// Lấy orderId từ URL (vẫn giữ nguyên cách cũ)
+	var orderId = segments.find(function(segment) {
+	    return !isNaN(segment) && segment !== '' && segment !== 'summary';
+	});
+	// Lấy URL hiện tại
+	var url = window.location.href;
+
+	// Tách URL trước dấu "?" để lấy phần đường dẫn chính
+	var urlWithoutQuery = url.split('?')[0];
+
+	// Tách URL theo dấu "/" để lấy orderId
+	var segments = urlWithoutQuery.split('/');
+
+	// Lấy orderId từ URL (phần cuối trước query string)
+	var orderId = segments.find(function(segment) {
+	    return !isNaN(segment) && segment !== '' && segment !== 'summary';
+	});
+
+	// In kết quả orderId
+	console.log('Order ID:', orderId); // Ví dụ: 83
+
+	// Lấy phần query string (sau dấu "?")
+	var queryString = url.split('?')[1];
+
+	// Tách query string theo dấu "&"
+	var queryParams = queryString ? queryString.split('&') : [];
+
+	// Lấy tất cả các giá trị của selectedItems
+	var selectedItems = queryParams
+	    .filter(function(param) {
+	        return param.startsWith('selectedItems=');
+	    })
+	    .map(function(param) {
+	        return param.split('=')[1];
+	    });
+
+	// In kết quả selectedItems
+	console.log('Selected Items:', selectedItems); // Ví dụ: ["21", "22"]
+
+	// Gán giá trị selectedItems vào input hidden dưới dạng chuỗi "21,22"
+	document.getElementById('selectedItems').value = selectedItems.join(',');
+	// Gán giá trị orderId vào ô input
+	document.getElementById("orderId").value = orderId || '';
+
  // Xử lý sự kiện nhấn "Cập nhật địa chỉ"
     document.querySelectorAll('[data-bs-toggle="modal"][data-bs-target="#editAddressModal"]').forEach(function(button) {
         button.addEventListener('click', function() {

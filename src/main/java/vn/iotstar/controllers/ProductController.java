@@ -108,6 +108,10 @@ public class ProductController {
         
         int totalLikes= product.getProductLikes().size();
         
+     // Kiểm tra xem người dùng đã like sản phẩm chưa
+        boolean isLiked = product.getProductLikes().stream()
+                                  .anyMatch(like -> like.getUser().getUserId().equals(user.getUserId()));
+        
      // Tính tổng số đánh giá và điểm trung bình
         int totalReviews = reviews.size();
         double averageRating = reviews.isEmpty() ? 0 : reviews.stream().mapToInt(Review::getRating).average().orElse(0);
@@ -127,6 +131,7 @@ public class ProductController {
         model.addAttribute("totalLikes", totalLikes);
         model.addAttribute("averageRating", averageRating);
         model.addAttribute("totalSoldQuantity", totalSoldQuantity);
+        model.addAttribute("isLiked", isLiked);
         
         return "productDetail";  // Trang chi tiết sản phẩm
     }
