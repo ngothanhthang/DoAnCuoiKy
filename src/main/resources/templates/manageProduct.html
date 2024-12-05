@@ -165,9 +165,11 @@
 						</td>
                         <td>
                             <!-- Edit button -->
-                            <button class="btn btn-warning btn-sm" th:onclick="'openEditProductModal(' + ${product.id} + ')'">
+                          <button class="btn btn-warning btn-sm" th:attr="onclick='openEditProductModal(' + ${product.id} + ')'" >
 						    <i class="fas fa-edit"></i> Sửa
 						</button>
+
+
 
 
 
@@ -244,6 +246,8 @@
     </div>
   </div>
 </div>
+<!-- Model sửa sản phẩm -->
+<!-- Modal Edit Product -->
 <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -271,7 +275,7 @@
           <!-- Ảnh sản phẩm -->
           <div class="mb-3">
             <label for="editProductImage" class="form-label">Ảnh Sản Phẩm</label>
-            <input type="file" class="form-control" id="editProductImage" accept="image/*" onchange="previewEditImage(event)">
+            <input type="file" class="form-control" id="editProductImage" accept="image/*" onchange="previewImage(event)">
           </div>
           <!-- Ảnh preview -->
           <div class="mb-3">
@@ -279,8 +283,8 @@
           </div>
           <!-- Danh mục -->
           <div class="mb-3">
-            <label for="editProductCategory" class="form-label">Danh Mục</label>
-            <select class="form-select" id="editProductCategory" required>
+            <label for="EditproductCategory" class="form-label">Danh Mục</label>
+            <select class="form-select" id="EditproductCategory" required>
               <!-- Options sẽ được load bằng JavaScript -->
             </select>
           </div>
@@ -305,17 +309,34 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
   <script>
-  function previewImage(event) 
-  {
+  function previewImage(event) {
 	  const reader = new FileReader();
-	  reader.onload = function ()
-	  {
-	    const imagePreview = document.getElementById('imagePreview');
-	    imagePreview.src = reader.result;
-	    imagePreview.style.display = 'block'; // Hiển thị ảnh tải lên
+
+	  // Kiểm tra xem đang ở trong modal nào (Add hoặc Edit) và thay đổi ID của preview img cho phù hợp
+	  const modalId = event.target.closest('.modal').id; // Lấy ID của modal đang hiển thị
+
+	  reader.onload = function () {
+	    let imagePreview;
+
+	    // Nếu đang ở trong modal Add
+	    if (modalId === 'addProductModal') {
+	      imagePreview = document.getElementById('imagePreview'); // Image preview của modal Add
+	    }
+	    // Nếu đang ở trong modal Edit
+	    else if (modalId === 'editProductModal') {
+	      imagePreview = document.getElementById('editImagePreview'); // Image preview của modal Edit
+	    }
+
+	    // Cập nhật src của ảnh preview và hiển thị
+	    if (imagePreview) {
+	      imagePreview.src = reader.result;
+	      imagePreview.style.display = 'block'; // Hiển thị ảnh tải lên
+	    }
 	  };
+	  
+	  // Đọc tệp ảnh từ input file
 	  reader.readAsDataURL(event.target.files[0]);
-}
+	}
   
   function addProduct() {
 	    const productName = document.getElementById('productName').value;
@@ -356,50 +377,72 @@
 	      alert('Có lỗi xảy ra khi thêm sản phẩm!');
 	    });
 	  }
-  function loadCategories() {
+  function loadCategories(selectId) {
 	    fetch('/vendor/show-categories')
-	        .then(response => {
-	            return response.text(); // Lấy phản hồi thô dưới dạng text
-	        })
-	        .then(text => {
-	            console.log(text);  // In ra dữ liệu thô trả về từ server để kiểm tra
+	        .then(response => response.json())  // Lấy dữ liệu JSON từ server
+	        .then(data => {
+	            const categorySelect = document.getElementById(selectId); // Dùng ID được truyền vào
+	            categorySelect.innerHTML = ''; // Xóa các option hiện tại
 
-	            try {
-	                const data = JSON.parse(text); // Thử phân tích cú pháp JSON
-	                console.log(data);  // In ra dữ liệu đã phân tích
+	            // Thêm option mặc định
+	            const defaultOption = document.createElement('option');
+	            defaultOption.value = '';
+	            defaultOption.textContent = 'Chọn danh mục';
+	            categorySelect.appendChild(defaultOption);
 
-	                // Kiểm tra nếu data là mảng
-	                if (Array.isArray(data)) {
-	                    const categorySelect = document.getElementById('productCategory');
-	                    categorySelect.innerHTML = ''; // Xóa các option hiện tại
-
-	                    // Thêm option mặc định
-	                    const defaultOption = document.createElement('option');
-	                    defaultOption.value = '';
-	                    defaultOption.textContent = 'Chọn danh mục';
-	                    categorySelect.appendChild(defaultOption);
-
-	                    // Duyệt qua danh sách danh mục và thêm vào combobox
-	                    data.forEach(category => {
-	                        const option = document.createElement('option');
-	                        option.value = category.id; // Gán id của danh mục làm value
-	                        option.textContent = category.name; // Hiển thị tên danh mục
-	                        categorySelect.appendChild(option);
-	                    });
-	                } else {
-	                    console.error('Dữ liệu trả về không phải là mảng');
-	                }
-	            } catch (e) {
-	                console.error('Lỗi khi phân tích cú pháp JSON:', e);
-	            }
+	            // Duyệt qua danh sách danh mục và thêm vào combobox
+	            data.forEach(category => {
+	                const option = document.createElement('option');
+	                option.value = category.id;  // Gán id của danh mục làm value
+	                option.textContent = category.name; // Hiển thị tên danh mục
+	                categorySelect.appendChild(option);
+	            });
 	        })
 	        .catch(error => {
 	            console.error('Lỗi khi tải danh mục:', error);
 	        });
 	}
+//Gọi hàm load danh mục khi modal được mở
+	document.getElementById('addProductModal').addEventListener('show.bs.modal', function () {
+  loadCategories('productCategory'); // Truyền ID của combo box trong modal thêm
+});
+	
+	function openEditProductModal(productId) {
+	    // Fetch thông tin sản phẩm từ server
+	    fetch(`/vendor/get-product/${productId}`)
+	        .then(response => response.json())
+	        .then(data => {
+	            console.log(data); // Kiểm tra dữ liệu trả về
 
-	// Gọi hàm load danh mục khi modal được mở
-	document.getElementById('addProductModal').addEventListener('show.bs.modal', loadCategories);
+	            if (data && data.id) {
+	                // Điền dữ liệu vào các trường trong modal
+	                document.getElementById('editProductName').value = data.name;
+	                document.getElementById('editProductPrice').value = data.price;
+	                document.getElementById('editProductQuantity').value = data.quantity;
+	                document.getElementById('editProductStatus').value = data.status;
+	                //document.getElementById('editProductCategory').value = data.categoryName;
+	               loadCategories();
+	                document.getElementById('editImagePreview').src = data.imageUrl;
+	                document.getElementById('editImagePreview').style.display = 'block'; // Hiển thị ảnh nếu có
+	                
+	                // Mở modal bằng Bootstrap
+	               //document.getElementById('editProductModal').addEventListener('show.bs.modal', loadCategories);
+	                var myModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+	                document.getElementById('editProductModal').addEventListener('show.bs.modal', function () {
+	                    loadCategories('EditproductCategory'); // Truyền ID của combo box trong modal sửa
+	                });
+	                myModal.show();  // Mở modal
+	            } else {
+	                console.error("Dữ liệu trả về không hợp lệ", data);
+	                alert('Có lỗi xảy ra khi tải thông tin sản phẩm.');
+	            }
+	        })
+	        .catch(error => {
+	            console.error('Lỗi khi tải thông tin sản phẩm:', error);
+	            alert('Có lỗi xảy ra khi tải thông tin sản phẩm!');
+	        });
+	}
+	 
 
   </script>
  

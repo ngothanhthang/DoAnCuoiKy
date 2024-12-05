@@ -42,7 +42,7 @@ public class Product implements Serializable {
     @Column(name = "image_url", columnDefinition = "varchar(255)")
     private String imageUrl;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch =FetchType.EAGER)
     @JoinColumn(name = "category_id", nullable = false)
     @JsonBackReference  // Tránh vòng lặp khi tuần tự hóa
     private Category category;

@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import utils.ApiResponse;
+import vn.iotstar.dto.ProductDTOService;
+import vn.iotstar.dto.ProductDTO_2;
 import vn.iotstar.entity.Category;
 import vn.iotstar.entity.Product;
 import vn.iotstar.repository.CategoryRepository;
@@ -41,6 +44,8 @@ public class VendorController {
     private CategoryService categoryService;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private ProductDTOService productDTOService;
 
     @GetMapping("/manage_products")
     public String getProducts(@RequestParam(value = "page", defaultValue = "0") int page, Model model) {
@@ -62,8 +67,8 @@ public class VendorController {
             @RequestParam("category") Long categoryId ) 
     		
     {
-
-        try {
+        try 
+        {
             // Kiểm tra và tạo thư mục nếu không tồn tại
             File uploadDirectory = new File(uploadDir);
             if (!uploadDirectory.exists()) {
@@ -93,13 +98,17 @@ public class VendorController {
 
             return ResponseEntity.ok(new ApiResponse(true, "Sản phẩm đã được thêm thành công!", product));
 
-        } catch (IOException e) {
+        } 
+        catch (IOException e) 
+        {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Lỗi khi lưu sản phẩm: " + e.getMessage());
         }
     }
+    
     @GetMapping("/show-categories")
-    public ResponseEntity<List<Category>> getCategories() {
+    public ResponseEntity<List<Category>> getCategories() 
+    {
         // Lấy danh sách các categories từ service
         List<Category> categories = categoryService.getAllCategories();
         
@@ -111,6 +120,20 @@ public class VendorController {
         // Trả về danh sách categories với mã trạng thái 200 OK
         return ResponseEntity.ok(categories);  // Trả về ResponseEntity với HTTP status 200
     }
-    
-    
+    @GetMapping("/get-product/{productId}")
+    public ResponseEntity<ProductDTO_2> getProductById(@PathVariable String productId) 
+    {
+    	Long productLongId = Long.parseLong(productId);
+        ProductDTO_2 product = productDTOService.getProductById(productLongId);
+        //Category abc =product.getCategory();
+        if (product != null)
+        {
+            return ResponseEntity.ok(product);
+        } 
+        else 
+        {
+            return ResponseEntity.notFound().build();
+    	  //return ResponseEntity.ok("Product ID received: " + productId);
+        }
+    }
 }
