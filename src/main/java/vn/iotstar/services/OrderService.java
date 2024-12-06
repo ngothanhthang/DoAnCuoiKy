@@ -20,4 +20,7 @@ public interface OrderService {
 
 	void save(Order order);
 
+	List<Order> findOrdersByMultipleStatusesAndUserId(List<String> statuses, Long userId);
+
+	boolean updateOrderStatus(Long orderId, String status);
 }

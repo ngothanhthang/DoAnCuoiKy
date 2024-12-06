@@ -3,6 +3,7 @@ package vn.iotstar.controllers;
 import jakarta.servlet.http.HttpSession;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,7 +98,8 @@ public class OrderViewController {
                 orders = orderService.findOrdersByStatusAndUserId("đang giao", userId);
                 break;
             case "3":
-                orders = orderService.findOrdersByStatusAndUserId("đã giao", userId);
+                // Trạng thái đã giao và đang duyệt
+                orders = orderService.findOrdersByMultipleStatusesAndUserId(Arrays.asList("đã giao", "đang duyệt"), userId);
                 break;
             case "4":
                 orders = orderService.findOrdersByStatusAndUserId("hủy", userId);

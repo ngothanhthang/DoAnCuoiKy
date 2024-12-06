@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderServiceImpl implements OrderService{
@@ -117,6 +118,24 @@ public class OrderServiceImpl implements OrderService{
     @Override
     public void save(Order order) {
         orderRepository.save(order);
+    }
+    
+    @Override
+    public List<Order> findOrdersByMultipleStatusesAndUserId(List<String> statuses, Long userId) {
+        // Sử dụng repository hoặc query builder để tìm đơn hàng theo nhiều trạng thái
+        return orderRepository.findByStatusInAndUserUserId(statuses, userId);
+    }
+    
+    @Override
+    public boolean updateOrderStatus(Long orderId, String status) {
+        Optional<Order> orderOpt = orderRepository.findById(orderId);
+        if (orderOpt.isPresent()) {
+            Order order = orderOpt.get();
+            order.setStatus(status);
+            orderRepository.save(order); // Lưu lại thay đổi
+            return true;
+        }
+        return false;
     }
 
 }

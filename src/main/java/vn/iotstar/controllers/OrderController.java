@@ -1,6 +1,7 @@
 package vn.iotstar.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +16,10 @@ import vn.iotstar.services.OrderService;
 import vn.iotstar.services.UserService;
 
 import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/order")
@@ -52,5 +57,21 @@ public class OrderController {
     private List<CartItem> getCartItemsByIds(List<Long> selectedItems, Long userId) {
         // Cần viết logic để lấy các CartItem theo ids và userId từ cơ sở dữ liệu
         return orderService.getCartItemsByIds(selectedItems, userId);
+    }
+    
+    @PostMapping("/update-status")
+    public ResponseEntity<?> updateOrderStatus(@RequestBody Map<String, Object> request) {
+    	final Logger logger = LoggerFactory.getLogger(OrderController.class);
+        Long orderId = Long.valueOf(request.get("orderId").toString());
+        String status = request.get("status").toString();
+        logger.info("Updating orderId: {} with status: {}", orderId, status);
+        // Cập nhật trạng thái đơn hàng trong cơ sở dữ liệu
+        boolean success = orderService.updateOrderStatus(orderId, status);
+        
+        if (success) {
+            return ResponseEntity.ok(Map.of("success", true));
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("success", false));
+        }
     }
 }
