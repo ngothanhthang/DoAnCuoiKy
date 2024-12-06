@@ -12,6 +12,14 @@ public class ProductDTO_2 {
 	private Long CategoryId;
 	private String CategoryName;
 	private int status;
+	private String description;
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	 public Long getCategoryId() {
 		return CategoryId;
 	}

@@ -21,6 +21,7 @@ public class ProductDTOService {
 	    productDTO.setCategoryName(product.getCategory().getName());
 	    productDTO.setCategoryId(product.getCategory().getId());
 	    productDTO.setStatus(product.getStatus());
+	    productDTO.setDescription(product.getDescription());
 	    return productDTO;
 	}
 }
