@@ -168,15 +168,12 @@
                           <button class="btn btn-warning btn-sm" th:attr="onclick='openEditProductModal(' + ${product.id} + ')'" >
 						    <i class="fas fa-edit"></i> Sửa
 						</button>
-
-
-
-
-
                             <!-- Delete button -->
-                            <button class="btn btn-danger btn-sm" th:onclick="'deleteProduct(' + ${product.id} + ')'">
-                                <i class="fas fa-trash"></i> Xóa
-                            </button>
+                            <button 
+						    class="btn btn-danger btn-sm" 
+						    th:attr="onclick='deleteProduct(' + ${product.id} + ')'" >
+						    <i class="fas fa-trash"></i> Xóa
+						</button>
                         </td>
                     </tr>
                 </tbody>
@@ -257,6 +254,7 @@
       </div>
       <div class="modal-body">
         <form id="editProductForm">
+          <input type="hidden" id="editProductId">
           <!-- Tên sản phẩm -->
           <div class="mb-3">
             <label for="editProductName" class="form-label">Tên Sản Phẩm</label>
@@ -419,6 +417,7 @@
 	        .then(data => {
 	            if (data && data.id) {
 	                // Fill modal fields with product data
+	                 document.getElementById('editProductId').value=data.id;
 	                document.getElementById('editProductName').value = data.name;
 	                document.getElementById('editProductPrice').value = data.price;
 	                document.getElementById('editProductQuantity').value = data.quantity;
@@ -444,6 +443,84 @@
 	            console.error('Lỗi khi tải thông tin sản phẩm:', error);
 	            alert('Có lỗi xảy ra khi tải thông tin sản phẩm!');
 	        });
+	}
+	function updateProduct() {
+	    // Lấy giá trị từ các input trong modal Edit
+	    const productId = document.getElementById('editProductId').value; // Lấy id sản phẩm (có thể bạn cần thêm input hidden này trong modal)
+	    const productName = document.getElementById('editProductName').value;
+	    const productPrice = document.getElementById('editProductPrice').value;
+	    const productQuantity = document.getElementById('editProductQuantity').value;
+	    const productStatus = document.getElementById('editProductStatus').value;
+	    const productImage = document.getElementById('editProductImage').files[0]; // Hình ảnh sản phẩm
+	    const productCategoryId = document.getElementById('EditproductCategory').value; // Lấy ID của danh mục đã chọn
+
+	    // Kiểm tra dữ liệu đầu vào
+	    if (!productName || !productPrice || !productQuantity || !productCategoryId) {
+	      alert('Vui lòng điền đầy đủ thông tin!');
+	      return;
+	    }
+
+	    // Tạo đối tượng FormData để gửi dữ liệu
+	    const formData = new FormData();
+	    formData.append('id', productId);
+	    formData.append('name', productName);
+	    formData.append('price', productPrice);
+	    formData.append('quantity', productQuantity);
+	    formData.append('status', productStatus);
+	    formData.append('category', productCategoryId); // Thêm danh mục vào FormData
+
+	    // Kiểm tra xem người dùng đã chọn ảnh mới hay chưa
+	    if (productImage) {
+	      formData.append('image', productImage); // Thêm hình ảnh mới nếu có
+	    }
+
+	    // Gửi yêu cầu cập nhật sản phẩm
+	    fetch(`/vendor/update-products/${productId}`, {
+	      method: 'POST', // Hoặc 'POST' tuỳ theo cấu hình API
+	      body: formData
+	    })
+	    .then(response => response.json())
+	    .then(data => {
+	      if (data.success) {
+	        alert('Sản phẩm đã được cập nhật thành công!');
+	        location.reload();  // Làm mới trang để hiển thị sản phẩm mới
+	      } else {
+	        alert('Có lỗi xảy ra: ' + data.message);
+	      }
+	    })
+	    .catch(error => {
+	      console.error('Lỗi:', error);
+	      alert('Có lỗi xảy ra khi cập nhật sản phẩm!');
+	    });
+	  }
+	function deleteProduct(productId) {
+	    if (!productId) {
+	        alert('Không tìm thấy sản phẩm để xóa!');
+	        return;
+	    }
+
+	    // Xác nhận hành động xóa
+	    if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?')) {
+	        fetch(`/vendor/delete-product/${productId}`, {
+	            method: 'DELETE', // Phương thức DELETE
+	            headers: {
+	                'Content-Type': 'application/json',
+	            },
+	        })
+	        .then(response => response.json())
+	        .then(data => {
+	            if (data.success) {
+	                alert('Sản phẩm đã được xóa thành công!');
+	                location.reload(); // Làm mới lại trang hoặc bảng sản phẩm
+	            } else {
+	                alert('Có lỗi xảy ra khi xóa sản phẩm: ' + data.message);
+	            }
+	        })
+	        .catch(error => {
+	            console.error('Lỗi:', error);
+	            alert('Có lỗi xảy ra khi xóa sản phẩm!');
+	        });
+	    }
 	}
 	 
 

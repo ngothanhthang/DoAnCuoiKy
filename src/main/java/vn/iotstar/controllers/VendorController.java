@@ -14,9 +14,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -139,4 +141,90 @@ public class VendorController {
     	  //return ResponseEntity.ok("Product ID received: " + productId);
         }
     }
+    @PostMapping("/update-products/{productId}")
+    public ResponseEntity<?> updateProduct(
+            @PathVariable String productId,  // productId là String
+            @RequestParam("name") String name,
+            @RequestParam("price") BigDecimal price,
+            @RequestParam("quantity") int quantity,
+            @RequestParam("status") int status,
+            @RequestParam(value = "image", required = false) MultipartFile imageFile,
+            @RequestParam("category") Long categoryId) {
+        try {
+            // Chuyển productId từ String sang Long
+            Long productLongId = Long.parseLong(productId);  // Chuyển đổi String sang Long
+
+            // Tìm sản phẩm theo ID
+            Product existingProduct = productService.getProductById(productLongId);
+            // Tìm category theo ID
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new RuntimeException("Category not found"));
+
+            // Cập nhật các thông tin khác của sản phẩm
+            existingProduct.setName(name);
+            existingProduct.setPrice(price);
+            existingProduct.setQuantity(quantity);
+            existingProduct.setStatus(status);
+            existingProduct.setCategory(category);
+
+            // Nếu có ảnh mới, xử lý ảnh và lưu vào thư mục
+            if (imageFile != null && !imageFile.isEmpty()) {
+                // Xóa ảnh cũ nếu có (có thể tùy vào yêu cầu bạn cần xóa ảnh cũ hay không)
+                String oldImagePath = existingProduct.getImageUrl();
+                if (oldImagePath != null) {
+                    File oldImageFile = new File(uploadDir + oldImagePath.replace("/images/", ""));
+                    if (oldImageFile.exists()) {
+                        oldImageFile.delete(); // Xóa ảnh cũ
+                    }
+                }
+
+                // Tạo tên file duy nhất cho ảnh mới
+                String uniqueFileName = UUID.randomUUID().toString() + "_" + imageFile.getOriginalFilename();
+                Path filePath = Paths.get(uploadDir, uniqueFileName);
+
+                // Lưu ảnh mới vào thư mục
+                imageFile.transferTo(filePath.toFile());
+
+                // Cập nhật URL ảnh mới cho sản phẩm
+                existingProduct.setImageUrl("/images/" + uniqueFileName);
+            }
+
+            // Lưu sản phẩm đã cập nhật vào cơ sở dữ liệu
+            productService.save(existingProduct);
+
+            // Trả về phản hồi thành công
+            return ResponseEntity.ok(new ApiResponse(true, "Sản phẩm đã được cập nhật thành công!", existingProduct));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(new ApiResponse(false, "Lỗi khi lưu sản phẩm: " + e.getMessage(), null));
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(400).body(new ApiResponse(false, "ID sản phẩm không hợp lệ", null));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(400).body(new ApiResponse(false, "Lỗi không xác định: " + e.getMessage(), null));
+        }
+    }
+    @DeleteMapping("/delete-product/{productId}")
+    public ResponseEntity<ApiResponse> deleteProduct(@PathVariable String productId) {
+        try {
+        	 Long productLongId = Long.parseLong(productId);  
+            // Gọi service để xóa sản phẩm
+            productService.deleteProduct(productLongId);
+            
+            // Tạo thông báo thành công
+            ApiResponse response = new ApiResponse(true, "Sản phẩm đã được xóa thành công!", null);
+            return ResponseEntity.ok(response);  // Trả về mã trạng thái 200 OK với phản hồi
+
+        } catch (RuntimeException e) {
+            // Trường hợp sản phẩm không tồn tại
+            ApiResponse response = new ApiResponse(false, e.getMessage(), null);
+            return ResponseEntity.status(404).body(response);  // Trả về mã trạng thái 404 Not Found
+        } catch (Exception e) {
+            // Trường hợp có lỗi ngoài dự kiến
+            ApiResponse response = new ApiResponse(false, "Lỗi không xác định: " + e.getMessage(), null);
+            return ResponseEntity.status(500).body(response);  // Trả về mã trạng thái 500 Internal Server Error
+        }
+    }
+   
 }

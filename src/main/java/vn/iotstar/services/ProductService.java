@@ -23,5 +23,7 @@ public interface ProductService {
 	
 	Product save(Product product);
     
+	Product updateProduct(Long productId, Product productDetails);
     // Các phương thức khác, ví dụ: lấy sản phẩm mới, bán chạy, yêu thích, ...
+	void deleteProduct(Long productId);
 }

@@ -84,5 +84,32 @@ public class ProductServiceImpl implements ProductService {
 		// TODO Auto-generated method stub
 		 return productRepository.save(product);
 	}
+
+	@Override
+	public Product updateProduct(Long productId, Product productDetails) {
+		// TODO Auto-generated method stub
+		  Product existingProduct = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
+	        
+	        // Cập nhật thông tin sản phẩm
+	        existingProduct.setName(productDetails.getName());
+	        existingProduct.setPrice(productDetails.getPrice());
+	        existingProduct.setQuantity(productDetails.getQuantity());
+	        existingProduct.setStatus(productDetails.getStatus());
+	        existingProduct.setImageUrl(productDetails.getImageUrl());
+	        existingProduct.setCategory(productDetails.getCategory());
+
+	        // Lưu lại thông tin đã cập nhật
+	        return productRepository.save(existingProduct);
+	}
+
+	@Override
+	public void deleteProduct(Long productId)
+	{
+		 Product product = productRepository.findById(productId)
+			        .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
+
+			    // Xóa sản phẩm khỏi cơ sở dữ liệu
+			   productRepository.delete(product);
+	}
     
 }
