@@ -1,22 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 package vn.iotstar.repository;
 
 import java.util.List;

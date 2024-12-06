@@ -1,5 +1,3 @@
-
-
 package vn.iotstar.repository;
 
 import java.util.List;
@@ -9,6 +7,6 @@ import vn.iotstar.entity.CartItem;
 
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     CartItem findByCartIdAndProductId(Long cartId, Long productId);
-    // T?o truy v?n d? tìm các CartItem c?a ngu?i dùng d?a trên danh sách s?n ph?m du?c ch?n
+    // T?o truy v?n d? tï¿½m cï¿½c CartItem c?a ngu?i dï¿½ng d?a trï¿½n danh sï¿½ch s?n ph?m du?c ch?n
     List<CartItem> findByIdInAndCartUserUserId(List<Long> productIds, Long userId);  
 }
