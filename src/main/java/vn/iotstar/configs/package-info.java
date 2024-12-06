@@ -1,1 +1,0 @@
-package vn.iotstar.configs;

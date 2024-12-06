@@ -195,6 +195,7 @@
                     <div class="order-card">
                         <div class="order-details">
                             <div th:each="item : ${order.orderItems}" class="order-item">
+                            
                                 <img class="order-img" src="https://via.placeholder.com/150" alt="Product Image">
                                 <div class="order-details">
                                     <div class="order-header" th:text="${item.product.name}">Product Name</div>
@@ -204,6 +205,14 @@
                                     </div>
                                 </div>
                                 <div class="order-item-total" th:text="${item.price}">Item Total</div>
+                                <!-- Nút đánh giá cho từng item -->
+                                <div th:if="${order.status == 'đã giao' or order.status == 'đang duyệt' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
+							    <button class="order-return-button" 
+							        th:data-product-id="${item.product.id}"
+							        onclick="reviewButtonClicked(this)">
+							        Đánh giá
+							    </button>
+							    </div>
                             </div>
                         </div>
 
@@ -217,10 +226,6 @@
                                     onclick="returnButtonClicked(this)">
                                     Trả hàng
                                 </button>
-                                <!-- Nút Đánh giá, chỉ hiển thị khi trạng thái là "Đã giao" -->
-							        <a href="#" th:href="@{/order/review/{orderId}(orderId=${order.id})}" class="order-return-button">
-							            Đánh giá
-							        </a>
                             </div>
                             <span th:text="${order.totalAmount}">Total Amount</span>
                         </div>
@@ -239,15 +244,66 @@
     </div>
 
     <script type="text/javascript">
-        // Giữ nguyên đoạn mã JavaScript của bạn
-        function returnButtonClicked(button) {
-            // ... (không thay đổi)
+    // Đặt hàm ở ngoài sự kiện DOMContentLoaded
+    function returnButtonClicked(button) {
+        console.log('Button clicked!'); // Kiểm tra xem hàm có được gọi không
+        button.textContent = 'Đang duyệt';
+        button.classList.add('disabled');
+        button.disabled = true;
+    
+        var orderId = button.getAttribute('data-order-id');
+    
+        if (!orderId) {
+            console.error('Không tìm thấy orderId');
+            return;
         }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM đã được tải');
+			
+        console.log('orderId:', orderId);
+        fetch('/order/update-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                orderId: orderId,
+                status: 'đang duyệt'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Trạng thái đơn hàng đã được cập nhật');
+            } else {
+                console.error('Cập nhật trạng thái thất bại');
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi khi gửi yêu cầu:', error);
         });
-    </script>
+    }
+
+    // Chỉ cần DOM đã được tải là có thể sử dụng hàm
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM đã được tải');
+    });
+ // Hàm khi nhấn nút đánh giá
+    function reviewButtonClicked(button) {
+        // Lấy productId từ data attribute
+        var productId = button.getAttribute('data-product-id');
+        
+        if (!productId) {
+            console.error('Không tìm thấy productId');
+            return;
+        }
+        
+        console.log('Đang đánh giá sản phẩm với ID:', productId);
+        
+        // Tiến hành gửi yêu cầu tới trang đánh giá, hoặc thực hiện thao tác khác
+        // Ví dụ chuyển hướng đến trang đánh giá của sản phẩm
+        window.location.href = '/order/review/' + productId;  // Thay đường dẫn theo yêu cầu của bạn
+    }
+
+</script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
