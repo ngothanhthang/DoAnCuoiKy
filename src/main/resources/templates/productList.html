@@ -58,7 +58,15 @@
             background-color: #0056b3;
             border-color: #0056b3;
         }
-						
+		/* Cố định kích thước ảnh */
+		/* Cố định kích thước ảnh, nhưng không cắt */
+.product-card img {
+    width: 100%;         /* Chiều rộng 100% để ảnh chiếm toàn bộ chiều rộng của card */
+    height: 300px;       /* Đặt chiều cao cố định cho ảnh */
+    object-fit: contain; /* Giữ tỷ lệ gốc và không cắt ảnh */
+    border-radius: 8px;  /* Làm tròn các góc của ảnh */
+}
+
     </style>
 </head>
 <body>
@@ -118,7 +126,8 @@
 	            <div th:each="product : ${products}" class="col">
 	                <a th:href="@{/product?productId={productId}(productId=${product.id})}" class="text-decoration-none">
 	                    <div class="product-card card shadow-sm">
-	                        <img th:src="@{${product.imageUrl}}" class="card-img-top" alt="product image">
+							<img th:src="@{${product.imageUrl}}" class="card-img-top" alt="product image">
+
 	                        <div class="card-body">
 	                            <h5 th:text="${product.name}" class="product-title card-title"></h5>
 	                            <p th:text="${product.description}" class="product-description card-text"></p>

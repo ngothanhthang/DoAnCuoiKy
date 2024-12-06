@@ -21,11 +21,11 @@ a:hover {
 
 /* Hiệu ứng zoom khi rê chuột vào sản phẩm */
 .card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
 }
 
 .card:hover {
-    transform: scale(1.05);
+    transform: scale(1.01);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
@@ -37,6 +37,12 @@ a:hover {
 /* Cursor pointer khi rê chuột vào sản phẩm */
 .card:hover {
     cursor: pointer;
+}
+.product-card img {
+    width: 100;         /* Chiều rộng 100% để ảnh chiếm toàn bộ chiều rộng của card */
+    height: 300px;       /* Đặt chiều cao cố định cho ảnh */
+    object-fit: contain; /* Giữ tỷ lệ gốc và không cắt ảnh */
+    border-radius: 16px;  /* Làm tròn các góc của ảnh */
 }
 
     </style>
@@ -107,10 +113,10 @@ a:hover {
   <div class="container mt-5">
     <h3>Có thể bạn cũng thích</h3>
     <div class="row">
-        <div class="col-md-4" th:each="product : ${bestSellingProducts}">
+        <div class="col-md-4 product-card card" th:each="product : ${bestSellingProducts}">
             <!-- Thay đổi div thành a để tạo liên kết -->
             <a th:href="@{/product?productId={id}(id=${product.id})}" class="card">
-                <img th:src="@{${product.imageUrl}}" class="card-img-top" alt="product image">
+                <img th:src="@{${product.imageUrl}}" class="card-img-top " alt="product image">
                 <div class="card-body">
                     <h5 class="card-title" th:text="${product.name}">Tên sản phẩm</h5>
                     <p class="card-text" th:text="${product.description}">Mô tả sản phẩm</p>

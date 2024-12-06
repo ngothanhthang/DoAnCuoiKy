@@ -217,6 +217,10 @@
                                     onclick="returnButtonClicked(this)">
                                     Trả hàng
                                 </button>
+                                <!-- Nút Đánh giá, chỉ hiển thị khi trạng thái là "Đã giao" -->
+							        <a href="#" th:href="@{/order/review/{orderId}(orderId=${order.id})}" class="order-return-button">
+							            Đánh giá
+							        </a>
                             </div>
                             <span th:text="${order.totalAmount}">Total Amount</span>
                         </div>
