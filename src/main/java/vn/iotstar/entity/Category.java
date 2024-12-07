@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,8 +34,11 @@ public class Category implements Serializable {
     private String description;
     
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Product> products;
+    private Set<Product> products;
 
+    
+    
+    
 	/*
 	 * // Tham chiếu tới bảng Products (quan hệ 1-nhiều)
 	 * 

@@ -43,12 +43,7 @@ public class Product implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
-
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vendor_id", nullable = false)
-    private User vendor;
-    
+    	
     // Thời gian tạo sản phẩm :
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -63,9 +58,4 @@ public class Product implements Serializable {
  // Quan hệ OneToMany với ProductLike (một sản phẩm có thể có nhiều like)
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ProductLike> productLikes;  // Một sản phẩm có thể có nhiều lượt like
-	/*
-	 * @ManyToOne(fetch = FetchType.LAZY)
-	 * 
-	 * @JoinColumn(name = "vendor_id", nullable = false) private User vendor;
-	 */
 }

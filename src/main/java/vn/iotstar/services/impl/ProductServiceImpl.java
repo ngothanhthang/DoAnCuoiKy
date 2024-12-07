@@ -4,6 +4,7 @@ import org.springframework.data.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import vn.iotstar.dto.ProductDTO;
 import vn.iotstar.entity.Category;
 import vn.iotstar.entity.Product;
@@ -29,34 +30,29 @@ public class ProductServiceImpl implements ProductService {
     // Lấy sản phẩm theo danh mục, status và phân trang
     @Override
     public Page<ProductDTO> getProductsByCategory(Long categoryId, int status, Pageable pageable) {
-        // Lấy dữ liệu từ repository với averageRating tính toán từ cơ sở dữ liệu
-        Page<Object[]> results = productRepository.findByCategoryIdAndStatusWithAvgRating(categoryId, status, pageable);
-
-        // Chuyển đổi kết quả từ Object[] thành Page<ProductDTO>
-        Page<ProductDTO> productDTOPage = results.map(result -> {
-            Product product = (Product) result[0];  // Lấy đối tượng Product
-            Double averageRating = (Double) result[1];  // Lấy giá trị averageRating
-            Long totalSold = (Long) result[2];  // Giả sử tổng bán được là Long
-
-            // Tạo DTO và gán giá trị
-            return new ProductDTO(
-                product.getId(),
-                product.getName(),
-                product.getStatus(),
-                product.getDescription(),
-                product.getPrice(),
-                product.getQuantity(),
-                product.getImageUrl(),
-                product.getCategory().getId(),
-                product.getCategory().getName(),
-                product.getCreatedAt(),
-                averageRating != null ? Math.round(averageRating * 10.0) / 10.0 : 0, // Làm tròn averageRating
-                totalSold.intValue()
-            );
-        });
-
+		return null;
+		/*
+		 * // Lấy dữ liệu từ repository với averageRating tính toán từ cơ sở dữ liệu
+		 * Page<Object[]> results =
+		 * productRepository.findByCategoryIdAndStatusWithAvgRating(categoryId, status,
+		 * pageable);
+		 * 
+		 * // Chuyển đổi kết quả từ Object[] thành Page<ProductDTO> Page<ProductDTO>
+		 * productDTOPage = results.map(result -> { Product product = (Product)
+		 * result[0]; // Lấy đối tượng Product Double averageRating = (Double)
+		 * result[1]; // Lấy giá trị averageRating Long totalSold = (Long) result[2]; //
+		 * Giả sử tổng bán được là Long
+		 * 
+		 * // Tạo DTO và gán giá trị return new ProductDTO( product.getId(),
+		 * product.getName(), product.getStatus(), product.getDescription(),
+		 * product.getPrice(), product.getQuantity(), product.getImageUrl(),
+		 * product.getCategory().getId(), product.getCategory().getName(),
+		 * product.getCreatedAt(), averageRating != null ? Math.round(averageRating *
+		 * 10.0) / 10.0 : 0, // Làm tròn averageRating totalSold.intValue() ); });
+		 
         // Trả về Page<ProductDTO>
         return productDTOPage;
+        */
     }
 
     // Lấy tất cả các danh mục
@@ -66,11 +62,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     // Phân trang sản phẩm, giới hạn 20 sản phẩm mỗi trang
+	/*
+	 * @Override public Page<Product> getProducts(int pageNumber) { Pageable
+	 * pageable = PageRequest.of(pageNumber, 5); // 5 sản phẩm mỗi trang return
+	 * productRepository.findAll(pageable); }
+	 */
     @Override
-    public Page<Product> getProducts(int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber, 5);  // 5 sản phẩm mỗi trang
-        return productRepository.findAll(pageable);
-    }
+	public Page<Product> getProducts(int pageNumber) {
+		// TODO Auto-generated method stub
+		return null;
+	}
     
     @Override
     // Lấy sản phẩm theo ID
@@ -78,4 +79,31 @@ public class ProductServiceImpl implements ProductService {
         Optional<Product> product = productRepository.findById(productId);
         return product.orElse(null);  // Trả về sản phẩm nếu tìm thấy, nếu không trả về null
     }
+
+	@Override
+	public Boolean create(Product product) {
+		try {
+			this.productRepository.save(product);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@Override
+	@Transactional
+	public List<Product> getTable_Products() {
+		return productRepository.findAll();
+	}
+
+	/*
+	 * @Override public List<AdminProductDTO> getAllProductDTOs() {
+	 * 
+	 * return productRepository.findAll(); }
+	 */
+
+	
+
+    
 }

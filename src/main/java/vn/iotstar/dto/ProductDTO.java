@@ -22,9 +22,6 @@ public class ProductDTO {
     private String imageUrl;
     private Long categoryId;
     private String categoryName;
-	/*
-	 * private Long vendorId; private String vendorName;
-	 */
     private LocalDateTime createdAt;
     private double averageRating;
     private int totalSold;

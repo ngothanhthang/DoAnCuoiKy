@@ -20,6 +20,13 @@ public interface ProductService {
 	Page<Product> getProducts(int pageNumber);
 
 	Product getProductById(Long productId);
+
+	Boolean create(Product product);
+
+	List<Product> getTable_Products();
+
+	/* List<ProductDTO> getAllProductDTOs(); */
+
     
     // Các phương thức khác, ví dụ: lấy sản phẩm mới, bán chạy, yêu thích, ...
 }

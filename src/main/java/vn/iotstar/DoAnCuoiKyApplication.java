@@ -1,5 +1,6 @@
 package vn.iotstar;
 
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -8,6 +9,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+
+import vn.iotstar.services.StorageService;
 
 
 
@@ -37,6 +40,13 @@ public class DoAnCuoiKyApplication {
 	            .formLogin(login -> login.disable())  // Vô hiệu hóa trang đăng nhập của Spring Security
 	            .httpBasic(basic -> basic.disable())  // Tắt Basic Authentication nếu không cần thiết
 	            .build();
+	}
+	
+	@Bean
+	CommandLineRunner init(StorageService storageService) {
+		return (args) -> {
+			storageService.init();
+		};
 	}
 
 

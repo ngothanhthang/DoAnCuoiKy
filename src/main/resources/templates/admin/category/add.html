@@ -38,30 +38,62 @@
 							<h3 class="box-title">Quick Example</h3>
 						</div>
 
-						<form role="form" method="post" th:acction="@{/admin/add-category}" th:object="${category}"> <!-- bên này đặt object category thì @ModelAttribute("category"). Nó nằm ở trong controller  -->
+						<form role="form" method="post"
+							th:acction="@{/admin/add-category}" th:object="${category}">
+							<!-- bên này đặt object category thì @ModelAttribute("category"). Nó nằm ở trong controller  -->
 							<div class="box-body">
 								<div class="form-group">
-									<label for="exampleInputEmail1">Category Name</label> 
-									<input type="text" class="form-control" id="exampleInputEmail1" th:field="*{name}">
+									<label for="exampleInputEmail1">Category Name</label> <input
+										type="text" class="form-control" id="exampleInputEmail1"
+										th:field="*{name}">
 								</div>
-								
-								<div class="form-group">
-									<label for="exampleInputEmail1">Category Image</label> 
-									<input type="text" class="form-control" id="exampleInputEmail1" th:field="*{images}">
+
+								<!-- <div class="form-group">
+									<label for="exampleInputEmail1">Category Image</label> <input
+										type="text" class="form-control" id="exampleInputEmail1"
+										th:field="*{images}"> -->
+
 								</div>
+
+								<script type="text/javascript">
+									function chooseFile(fileInput) {
+										if (fileInput.files
+												&& fileInput.files[0]) {
+											var reader = new FileReader();
+											reader.onload = function(e) {
+												$('#images').attr('src',
+														e.target.result); // Cập nhật ảnh vào thẻ img
+											};
+											reader.readAsDataURL(fileInput.files[0]); // Đọc file ảnh
+										}
+									}
+								</script>
+
+								<input type="file" id="fileInput" onchange="chooseFile(this)" />
+								<img id="images" th:src="${category.images != null ? '/admin/category/images/' + product.images : '/static/images/default-image.png'}" alt="Product Image" width="300" />
+									width="300" />
+									
+									
+									
+									
+									
+									
+									
 
 								<div class="form-group">
 									<label for="exampleInputPassword1">Category Status</label>
 
 									<div>
 										<div class="form-check form-check-inline">
-											<input type="radio" class="form-check-input"  th:field="*{status}" value="1" />
-											<label class="form-check-label" for="inlineRadio1">Active</label>
+											<input type="radio" class="form-check-input"
+												th:field="*{status}" value="1" /> <label
+												class="form-check-label" for="inlineRadio1">Active</label>
 										</div>
 
 										<div class="form-check form-check-inline">
-											<input type="radio" class="form-check-input" th:field="*{status}" value="0" /> 
-											<label class="form-check-label" for="inlineRadio2">Hidden</label>
+											<input type="radio" class="form-check-input"
+												th:field="*{status}" value="0" /> <label
+												class="form-check-label" for="inlineRadio2">Hidden</label>
 										</div>
 
 									</div>
