@@ -2,6 +2,7 @@ package vn.iotstar.controllers.vendor;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import vn.iotstar.entity.Address;
+import vn.iotstar.entity.Notification;
 import vn.iotstar.entity.Order;
+import vn.iotstar.services.NotificationService;
 import vn.iotstar.services.OrderService;
 import vn.iotstar.utils.ApiResponse;
 
@@ -22,6 +25,7 @@ import vn.iotstar.utils.ApiResponse;
 public class VendorOrderController 
 {
 	@Autowired OrderService orderService;
+	@Autowired NotificationService notificationService;
 	@GetMapping("/vendor/orders")
 	public String viewOrders(@RequestParam(value = "status", required = false) String status, Model model) {
 	    // Khai báo danh sách đơn hàng
@@ -62,7 +66,14 @@ public class VendorOrderController
 	                }
 	            }
 	        }
+	        List<String> statuses = Arrays.asList("mới", "đã nhận giao");
 
+	        // Lấy số lượng thông báo chưa đọc với trạng thái là "Mới" hoặc "Đã nhận giao"
+	        Long unreadNewNotificationsCount = notificationService.countNotificationsByStatusAndNotRead(statuses);
+	        List<Notification> notifications = notificationService.getNotificationsByStatus(statuses);
+	        // Thêm số lượng thông báo vào model
+	        model.addAttribute("unreadNotificationCount", unreadNewNotificationsCount);
+	        model.addAttribute("notifications", notifications);
 	        // Thêm địa chỉ mặc định và số điện thoại vào danh sách
 	        defaultAddresses.add(defaultAddress);
 	        phoneNumbers.add(phoneNumber);

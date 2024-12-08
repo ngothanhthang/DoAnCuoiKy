@@ -161,14 +161,14 @@
               <a class="nav-link" href="#"><i class="fas fa-cogs me-2"></i>Quản lý đơn hàng</a>
             </li>
             
-            </li>
 	        <!-- Nút Thông Báo -->
-	        <li class="nav-item">
-	          <a class="nav-link" href="#" id="notificationButton" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Thông báo">
-	            <i class="fas fa-bell me-2"></i>
-	            <span class="badge bg-danger">3</span> <!-- Số lượng thông báo -->
-	          </a>
-	        </li>
+		<li class="nav-item">
+		  <a class="nav-link" href="#" id="notificationButton" data-bs-toggle="modal" data-bs-placement="bottom" title="Thông báo" data-bs-target="#notificationModal">
+		    <i class="fas fa-bell me-2"></i>
+		    <span class="badge bg-danger" th:text="${unreadNotificationCount}"></span>
+		  </a>
+		</li>
+
 	        
           </ul>
         </div>
@@ -191,7 +191,7 @@
 		        <i class="fas fa-clock me-2"></i>Chờ Xác Nhận
 		      </a>
 		      <a href="/vendor/orders?status=shipping" class="btn product-status-btn btn-dang-giao">
-		        <i class="fas fa-shipping-fast me-2"></i>Đang Giao
+		        <i class="fas fa-shipping-fast me-2"></i>Chờ duyệt đi giao
 		      </a>
 		      <a href="/vendor/orders?status=delivered" class="btn product-status-btn btn-da-giao">
 		        <i class="fas fa-check-circle me-2"></i>Đã Giao
@@ -241,12 +241,15 @@
 	
 	
 		
-		        <!-- Nút Đã Giao, chỉ hiển thị nếu trạng thái là 'Đang giao' -->
-		        <a th:if="${order.status == 'Đang giao'}" 
-		           th:href="@{/vendor/order/{id}/delivered(id=${order.id})}" 
-		           class="btn btn-info">
-		          <i class="fas fa-shipping-fast"></i> Đã Giao
-		        </a>
+		        <!-- Nút Duyệt đi giao -->
+			  <a th:if="${order.status == 'Chờ duyệt đi giao'}"
+			     href="javascript:void(0);" 
+			     id="approve-btn-${order.id}" 
+			     class="btn btn-info" 
+			     onclick="approveDelivery(${order.id})">
+			    <i class="fas fa-shipping-fast"></i> Duyệt đi giao
+			  </a>
+			</div>
 		
 		        <!-- Nút Hoàn Thành, chỉ hiển thị nếu trạng thái là 'Đã giao' -->
 		        <a th:if="${order.status == 'Đã giao'}" 
@@ -266,7 +269,35 @@
       <p>Không có đơn hàng nào với trạng thái đã chọn.</p>
     </div>
   </div>
-  	
+  
+    <!-- Modal Thông Báo -->
+<div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="notificationModalLabel">Thông Báo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Hiển thị danh sách thông báo ở đây -->
+        <ul class="list-group">
+          <li class="list-group-item" th:each="notification : ${notifications}">
+            <span th:text="${notification.message}"></span>
+            <span th:text= "${#dates.format(notification.timestamp, 'yyyy-MM-dd HH:mm')}"></span>
+          
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Modal Thông Báo -->
+
+  
+
     <!-- Bootstrap JS, Popper.js, and jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <!-- Xử lý trạng thái order từ chờ xác nhận thành chờ giao -->
@@ -297,6 +328,8 @@
 	            alert('Có lỗi xảy ra khi xác nhận đơn hàng!');
 	        });
 	    }
+	    
+	    
 	</script>
 	
 	<script>

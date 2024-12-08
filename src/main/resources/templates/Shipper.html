@@ -168,11 +168,11 @@
                 
                 <!-- Nút Nhận Giao, chỉ hiển thị nếu trạng thái là 'Đã xác nhận' -->
                 <a th:if="${order.status == 'Đã xác nhận'}" 
-                   href="javascript:void(0);" 
-                   class="btn btn-primary"
-                   th:onclick="|receiveOrder([[${order.id}]])|">
-                  <i class="fas fa-truck"></i> Nhận Giao
-                </a>
+				   href="javascript:void(0);" 
+				   class="btn btn-primary"
+				   th:onclick="|receiveOrder(${order.id})|">
+				    <i class="fas fa-truck"></i> Nhận Giao
+				</a>
               </div>
             </div>
           </div> 
@@ -186,36 +186,36 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    
+    
     <script>
-		// Hàm gửi yêu cầu đến backend khi shipper nhấn nút "Nhận Giao"
-		function receiveOrder(orderId) 
-		{
-		    // Giả sử shipperId lấy từ session hoặc từ API
-		    let shipperId =1 /* lấy shipperId từ session hoặc API */;
-		    
-		    // Gửi request đến backend để tạo thông báo
-		    fetch('/shipper/sendToVendor', {
-		        method: 'POST',
-		        headers: {
-		            'Content-Type': 'application/json',
-		        },
-		        body: JSON.stringify({
-		            orderId: orderId,
-		            shipperId: shipperId
-		        })
-		    })
-		    .then(response => response.json())
-		    .then(data => {
-		        if (data.success) {
-		            alert('Thông báo đã được gửi tới vendor!');
-		        } else {
-		            alert('Có lỗi xảy ra khi gửi thông báo.');
-		        }
-		    })
-		    .catch(error => {
-		        console.error('Lỗi khi gửi thông báo:', error);
-		    });
-		}
+    function receiveOrder(orderId) {
+        // Giả sử shipperId lấy từ session hoặc từ API
+        let shipperId = 1;  // Lấy shipperId từ session hoặc API
+        
+        // Gửi yêu cầu đến backend để tạo thông báo mới
+        fetch('/shipper/createNotification', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                orderId: orderId,    // Mã đơn hàng
+                shipperId: shipperId, // Mã shipper
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Đã gửi tới chủ shop thành công, chờ người ta duyệt cho bạn đi giao nhé!');
+            } else {
+                alert('Có lỗi xảy ra khi tạo thông báo.');
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi khi gửi thông báo:', error);
+        });
+    }
 	</script>
   </body>
 </html>

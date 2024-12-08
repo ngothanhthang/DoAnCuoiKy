@@ -3,7 +3,10 @@ package vn.iotstar.controllers.shipper;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import vn.iotstar.dto.NotificationRequest;
 import vn.iotstar.entity.Address;
 import vn.iotstar.entity.Notification;
 import vn.iotstar.entity.Order;
@@ -82,33 +86,27 @@ public class ShipperController {
 	    // Trả về tên của trang view
 	    return "Shipper";
 	}
-	// API nhận giao đơn hàng và gửi thông báo cho vendor
-	/*
-	 * @PostMapping("/sendToVendor") public ResponseEntity<?>
-	 * sendToVendor(@RequestBody ShipperNotificationRequest request) { // Kiểm tra
-	 * đơn hàng có hợp lệ không Order order =
-	 * orderService.getOrderById(request.getOrderId()); if (order == null) { return
-	 * ResponseEntity.status(400).body("Đơn hàng không tồn tại."); }
-	 * 
-	 * // Kiểm tra shipper có hợp lệ không User shipper =
-	 * userService.findById(request.getShipperId()); if (shipper == null) { return
-	 * ResponseEntity.status(400).body("Shipper không tồn tại."); }
-	 * 
-	 * // Tạo thông báo String message = "Shipper " + request.getShipperId() +
-	 * " đã nhận đơn hàng số " + request.getOrderId() + " vào lúc " +
-	 * LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-	 * );
-	 * 
-	 * // Tạo thông báo cho vendor Notification notification = new Notification();
-	 * notification.setShipper(shipper); // Set shipper vào thông báo
-	 * notification.setOrder(order); // Set order vào thông báo
-	 * notification.setMessage(message); // Set nội dung thông báo
-	 * notification.setTimestamp(LocalDateTime.now()); // Set thời gian tạo thông
-	 * báo
-	 * 
-	 * notificationService.save(notification); // Lưu thông báo vào cơ sở dữ liệu
-	 * 
-	 * // Trả về phản hồi thành công return
-	 * ResponseEntity.ok().body("Thông báo đã được gửi đến vendor."); }
-	 */
+	@PostMapping("/createNotification")
+	public ResponseEntity<Map<String, Object>> createNotification(@RequestBody NotificationRequest request) {
+	    Map<String, Object> response = new HashMap<>();
+	    try {
+	        Notification notification = new Notification();
+	        User shipper= userService.findById(request.getShipperId());
+	        Order order=orderService.getOrderById(request.getOrderId());
+	        notification.setUser(shipper);
+	        notification.setOrder(order);
+	        notification.setMessage("Đơn hàng " + order.getId() + " đã được shipper " + shipper.getUsername() + " nhận giao.");
+	        notification.setTimestamp(new Date());  // Gán thời gian hiện tại
+	        notification.setStatus("đã nhận giao");
+	        notificationService.save(notification);
+	        // Cập nhật lại trạng thái đơn hàng là "chờ duyệt đi giao" 
+	        orderService.updateOrderStatus(request.getOrderId(), "Chờ duyệt đi giao");
+	        response.put("success", true);
+	        response.put("message", "Thông báo đã được tạo thành công.");
+	    } catch (Exception e) {
+	        response.put("success", false);
+	        response.put("message", "Có lỗi xảy ra khi tạo thông báo.");
+	    }
+	    return ResponseEntity.ok(response);
+	}
 }

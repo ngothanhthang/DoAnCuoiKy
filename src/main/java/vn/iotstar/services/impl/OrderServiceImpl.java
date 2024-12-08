@@ -151,9 +151,9 @@ public class OrderServiceImpl implements OrderService{
 	         case "pending":
 	             return orderRepository.findByStatus("Chờ xác nhận");
 	         case "shipping":
-	             return orderRepository.findByStatus("Đang giao");
+	             return orderRepository.findByStatus("Chờ duyệt đi giao");
 	         case "delivered":
-	             return orderRepository.findByStatus("Đã giao");
+	             return orderRepository.findByStatus("Chờ duyệt đi giao");
 	         case "canceled":
 	             return orderRepository.findByStatus("Hủy");
 	         case "returned":

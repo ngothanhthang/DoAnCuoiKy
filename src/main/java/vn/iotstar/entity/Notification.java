@@ -1,6 +1,5 @@
 package vn.iotstar.entity;
-
-import java.time.LocalDateTime;
+import org.hibernate.annotations.CreationTimestamp;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,8 +27,11 @@ public class Notification {
     private Order order;
     
     // Thời gian tạo thông báo
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    @CreationTimestamp
     @Column(nullable = false)
-    private LocalDateTime timestamp;
+    private java.util.Date timestamp;
     
     // Nội dung thông báo (Kiểu TEXT)
     @Lob

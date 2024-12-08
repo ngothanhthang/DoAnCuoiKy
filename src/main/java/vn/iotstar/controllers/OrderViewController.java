@@ -2,8 +2,11 @@ package vn.iotstar.controllers;
 
 import jakarta.servlet.http.HttpSession;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +27,15 @@ import jakarta.servlet.http.HttpSession;
 import vn.iotstar.entity.Address;
 import vn.iotstar.entity.Cart;
 import vn.iotstar.entity.CartItem;
+import vn.iotstar.entity.Notification;
 import vn.iotstar.entity.Order;
+import vn.iotstar.entity.User;
 import vn.iotstar.repository.CartItemRepository;
+import vn.iotstar.repository.UserRepository;
 import vn.iotstar.services.AddressService;
 import vn.iotstar.services.CartItemService;
 import vn.iotstar.services.CartService;
+import vn.iotstar.services.NotificationService;
 import vn.iotstar.services.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,14 +44,18 @@ import org.slf4j.LoggerFactory;
 @RequestMapping("/order")
 public class OrderViewController {
 
-    @Autowired
+	@Autowired
     private OrderService orderService;
+    @Autowired
+    private UserRepository userService;
     @Autowired
     private CartItemService cartItemService;
     @Autowired
     private AddressService addressService;
     @Autowired
     private CartService cartService;
+    @Autowired
+    private NotificationService notificationService;
 
     @GetMapping("/summary/{orderId}")
     public String orderSummary(@PathVariable("orderId") Long orderId, @RequestParam(required = false) List<Long> selectedItems, Model model, HttpSession session) {
@@ -134,7 +145,7 @@ public class OrderViewController {
     }
 
     
-	@GetMapping("/purchases")
+    @GetMapping("/purchases")
     public String updateOrderStatus(@RequestParam("orderId") Long orderId,
                                     @RequestParam("selectedItem") List<Long> selectedItems,
                                     Model model,
@@ -145,12 +156,28 @@ public class OrderViewController {
         }
         // Lấy đơn hàng theo orderId
         Order order = orderService.getOrderById(orderId);
-
+        
         if (order != null) {
             // Cập nhật trạng thái của đơn hàng
             order.setStatus("Chờ xác nhận");
             orderService.save(order);
-
+         // Tạo thông báo mới sau khi cập nhật trạng thái đơn hàng
+            Notification notification = new Notification();
+            
+            // Lấy người dùng từ session
+            User user = userService.findByUserId(userId);
+            
+            // Cập nhật thông tin cho notification
+            notification.setUser(user);
+            notification.setOrder(order);
+            notification.setTimestamp(new Date());  // Thời gian hiện tại
+            notification.setMessage("Đơn hàng mới");
+            notification.setRead(false);  // Mặc định chưa đọc
+            notification.setStatus("mới");  // Trạng thái mới
+            
+            // Lưu thông báo vào cơ sở dữ liệu
+            notificationService.save(notification);  // Lưu thông báo vào DB
+            
         }     
         Cart cart = cartService.getCartByUserId(userId);
 

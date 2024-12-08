@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,9 +28,11 @@ import vn.iotstar.dto.CategoryDTO_2;
 import vn.iotstar.dto.ProductDTOService;
 import vn.iotstar.dto.ProductDTO_2;
 import vn.iotstar.entity.Category;
+import vn.iotstar.entity.Notification;
 import vn.iotstar.entity.Product;
 import vn.iotstar.repository.CategoryRepository;
 import vn.iotstar.services.CategoryService;
+import vn.iotstar.services.NotificationService;
 import vn.iotstar.services.ProductService;
 import vn.iotstar.utils.ApiResponse;
 
@@ -50,6 +53,8 @@ public class VendorController {
     private ProductDTOService productDTOService;
     @Autowired
     private CategoryDTOService categoryDTO_2Service;
+    @Autowired 
+    private NotificationService notificationService;
     @GetMapping
     public String Vendorpage()
     {
@@ -233,9 +238,19 @@ public class VendorController {
         }
     }
     @GetMapping("/manage_orders")
-    public String ManageOrderPage()
-    {
-    	return "ManageOrder";
+    public String ManageOrderPage(Model model) {
+        // Định nghĩa danh sách trạng thái cần đếm (dạng chuỗi)
+        List<String> statuses = Arrays.asList("mới", "đã nhận giao");
+
+        // Lấy số lượng thông báo chưa đọc với trạng thái là "Mới" hoặc "Đã nhận giao"
+        Long unreadNewNotificationsCount = notificationService.countNotificationsByStatusAndNotRead(statuses);
+        List<Notification> notifications = notificationService.getNotificationsByStatus(statuses);
+        // Thêm số lượng thông báo vào model
+        model.addAttribute("unreadNotificationCount", unreadNewNotificationsCount);
+        model.addAttribute("notifications", notifications);
+        
+        // Trả về view name
+        return "ManageOrder";
     }
    
 }
