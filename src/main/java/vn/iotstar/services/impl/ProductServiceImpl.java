@@ -111,5 +111,10 @@ public class ProductServiceImpl implements ProductService {
 			    // Xóa sản phẩm khỏi cơ sở dữ liệu
 			   productRepository.delete(product);
 	}
+	
+	@Override
+    public List<Product> getBestSellingProducts() {
+        return productRepository.findBestSellingProducts();
+    }
     
 }

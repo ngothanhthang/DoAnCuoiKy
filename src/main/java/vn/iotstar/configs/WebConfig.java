@@ -13,4 +13,3 @@ public class WebConfig implements WebMvcConfigurer {
 	            .addResourceLocations("file:/C:/WebCuoiKi/images/"); // Đảm bảo đường dẫn khớp với thư mục lưu ảnh
 	}
 }
-

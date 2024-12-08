@@ -1,0 +1,91 @@
+<head>
+    <!-- Thêm Bootstrap Icons nếu chưa có -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+    /* Giỏ hàng */
+.navbar .btn-cart {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    background-color: #ffc107; /* Màu nền nổi bật */
+    color: #000;  /* Màu chữ giống như phần còn lại */
+    border: 2px solid #ffc107;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+    text-decoration: none; /* Không có gạch chân */
+}
+
+/* Khi hover vào giỏ hàng */
+.navbar .btn-cart:hover {
+    background-color: #e0a800;
+    color: #fff;
+    text-decoration: none; /* Không gạch chân khi hover */
+}
+
+/* Đảm bảo màu chữ của giỏ hàng và badge giống nhau */
+.navbar .btn-cart .fs-5 {
+    color: inherit;  /* Thừa kế màu chữ từ btn-cart */
+    margin-right: 0.5rem; /* Khoảng cách giữa "Giỏ hàng" và số lượng */
+}
+
+/* Số lượng giỏ hàng (badge) */
+.navbar .btn-cart .badge {
+    position: absolute;
+    top: -10px; /* Đưa số 3 lên trên */
+    right: -10px; /* Đưa số 3 ra ngoài góc trên bên phải */
+    background-color: #dc3545;
+    color: #fff;
+    font-size: 1rem;
+    padding: 0.5rem;
+    border-radius: 50%;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+}
+    </style>
+</head>
+
+<header>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <!-- Logo -->
+            <a class="navbar-brand" href="#">
+                <img src="/images/logo.png" alt="My Store" style="height: 40px;">
+                <span class="ms-2">My Furniture Store</span>
+            </a>
+
+            <!-- Thanh tìm kiếm -->
+            <form class="d-flex ms-auto" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-light" type="submit">
+                    <span>Search</span> <!-- Thay icon bằng văn bản -->
+                </button>
+            </form>
+
+            <!-- Các phần tử: Thông báo, Hỗ trợ, Giỏ hàng -->
+            <div class="d-flex ms-3">
+                <!-- Thông báo -->
+                <div class="me-3">
+                    <a href="#" class="text-light">
+                        <span class="fs-5">Thông báo</span> <!-- Thay icon bằng văn bản -->
+                    </a>
+                </div>
+                <!-- Hỗ trợ -->
+                <div class="me-3">
+                    <a href="#" class="text-light">
+                        <span class="fs-5">Hỗ trợ</span> <!-- Thay icon bằng văn bản -->
+                    </a>
+                </div>
+				<!-- Giỏ hàng -->
+<a href="/cart/view" class="btn-cart">
+    <span class="fs-5">Giỏ hàng</span> <!-- Thay đổi icon thành chữ -->
+    <span class="badge">3</span> <!-- Số lượng giỏ hàng -->
+</a>
+
+
+
+            </div>
+        </div>
+    </nav>
+</header>

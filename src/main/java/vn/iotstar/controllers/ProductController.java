@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import vn.iotstar.dto.ProductDTO;
 import vn.iotstar.entity.Category;
+import vn.iotstar.entity.OrderItem;
 import vn.iotstar.entity.Product;
 import vn.iotstar.entity.ProductLike;
 import vn.iotstar.entity.Review;
@@ -107,6 +108,10 @@ public class ProductController {
         
         int totalLikes= product.getProductLikes().size();
         
+     // Kiểm tra xem người dùng đã like sản phẩm chưa
+        boolean isLiked = product.getProductLikes().stream()
+                                  .anyMatch(like -> like.getUser().getUserId().equals(user.getUserId()));
+        
      // Tính tổng số đánh giá và điểm trung bình
         int totalReviews = reviews.size();
         double averageRating = reviews.isEmpty() ? 0 : reviews.stream().mapToInt(Review::getRating).average().orElse(0);
@@ -114,12 +119,19 @@ public class ProductController {
      // Làm tròn điểm trung bình đến 1 chữ số thập phân
         averageRating = Math.round(averageRating * 10.0) / 10.0;
         
+        int totalSoldQuantity = 0;
+        for (OrderItem orderItem : product.getOrderItems()) {
+            totalSoldQuantity += orderItem.getQuantity(); // Cộng dồn số lượng
+        }
+        
      // Thêm các thông tin vào model
         model.addAttribute("user", user);
         model.addAttribute("product", product);
         model.addAttribute("totalReviews", totalReviews);
         model.addAttribute("totalLikes", totalLikes);
         model.addAttribute("averageRating", averageRating);
+        model.addAttribute("totalSoldQuantity", totalSoldQuantity);
+        model.addAttribute("isLiked", isLiked);
         
         return "productDetail";  // Trang chi tiết sản phẩm
     }

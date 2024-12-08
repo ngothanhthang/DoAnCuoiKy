@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quản lý Đơn hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <style>
+        /* Màu nền gradient và hiệu ứng */
+        body {
+            background: linear-gradient(135deg, #f6f8f9 0%, #e5ebee 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Tùy chỉnh thanh điều hướng */
+        .nav-buttons a {
+            margin-right: 15px;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 30px;
+            background-color: #6A5ACD; /* Màu tím xanh */
+            color: white;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .nav-buttons a:hover {
+            background-color: #483D8B;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Cập nhật CSS cho các đơn hàng */
+        .order-card {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .order-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, #6A5ACD, #00CED1);
+        }
+
+        .order-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Ảnh sản phẩm với hiệu ứng */
+        .order-img {
+            max-width: 100px;
+            border-radius: 12px;
+            margin-right: 15px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-img:hover {
+            transform: scale(1.1);
+        }
+
+        /* Cải tiến các phần chi tiết */
+        .order-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #f1f1f1;
+            padding: 15px 0;
+        }
+
+        .order-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-grow: 1;
+        }
+
+        .order-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .order-body {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .order-quantity {
+            font-size: 14px;
+            color: #333;
+            background-color: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        .order-item-total {
+            font-size: 16px;
+            font-weight: bold;
+            color: #6A5ACD;
+        }
+
+        .order-total {
+            font-size: 20px;
+            font-weight: bold;
+            color: #6A5ACD;
+            margin-top: 20px;
+            text-align: right;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Nút trả hàng được cải tiến */
+        .order-return-button {
+            padding: 10px 20px;
+            background-color: #20B2AA; /* Màu xanh lam nhạt */
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .order-return-button:hover {
+            background-color: #008B8B;
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .order-return-button.disabled {
+            background-color: #A9A9A9;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .order-status {
+            font-size: 16px;
+            font-weight: 500;
+            color: #20B2AA;
+            margin-top: 10px;
+        }
+
+        .order-status.cancelled {
+            color: #DC143C;
+        }
+
+        .order-status.in-progress {
+            color: #FFA500;
+        }
+
+        .header {
+            background: linear-gradient(to right, #6A5ACD, #00CED1);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Phần còn lại của mã HTML giữ nguyên, chỉ thay đổi vị trí nút trả hàng -->
+    <div class="container mt-5">
+        <h1 class="text-center header mb-4">Quản lý Đơn hàng</h1>
+
+        <!-- Thanh điều hướng -->
+        <div class="nav-buttons d-flex justify-content-center mb-4">
+            <a href="#" th:href="@{/order/purchase?status=0}" class="btn"><i class="fas fa-list"></i> Tất cả</a>
+            <a href="#" th:href="@{/order/purchase?status=1}" class="btn"><i class="fas fa-check-circle"></i> Đã xác nhận</a>
+            <a href="#" th:href="@{/order/purchase?status=2}" class="btn"><i class="fas fa-truck-moving"></i> Đang giao</a>
+            <a href="#" th:href="@{/order/purchase?status=3}" class="btn"><i class="fas fa-box"></i> Đã giao</a>
+            <a href="#" th:href="@{/order/purchase?status=4}" class="btn"><i class="fas fa-ban"></i> Hủy</a>
+            <a href="#" th:href="@{/order/purchase?status=5}" class="btn"><i class="fas fa-sync-alt"></i> Trả hàng/Hoàn tiền</a>
+        </div>
+
+        <!-- Phần hiển thị danh sách đơn hàng -->
+        <div th:if="${orders != null}">
+            <div class="row">
+                <div class="col-md-12" th:each="order : ${orders}">
+                    <div class="order-card">
+                        <div class="order-details">
+                            <div th:each="item : ${order.orderItems}" class="order-item">
+                                <img class="order-img" src="https://via.placeholder.com/150" alt="Product Image">
+                                <div class="order-details">
+                                    <div class="order-header" th:text="${item.product.name}">Product Name</div>
+                                    <div class="order-body" th:text="${item.product.description}">Product Description</div>
+                                    <div class="order-quantity">
+                                        <span>x</span><span th:text="${item.quantity}">Product Quantity</span>
+                                    </div>
+                                </div>
+                                <div class="order-item-total" th:text="${item.price}">Item Total</div>
+                            </div>
+                        </div>
+
+                        <div class="order-total">
+                            <div th:if="${order.status == 'đã giao' or order.status == 'đang duyệt' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
+                                <button class="order-return-button" 
+                                    th:class="${order.status == 'đang duyệt' ? 'order-return-button disabled' : 'order-return-button'}" 
+                                    th:text="${order.status == 'đang duyệt' ? 'Đang duyệt' : 'Trả hàng'}" 
+                                    th:disabled="${order.status == 'đang duyệt'}"
+                                    th:data-order-id="${order.id}" 
+                                    onclick="returnButtonClicked(this)">
+                                    Trả hàng
+                                </button>
+                                <!-- Nút Đánh giá, chỉ hiển thị khi trạng thái là "Đã giao" -->
+							        <a href="#" th:href="@{/order/review/{orderId}(orderId=${order.id})}" class="order-return-button">
+							            Đánh giá
+							        </a>
+                            </div>
+                            <span th:text="${order.totalAmount}">Total Amount</span>
+                        </div>
+
+                        <div class="order-status" th:class="${order.status == 'Hủy' ? 'order-status cancelled' : (order.status == 'Đang giao' ? 'order-status in-progress' : 'order-status completed')}">
+                            <span th:text="${order.status}">Status</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${orders == null or orders.isEmpty()}">
+            <p class="no-orders-message">Không có đơn hàng nào trong trạng thái này.</p>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // Giữ nguyên đoạn mã JavaScript của bạn
+        function returnButtonClicked(button) {
+            // ... (không thay đổi)
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM đã được tải');
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

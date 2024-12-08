@@ -11,7 +11,6 @@ import vn.iotstar.repository.CartItemRepository;
 import vn.iotstar.repository.ProductRepository;
 import vn.iotstar.repository.UserRepository;
 import vn.iotstar.services.CartService;
-
 import java.util.Optional;
 
 @Service
@@ -77,4 +76,50 @@ public class CartServiceImpl implements CartService {
 
         return cart;
     }
+    
+    @Override
+    public Cart getCartByUserId(Long userId) {
+        return cartRepository.findByUserUserId(userId);
+    }
+    
+    @Override
+    public void changeQuantity(Long cartItemId, int change) {
+        // Lấy đối tượng CartItem từ database
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+        
+        // Cập nhật số lượng mới
+        int newQuantity = cartItem.getQuantity() + change;
+        if (newQuantity > 0) {
+            cartItem.setQuantity(newQuantity);
+
+            // Lưu lại thay đổi số lượng sản phẩm
+            cartItemRepository.save(cartItem);
+        }
+    }
+    
+    @Override
+ // Xóa sản phẩm khỏi giỏ hàng
+    public void removeItemFromCart(Long cartItemId) {
+        CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() -> new RuntimeException("Cart item not found"));
+        cartItemRepository.delete(cartItem);  // Xóa sản phẩm khỏi giỏ hàng
+    }
+    
+    @Override
+ // Phương thức để lấy CartItem theo itemId
+    public CartItem getItemById(Long itemId) {
+        return cartItemRepository.findById(itemId).orElseThrow(() -> new RuntimeException("Cart item not found"));
+    }
+    
+    @Override
+ // Phương thức để lưu giỏ hàng sau khi đã thay đổi
+    public void save(Cart cart) {
+        // Lưu lại các mục trong giỏ hàng
+        for (CartItem item : cart.getCartItems()) {
+            cartItemRepository.save(item);  // Lưu các mục trong giỏ hàng
+        }
+        // Lưu lại chính giỏ hàng
+        cartRepository.save(cart);
+    }
+
 }

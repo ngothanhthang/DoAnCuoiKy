@@ -19,6 +19,8 @@ public class DoAnCuoiKyApplication {
 		SpringApplication.run(DoAnCuoiKyApplication.class, args);
 	}
 
+
+
 	/*
 	 * @Bean public FilterRegistrationBean<MySiteMeshFilter> siteMeshFilter() {
 	 * FilterRegistrationBean<MySiteMeshFilter> filterRegistrationBean =new

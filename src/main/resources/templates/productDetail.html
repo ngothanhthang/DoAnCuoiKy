@@ -1,4 +1,4 @@
-	<!DOCTYPE html>
+<!DOCTYPE html>
 	<html xmlns:th="http://www.thymeleaf.org">
 	<head>
 	    <meta charset="UTF-8">
@@ -57,6 +57,34 @@
 	        .product-info {
 	            font-weight: bold; /* In đậm cho con số đánh giá */
 	        }
+	        /* Định dạng cho sao trống */
+			.far.fa-star {
+			    color: #ccc; /* Màu xám cho sao trống */
+			}
+			
+			/* Định dạng cho sao đầy */
+			.fas.fa-star {
+			    color: #ffcc00; /* Màu vàng cho sao đầy */
+			}
+			
+			/* Định dạng cho sao rưỡi */
+			.fas.fa-star-half-alt {
+			    color: #ffcc00; /* Màu vàng cho sao rưỡi */
+			}
+			/* Nút like mặc định */
+			#likeButton {
+			    color: #ccc;  /* Màu xám khi chưa like */
+			    cursor: pointer;
+			    border: 2px solid #ccc;
+			    padding: 5px 10px;
+			    border-radius: 25px;
+			}
+			
+			/* Nút like khi đã like */
+			#likeButton.liked {
+			    color: #ff4500;  /* Màu cam nổi bật khi đã like */
+			    border-color: #ff4500;
+			}
 	    </style>
 	</head>
 	<body>
@@ -87,24 +115,34 @@
 	            <div class="col-md-6">
 	                <img th:src="@{${product.imageUrl}}" alt="Hình ảnh sản phẩm" class="img-fluid" />
 	                <!-- Hiển thị số lượt thích -->
-	                <div class="text-center mt-3">
-	                    <i class="fas fa-thumbs-up"></i> 
-	                    <span th:text="${totalLikes}">0</span> Lượt thích
-	                </div>
+					<div class="text-center mt-3">
+					    <!-- Kiểm tra xem người dùng đã like chưa -->
+					    <i class="fas fa-thumbs-up" id="likeButton" 
+					        onclick="likeProduct()" 
+					        th:classappend="${isLiked} ? 'liked' : ''"></i> <!-- Nút like sáng nếu đã like -->
+					    <span id="likeCount" th:text="${totalLikes}">0</span> Lượt thích
+					</div>
+
 	            </div>
 	            <div class="col-md-6">
 	                <h1 th:text="${product.name}"></h1>
 	                <!-- Hiển thị điểm trung bình và sao đánh giá -->
-	                <div class="d-flex align-items-center">
-	                    <span class="product-info" th:text="${averageRating}"></span> <!-- In đậm số điểm -->
+	                 <div class="d-flex align-items-center">
+	                 <span class="product-info" th:text="${averageRating}"></span>
 	                    <div class="stars ms-2">
-	                        <i class="fas fa-star" th:if="${averageRating >= 1}"></i>
-	                        <i class="fas fa-star" th:if="${averageRating >= 2}"></i>
-	                        <i class="fas fa-star" th:if="${averageRating >= 3}"></i>
-	                        <i class="fas fa-star" th:if="${averageRating >= 4}"></i>
-	                        <i class="fas fa-star" th:if="${averageRating >= 5}"></i>
-	                        <i class="fas fa-star-half-alt" th:if="${averageRating > 4 && averageRating < 5}"></i> <!-- Sao rưỡi -->
-	                    </div>
+						    <!-- Hiển thị sao đầy -->
+						    <i class="fas fa-star" th:each="i : ${#numbers.sequence(1, 5)}" 
+						       th:if="${i <= T(java.lang.Math).floor(averageRating)}"></i>
+						
+						    <!-- Hiển thị sao rưỡi -->
+						    <i class="fas fa-star-half-alt" 
+						       th:if="${averageRating - T(java.lang.Math).floor(averageRating) >= 0.5}"></i>
+						
+						    <!-- Hiển thị sao trống -->
+						    <i class="far fa-star" th:each="i : ${#numbers.sequence(1, 5)}" 
+						       th:if="${i > T(java.lang.Math).ceil(averageRating)}"></i>
+						</div>
+    
 	                    <span>&nbsp;</span>
 	                    <span>|</span>
 	                    <span>&nbsp;</span>
@@ -113,11 +151,11 @@
 	            		<span>&nbsp;</span>
 	                    <span>|</span>
 	                    <span>&nbsp;</span>
-	            		<span class="product-info" th:text=" ${product.orderItems.size()} ">0</span> <span>&nbsp;</span> Đã Bán
+	            		<span class="product-info" th:text=" ${totalSoldQuantity} ">0</span> <span>&nbsp;</span> Đã Bán
 	                </div>
 	                
 	                <!-- Mô tả sản phẩm -->
-	                <p th:text="${product.description}">Mô tả sản phẩm sẽ hiển thị ở đây...</p>
+	                <p th:text="${product.description}">Mô tả sản phẩm sẽ hiển thị ở đây</p>
 	
 	                <!-- Giá sản phẩm -->
 	                <p class="h4 text-success" th:text="${product.price}">Giá: 0</p>
@@ -132,11 +170,15 @@
 				
 				    <!-- Nút tăng số lượng -->
 				    <button class="btn btn-outline-secondary" id="increaseBtn">+</button>
+				    <span>&nbsp;</span>
+	                    <span>|</span>
+	                    <span>&nbsp;</span>
+				     <span class="product-info" th:text=" ${product.quantity} ">0</span> <span>&nbsp;</span> số lượng có sẵn
 				</div>
 	
 	                <!-- Form thêm vào giỏ hàng -->
 					<form id="addToCartForm">
-					    <input type="hidden" name="userId" id="userId" value="2"> <!-- userId -->
+					    <input type="hidden" name="userId" id="userId" value="1"> <!-- userId -->
 					    <input type="hidden" name="productId" id="productId" value="${1}"> <!-- productId -->
 					    <!-- Nút thêm vào giỏ hàng với biểu tượng giỏ hàng -->
 						<!-- <button class="btn btn-primary mt-3" onclick="addToCart()">
@@ -223,7 +265,33 @@
 		    });
 		}
 
-        
+     // Hàm xử lý sự kiện nhấn nút like
+        function likeProduct() {
+            const productId = getProductIdFromUrl();  // Lấy productId từ URL
+
+            // Gửi yêu cầu tới server để xử lý like
+            fetch(`/like/product?productId=${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Cập nhật lại số lượt thích trên giao diện
+                document.getElementById('likeCount').textContent = data;  // Dữ liệu trả về là số lượt thích mới
+                document.getElementById('likeButton').classList.toggle('liked');  // Thêm/loại bỏ lớp liked để thay đổi màu sắc nút
+            })
+            .catch(error => {
+                console.error('Có lỗi khi thực hiện like:', error);
+            });
+        }
+
+        // Hàm lấy productId từ URL
+        function getProductIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('productId');
+        }
     </script>
 		
 	    <!-- Kết nối với Bootstrap JS -->
