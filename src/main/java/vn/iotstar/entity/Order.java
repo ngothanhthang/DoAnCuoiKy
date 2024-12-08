@@ -11,8 +11,6 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @AllArgsConstructor
 @NoArgsConstructor

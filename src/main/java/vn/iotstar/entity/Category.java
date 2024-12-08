@@ -2,7 +2,6 @@ package vn.iotstar.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.io.Serializable;
 import java.util.List;
@@ -34,5 +33,12 @@ public class Category implements Serializable {
     private String description;
     
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Product> products;  // Danh sách các sản phẩm thuộc danh mục này
+    private List<Product> products;
+
+	/*
+	 * // Tham chiếu tới bảng Products (quan hệ 1-nhiều)
+	 * 
+	 * @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch =
+	 * FetchType.LAZY) private List<Product> products;
+	 */
 }

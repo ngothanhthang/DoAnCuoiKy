@@ -9,18 +9,16 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
-
+@SpringBootApplication
 //@SpringBootApplication
 @SpringBootApplication(scanBasePackages = {"vn.iotstar", "configs"})
 @EnableJpaRepositories("vn.iotstar.repository")
+
 public class DoAnCuoiKyApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(DoAnCuoiKyApplication.class, args);
 	}
-
-
-
 	/*
 	 * @Bean public FilterRegistrationBean<MySiteMeshFilter> siteMeshFilter() {
 	 * FilterRegistrationBean<MySiteMeshFilter> filterRegistrationBean =new
@@ -39,4 +37,3 @@ public class DoAnCuoiKyApplication {
 	            .httpBasic(basic -> basic.disable())  // Tắt Basic Authentication nếu không cần thiết
 	            .build();
 	}
-}

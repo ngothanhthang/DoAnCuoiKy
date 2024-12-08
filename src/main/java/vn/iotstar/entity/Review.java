@@ -41,5 +41,12 @@ public class Review implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp  // Tự động gán thời gian tạo
     private java.util.Date createdAt;
+    
+ // Thêm trường media cho ảnh/video
+    @Column(name = "image_url")
+    private String imageUrl;  // Lưu trữ URL của ảnh
+
+    @Column(name = "video_url")
+    private String videoUrl;  // Lưu trữ URL của video
 
 }

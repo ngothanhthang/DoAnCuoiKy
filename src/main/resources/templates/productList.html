@@ -58,8 +58,25 @@
             background-color: #0056b3;
             border-color: #0056b3;
         }
-		/* Cố định kích thước ảnh */
-		/* Cố định kích thước ảnh, nhưng không cắt */
+        /* Canh giữa ô tìm kiếm */
+.search-container {
+    display: flex;
+    justify-content: center;  /* Căn giữa theo chiều ngang */
+    align-items: center;      /* Căn giữa theo chiều dọc */
+    width: 100%;              /* Đảm bảo container chiếm toàn bộ chiều rộng */
+    margin: 0 auto;           /* Đảm bảo căn giữa ở giữa trang */
+}
+
+/* Cố định chiều rộng cho ô input */
+.search-container .form-control {
+    max-width: 500px;         /* Đặt chiều rộng tối đa cho input */
+}
+
+/* Cố định chiều rộng cho nút tìm kiếm */
+.search-container .btn {
+    max-width: 150px;         /* Đặt chiều rộng tối đa cho button */
+}
+
 .product-card img {
     width: 100%;         /* Chiều rộng 100% để ảnh chiếm toàn bộ chiều rộng của card */
     height: 300px;       /* Đặt chiều cao cố định cho ảnh */
@@ -73,6 +90,7 @@
     <!-- Navbar -->
     <nav class="custom-navbar navbar navbar-expand-lg navbar-dark">
         <a class="navbar-brand" href="#">My Store</a>
+        
         <ul class="navbar-nav custom-navbar-nav ms-auto">
             <li class="nav-item">
                 <a class="nav-link" href="#">Home</a>
@@ -81,18 +99,25 @@
                 <a class="nav-link" href="#">Shop</a>
             </li>
         </ul>
-    </nav>
+            </nav>
 
     <!-- Hero Section -->
+    
     <section class="hero">
         <div class="container">
             <div class="intro-excerpt">
                 <h1>Welcome to My Store</h1>
                 <p>Discover the latest products and trends.</p>
             </div>
+            
         </div>
     </section>
-	
+	<!-- Thông báo kết quả tìm kiếm -->
+    <div class="container">
+        <div th:if="${keyword}">
+            <p class="alert alert-info">Kết quả tìm kiếm cho từ khóa: <span th:text="${keyword}"></span></p>
+        </div>
+    </div>
 	
     <!-- Lựa chọn sắp xếp sản phẩm -->
 		<div class="container py-3">
@@ -112,8 +137,9 @@
 					    </div>
 		                <form id="sortForm" method="get" style="display: none;">
 		                    <input type="hidden" name="categoryId" th:value="${categoryId}" />
-		                    <input type="hidden" name="page" th:value="${currentPage}" />
+		                    <input type="hidden" name="page" th:value="0" />
 		                    <input type="hidden" name="sort" id="sortValue" />
+		                    <input type="hidden" name="keyword" th:value="${keyword}" />
 		                </form>
 		            </div>
 		        </div>
@@ -140,7 +166,7 @@
 							
 							    <!-- Hiển thị sao rưỡi -->
 							    <i class="fas fa-star-half-alt" 
-							       th:if="${product.averageRating - T(java.lang.Math).floor(product.averageRating) >= 0.5}"></i>
+							       th:if="${product.averageRating - T(java.lang.Math).floor(product.averageRating) > 0}"></i>
 							
 							    <!-- Hiển thị sao trống -->
 							    <i class="far fa-star" th:each="i : ${#numbers.sequence(1, 5)}" 
@@ -163,19 +189,19 @@
 		    <ul class="pagination justify-content-center">
 		        <!-- Trang trước -->
 		        <li th:if="${currentPage > 0}" class="page-item">
-		            <a th:href="@{/category(categoryId=${categoryId}, page=${currentPage - 1}, sort=${sortOption})}" class="page-link">Previous</a>
+		            <a th:href="@{/category(categoryId=${categoryId}, page=${currentPage - 1}, sort=${sortOption}, keyword=${keyword})}" class="page-link">Previous</a>
 		        </li>
 		
 		        <!-- Các số trang -->
 		        <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
 		            th:classappend="${i == currentPage} ? 'active' : ''" class="page-item">
-		            <a th:href="@{/category(categoryId=${categoryId}, page=${i}, sort=${sortOption})}" 
+		            <a th:href="@{/category(categoryId=${categoryId}, page=${i}, sort=${sortOption}, keyword=${keyword})}" 
 		               class="page-link" th:text="${i + 1}"></a>
 		        </li>
 		
 		        <!-- Trang sau -->
 		        <li th:if="${currentPage < totalPages - 1}" class="page-item">
-		            <a th:href="@{/category(categoryId=${categoryId}, page=${currentPage + 1}, sort=${sortOption})}" class="page-link">Next</a>
+		            <a th:href="@{/category(categoryId=${categoryId}, page=${currentPage + 1}, sort=${sortOption}, keyword=${keyword})}" class="page-link">Next</a>
 		        </li>
 		    </ul>
 		</div>
