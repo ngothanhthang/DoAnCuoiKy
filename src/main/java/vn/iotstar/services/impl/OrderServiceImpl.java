@@ -115,7 +115,7 @@ public class OrderServiceImpl implements OrderService{
     // Tìm tất cả đơn hàng của một user
 
 	public Page<Order> findOrdersByUserId(Long userId, Pageable pageable) {
-	    return orderRepository.findByUserUserId(userId, pageable);
+    	return orderRepository.findByUserUserIdAndStatusNot(userId, "chờ xử lý", pageable);
 	}
     
     @Override

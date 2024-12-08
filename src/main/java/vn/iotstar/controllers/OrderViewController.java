@@ -2,6 +2,7 @@ package vn.iotstar.controllers;
 
 import jakarta.servlet.http.HttpSession;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,12 +25,18 @@ import jakarta.servlet.http.HttpSession;
 import vn.iotstar.entity.Address;
 import vn.iotstar.entity.Cart;
 import vn.iotstar.entity.CartItem;
+import vn.iotstar.entity.Notification;
 import vn.iotstar.entity.Order;
+import vn.iotstar.entity.User;
 import vn.iotstar.repository.CartItemRepository;
+import vn.iotstar.repository.UserRepository;
 import vn.iotstar.services.AddressService;
 import vn.iotstar.services.CartItemService;
 import vn.iotstar.services.CartService;
+import vn.iotstar.services.NotificationService;
 import vn.iotstar.services.OrderService;
+import vn.iotstar.services.UserService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,11 +47,15 @@ public class OrderViewController {
     @Autowired
     private OrderService orderService;
     @Autowired
+    private UserRepository userService;
+    @Autowired
     private CartItemService cartItemService;
     @Autowired
     private AddressService addressService;
     @Autowired
     private CartService cartService;
+    @Autowired
+    private NotificationService notificationService;
 
     @GetMapping("/summary/{orderId}")
     public String orderSummary(@PathVariable("orderId") Long orderId, @RequestParam(required = false) List<Long> selectedItems, Model model, HttpSession session) {
@@ -101,19 +112,22 @@ public class OrderViewController {
 
         switch (status) {
             case "1":
-                ordersPage = orderService.findOrdersByStatusAndUserId("đã xác nhận", userId, pageable);
+                ordersPage = orderService.findOrdersByStatusAndUserId("chờ xác nhận", userId, pageable);
                 break;
             case "2":
-                ordersPage = orderService.findOrdersByStatusAndUserId("đang giao", userId, pageable);
+                ordersPage = orderService.findOrdersByStatusAndUserId("đã xác nhận", userId, pageable);
                 break;
             case "3":
+                ordersPage = orderService.findOrdersByStatusAndUserId("đang giao", userId, pageable);
+                break;
+            case "4":
                 // Trạng thái đã giao và đang duyệt
                 ordersPage = orderService.findOrdersByMultipleStatusesAndUserId(Arrays.asList("đã giao", "đang duyệt"), userId, pageable);
                 break;
-            case "4":
+            case "5":
                 ordersPage = orderService.findOrdersByStatusAndUserId("hủy", userId, pageable);
                 break;
-            case "5":
+            case "6":
                 ordersPage = orderService.findOrdersByStatusAndUserId("trả hàng", userId, pageable);
                 break;
             case "0":
@@ -145,12 +159,28 @@ public class OrderViewController {
         }
         // Lấy đơn hàng theo orderId
         Order order = orderService.getOrderById(orderId);
-
+        
         if (order != null) {
             // Cập nhật trạng thái của đơn hàng
             order.setStatus("Chờ xác nhận");
             orderService.save(order);
-
+         // Tạo thông báo mới sau khi cập nhật trạng thái đơn hàng
+            Notification notification = new Notification();
+            
+            // Lấy người dùng từ session
+            User user = userService.findByUserId(userId);
+            
+            // Cập nhật thông tin cho notification
+            notification.setUser(user);
+            notification.setOrder(order);
+            notification.setTimestamp(LocalDateTime.now());  // Thời gian hiện tại
+            notification.setMessage("Đơn hàng mới");
+            notification.setRead(false);  // Mặc định chưa đọc
+            notification.setStatus("mới");  // Trạng thái mới
+            
+            // Lưu thông báo vào cơ sở dữ liệu
+            notificationService.save(notification);  // Lưu thông báo vào DB
+            
         }     
         Cart cart = cartService.getCartByUserId(userId);
 
