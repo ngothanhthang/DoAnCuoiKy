@@ -32,14 +32,13 @@
 	            border-radius: 8px;
 	            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	        }
-	
-	        .review-header {
-	            display: flex;
-	            justify-content: space-between;
-	            align-items: center;
-	            margin-bottom: 10px;
-	        }
-	
+				/* Định dạng header */
+			.review-header {
+			    display: flex;
+			    justify-content: flex-start; /* Đảm bảo các phần tử căn trái */
+			    align-items: center;
+			    margin-bottom: 10px;
+			}
 	        .review-footer {
 	            font-size: 0.9em;
 	            color: #6c757d;
@@ -84,6 +83,21 @@
 			#likeButton.liked {
 			    color: #ff4500;  /* Màu cam nổi bật khi đã like */
 			    border-color: #ff4500;
+			}
+			/* Container cho ảnh và video nằm ngang */
+			.review-media-container {
+			    display: flex;       /* Đảm bảo phần tử con nằm ngang */
+			    gap: 10px;           /* Khoảng cách giữa ảnh và video */
+			    align-items: center; /* Căn giữa ảnh và video theo chiều dọc */
+			    flex-wrap: nowrap;   /* Đảm bảo chúng không bị cuộn xuống dòng mới */
+			}
+			
+			/* Đảm bảo kích thước ảnh và video */
+			.review-media img, .review-media video {
+			    width: 150px;         /* Chiều rộng cố định */
+			    height: 150px;        /* Chiều cao cố định */
+			    object-fit: cover;    /* Đảm bảo không bị biến dạng */
+			    border-radius: 8px;   /* Bo góc */
 			}
 	    </style>
 	</head>
@@ -199,7 +213,10 @@
 	                <h3>Đánh giá của khách hàng</h3>
 	                <div th:each="review : ${product.reviews}" class="review">
 	                    <div class="review-header">
-	                        <strong th:text="${review.user.username}"></strong>
+	                        <strong th:text="${review.user.username}"></strong><br>
+	                        <span>&nbsp;</span>
+	                    <span>|</span>
+	                    <span>&nbsp;</span>
 	                        <div class="stars">
 	                            <i class="fas fa-star" th:if="${review.rating >= 1}"></i>
 	                            <i class="fas fa-star" th:if="${review.rating >= 2}"></i>
@@ -209,16 +226,21 @@
 	                        </div>
 	                    </div>
 	                    <p th:text="${review.reviewText}"></p>
-	                    <div th:if="${review.imageUrl != null}">
-			                <img th:src="@{${review.imageUrl}}" alt="Ảnh Đánh Giá" class="img-fluid" style="max-width: 100%; height: auto;">
-			            </div>
-			            <div th:if="${review.videoUrl != null}">
-			                <video controls class="img-fluid" style="max-width: 100%; height: auto;">
-			                    <source th:src="@{${review.videoUrl}}" type="video/mp4">
-			                </video>
-			            </div>
-            
-	                    <div class="review-footer">
+	                    <!-- Phần hiển thị ảnh/video -->
+							<div th:if="${review.imageUrl != null || review.videoUrl != null}" class="review-media-container d-flex">
+							    <!-- Hiển thị ảnh -->
+							    <div th:if="${review.imageUrl != null}" class="review-media">
+							        <img th:src="@{${review.imageUrl}}" alt="Ảnh Đánh Giá" class="img-fluid">
+							    </div>
+							
+							    <!-- Hiển thị video -->
+							    <div th:if="${review.videoUrl != null}" class="review-media">
+							        <video controls class="img-fluid">
+							            <source th:src="@{${review.videoUrl}}" type="video/mp4">
+							        </video>
+							    </div>
+							</div>
+                    <div class="review-footer">
 	                        <span th:text="${#dates.format(review.createdAt, 'yyyy-MM-dd HH:mm')}">Ngày: 01/01/2024</span>
 	                    </div>
 	                </div>
@@ -245,7 +267,31 @@
         // Tăng số lượng
         increaseBtn.addEventListener('click', function() {
             let currentQuantity = parseInt(quantityInput.value);
-            quantityInput.value = currentQuantity + 1;
+            let maxQuantity = [[${product.quantity}]];
+            if (currentQuantity < maxQuantity) {
+                quantityInput.value = currentQuantity + 1;
+            } else {
+                quantityInput.value = maxQuantity;
+                alert('Số lượng bạn chọn đã đạt mức tối đa của sản phẩm này');
+            }
+        });
+     // Kiểm tra số lượng ngay khi người dùng nhập
+        quantityInput.addEventListener('input', function() {
+            let enteredQuantity = parseInt(quantityInput.value) || 1;
+            let maxQuantity = [[${product.quantity}]]; // Lấy số lượng sản phẩm từ Thymeleaf
+
+            if (enteredQuantity <=0) {
+            	quantityInput.value = 1;
+                setTimeout(() => {
+                    alert('Số lượng phải lớn hơn 1');
+                }, 100);
+                
+            } else if (enteredQuantity > maxQuantity) {
+                quantityInput.value = maxQuantity;
+                setTimeout(() => {
+                    alert('Số lượng bạn chọn đã đạt mức tối đa của sản phẩm này');
+                }, 100);
+            }
         });
      // Hàm lấy giá trị productId từ URL
         function getProductIdFromUrl() {

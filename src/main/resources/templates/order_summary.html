@@ -37,8 +37,8 @@
 
         <h3>Địa chỉ giao hàng</h3>
         <div th:if="${defaultAddress != null}">
-            <p>Địa chỉ hiện tại: <span th:text="${defaultAddress.streetAddress} + ', ' + ${defaultAddress.city} + ', ' + ${defaultAddress.state} + ', ' + ${defaultAddress.postalCode} + ', ' + ${defaultAddress.country}"></span></p>
-            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#addressModal" th:data-address-id="${defaultAddress.id}" th:data-address-street="${defaultAddress.streetAddress}" th:data-address-city="${defaultAddress.city}" th:data-address-state="${defaultAddress.state}" th:data-address-postal="${defaultAddress.postalCode}" th:data-address-country="${defaultAddress.country}">
+            <p>Địa chỉ hiện tại: <span th:text="${defaultAddress.streetAddress} + ', ' + ${defaultAddress.city}  + ', ' + ${defaultAddress.country}"></span></p>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#addressModal" th:data-address-id="${defaultAddress.id}" th:data-address-street="${defaultAddress.streetAddress}" th:data-address-city="${defaultAddress.city}" th:data-address-name="${defaultAddress.userName}" th:data-address-phone="${defaultAddress.phoneNumber}" th:data-address-country="${defaultAddress.country}">
                 Cập nhật địa chỉ
             </button>
         </div>
@@ -63,7 +63,7 @@
 				                        <div class="card">
 				                            <div class="card-body d-flex justify-content-between">
 				                                <div>
-				                                    <h6 class="card-title" th:text="${address.streetAddress} + ', ' + ${address.city} + ', ' + ${address.state} + ', ' + ${address.postalCode} + ', ' + ${address.country}"></h6>
+				                                    <h6 class="card-title" th:text="${address.streetAddress} + ', ' + ${address.city} + ', ' + ${address.userName} + ', ' + ${address.country}"></h6>
 				                                </div>
 				                                <div>
 				                                    <!-- Nút cập nhật địa chỉ -->
@@ -71,8 +71,8 @@
 				                                            th:data-address-id="${address.id}"
 				                                            th:data-address-street="${address.streetAddress}"
 				                                            th:data-address-city="${address.city}"
-				                                            th:data-address-state="${address.state}"
-				                                            th:data-address-postal="${address.postalCode}"
+				                                            th:data-address-name="${address.userName}"
+				                                            th:data-address-phone="${address.phoneNumber}"
 				                                            th:data-address-country="${address.country}">
 				                                        Cập nhật
 				                                    </button>
@@ -103,6 +103,14 @@
 			                <input type="hidden" name="selectedItems" id="selectedItems" />
 			                    <input type="hidden" name="id" id="addressId" />
 			                    <div class="mb-3">
+			                        <label for="userName" class="form-label">Họ tên</label>
+			                        <input type="text" class="form-control" id="userName" name="userName" required>
+			                    </div>
+			                    <div class="mb-3">
+			                        <label for="phoneNumber" class="form-label">Số điện thoại</label>
+			                        <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" required>
+			                    </div>
+			                    <div class="mb-3">
 			                        <label for="streetAddress" class="form-label">Địa chỉ đường</label>
 			                        <input type="text" class="form-control" id="streetAddress" name="streetAddress" required>
 			                    </div>
@@ -110,14 +118,8 @@
 			                        <label for="city" class="form-label">Thành phố</label>
 			                        <input type="text" class="form-control" id="city" name="city" required>
 			                    </div>
-			                    <div class="mb-3">
-			                        <label for="state" class="form-label">Tình trạng</label>
-			                        <input type="text" class="form-control" id="state" name="state" required>
-			                    </div>
-			                    <div class="mb-3">
-			                        <label for="postalCode" class="form-label">Mã bưu điện</label>
-			                        <input type="text" class="form-control" id="postalCode" name="postalCode" required>
-			                    </div>
+			                    
+			                    
 			                    <div class="mb-3">
 			                        <label for="country" class="form-label">Quốc gia</label>
 			                        <input type="text" class="form-control" id="country" name="country" required>
@@ -209,16 +211,16 @@
             const addressId = button.getAttribute('data-address-id');
             const street = button.getAttribute('data-address-street');
             const city = button.getAttribute('data-address-city');
-            const state = button.getAttribute('data-address-state');
-            const postal = button.getAttribute('data-address-postal');
+            const name = button.getAttribute('data-address-name');
+            const phone = button.getAttribute('data-address-phone');
             const country = button.getAttribute('data-address-country');
 
             // Điền thông tin vào form
             document.getElementById('addressId').value = addressId;
             document.getElementById('streetAddress').value = street;
             document.getElementById('city').value = city;
-            document.getElementById('state').value = state;
-            document.getElementById('postalCode').value = postal;
+            document.getElementById('userName').value = name;
+            document.getElementById('phoneNumber').value = phone;
             document.getElementById('country').value = country;
 
             // Cập nhật tiêu đề modal
@@ -231,8 +233,8 @@
         document.getElementById('addressId').value = '';
         document.getElementById('streetAddress').value = '';
         document.getElementById('city').value = '';
-        document.getElementById('state').value = '';
-        document.getElementById('postalCode').value = '';
+        document.getElementById('userName').value = '';
+        document.getElementById('phoneNumber').value = '';
         document.getElementById('country').value = '';
         document.getElementById('isDefault').checked = false;
 

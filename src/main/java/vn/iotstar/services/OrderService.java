@@ -2,6 +2,9 @@ package vn.iotstar.services;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import vn.iotstar.entity.CartItem;
 import vn.iotstar.entity.Order;
 import vn.iotstar.entity.User;
@@ -14,13 +17,13 @@ public interface OrderService {
 
 	Order getOrderById(Long orderId);
 
-	List<Order> findOrdersByStatusAndUserId(String status, Long userId);
-
-	List<Order> findOrdersByUserId(Long userId);
-
 	void save(Order order);
 
-	List<Order> findOrdersByMultipleStatusesAndUserId(List<String> statuses, Long userId);
-
 	boolean updateOrderStatus(Long orderId, String status);
+
+	Page<Order> findOrdersByStatusAndUserId(String status, Long userId, Pageable pageable);
+
+	Page<Order> findOrdersByUserId(Long userId, Pageable pageable);
+
+	Page<Order> findOrdersByMultipleStatusesAndUserId(List<String> statuses, Long userId, Pageable pageable);
 }

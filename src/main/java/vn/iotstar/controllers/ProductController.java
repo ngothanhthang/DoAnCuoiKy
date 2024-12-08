@@ -51,6 +51,7 @@ public class ProductController {
                                          @RequestParam(value = "page", defaultValue = "0") int page,
                                          @RequestParam(value = "size", defaultValue = "5") int size,
                                          @RequestParam(value = "sort", defaultValue = "createdAt") String sortOption,
+                                         @RequestParam(value = "keyword", required = false) String keyword,
                                          Model model) {
 
         // Xử lý sắp xếp theo sortOption
@@ -79,13 +80,22 @@ public class ProductController {
         
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<ProductDTO> productDTOPage = productService.getProductsByCategory(categoryId, status, pageable);
+        Page<ProductDTO> productDTOPage;
+        if (keyword != null && !keyword.isEmpty()) {
+            // Tìm sản phẩm theo từ khóa
+            productDTOPage = productService.searchProductsByCategory(categoryId, keyword, status, pageable);
+        } else {
+            // Nếu không có từ khóa, chỉ lấy theo danh mục
+            productDTOPage = productService.getProductsByCategory(categoryId, status, pageable);
+        }
 
         model.addAttribute("products", productDTOPage);
         model.addAttribute("totalPages", productDTOPage.getTotalPages());
         model.addAttribute("currentPage", page);
         model.addAttribute("categoryId", categoryId);
         model.addAttribute("sortOption", sortOption);
+        model.addAttribute("keyword", keyword);
+
         return "productList";  // Trang hiển thị sản phẩm
     }
 

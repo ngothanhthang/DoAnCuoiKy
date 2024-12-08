@@ -29,11 +29,11 @@ public class Address implements Serializable {
     @Column(name = "city", nullable = false)
     private String city;
 
-    @Column(name = "state", nullable = false)
-    private String state;
+    @Column(name = "user_name", nullable = false)
+    private String userName;
 
-    @Column(name = "postal_code", nullable = false)
-    private String postalCode;
+    @Column(name = "phone_number", nullable = false)
+    private String phoneNumber;
 
     @Column(name = "country", nullable = false)
     private String country;

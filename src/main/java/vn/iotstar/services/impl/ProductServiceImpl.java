@@ -116,5 +116,38 @@ public class ProductServiceImpl implements ProductService {
     public List<Product> getBestSellingProducts() {
         return productRepository.findBestSellingProducts();
     }
+	
+	@Override
+	public Page<ProductDTO> searchProductsByCategory(Long categoryId, String keyword, int status, Pageable pageable) {
+	    // Lấy dữ liệu từ repository với averageRating tính toán từ cơ sở dữ liệu
+	    Page<Object[]> results = productRepository.findByCategoryIdAndStatusWithAvgRatingAndKeyword(categoryId, keyword, status, pageable);
+
+	    // Chuyển đổi kết quả từ Object[] thành Page<ProductDTO>
+	    Page<ProductDTO> productDTOPage = results.map(result -> {
+	        Product product = (Product) result[0];  // Lấy đối tượng Product
+	        Double averageRating = (Double) result[1];  // Lấy giá trị averageRating
+	        Long totalSold = (Long) result[2];  // Giả sử tổng bán được là Long
+
+	        // Tạo DTO và gán giá trị
+	        return new ProductDTO(
+	            product.getId(),
+	            product.getName(),
+	            product.getStatus(),
+	            product.getDescription(),
+	            product.getPrice(),
+	            product.getQuantity(),
+	            product.getImageUrl(),
+	            product.getCategory().getId(),
+	            product.getCategory().getName(),
+	            product.getCreatedAt(),
+	            averageRating != null ? Math.round(averageRating * 10.0) / 10.0 : 0, // Làm tròn averageRating
+	            totalSold != null ? totalSold.intValue() : 0 // Chuyển totalSold thành int, xử lý nếu null
+	        );
+	    });
+
+	    // Trả về Page<ProductDTO>
+	    return productDTOPage;
+	}
+
     
 }

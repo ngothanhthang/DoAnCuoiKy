@@ -7,6 +7,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -78,6 +82,8 @@ public class OrderViewController {
     @GetMapping("/purchase")
     public String viewOrders(
             @RequestParam(name = "status", defaultValue = "ALL") String status,
+            @RequestParam(name = "page", defaultValue = "0") int page, // Trang hiện tại
+            @RequestParam(name = "size", defaultValue = "10") int size, // Kích thước mỗi trang
             Model model,
             HttpSession session) {
 
@@ -87,38 +93,46 @@ public class OrderViewController {
             userId = 1L; // Giá trị mặc định nếu userId không có trong session
         }
 
-        // Lấy danh sách đơn hàng theo trạng thái
-        List<Order> orders;
+        // Khởi tạo đối tượng Pageable
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.asc("createdAt"))); // Sắp xếp theo ngày đặt hàng
+
+        // Lấy danh sách đơn hàng theo trạng thái với phân trang
+        Page<Order> ordersPage;
 
         switch (status) {
             case "1":
-                orders = orderService.findOrdersByStatusAndUserId("đã xác nhận", userId);
+                ordersPage = orderService.findOrdersByStatusAndUserId("đã xác nhận", userId, pageable);
                 break;
             case "2":
-                orders = orderService.findOrdersByStatusAndUserId("đang giao", userId);
+                ordersPage = orderService.findOrdersByStatusAndUserId("đang giao", userId, pageable);
                 break;
             case "3":
                 // Trạng thái đã giao và đang duyệt
-                orders = orderService.findOrdersByMultipleStatusesAndUserId(Arrays.asList("đã giao", "đang duyệt"), userId);
+                ordersPage = orderService.findOrdersByMultipleStatusesAndUserId(Arrays.asList("đã giao", "đang duyệt"), userId, pageable);
                 break;
             case "4":
-                orders = orderService.findOrdersByStatusAndUserId("hủy", userId);
+                ordersPage = orderService.findOrdersByStatusAndUserId("hủy", userId, pageable);
                 break;
             case "5":
-                orders = orderService.findOrdersByStatusAndUserId("trả hàng", userId);
+                ordersPage = orderService.findOrdersByStatusAndUserId("trả hàng", userId, pageable);
                 break;
             case "0":
             default:
-                orders = orderService.findOrdersByUserId(userId);
+                ordersPage = orderService.findOrdersByUserId(userId, pageable);
                 break;
         }
 
-        // Thêm danh sách đơn hàng vào model
-        model.addAttribute("orders", orders);
-
+        // Thêm danh sách đơn hàng và thông tin phân trang vào model
+        model.addAttribute("orders", ordersPage.getContent());  // Lấy danh sách đơn hàng từ Page
+        model.addAttribute("currentPage", page); // Trang hiện tại
+        model.addAttribute("totalPages", ordersPage.getTotalPages()); // Tổng số trang
+        model.addAttribute("totalItems", ordersPage.getTotalElements()); // Tổng số phần tử
+        model.addAttribute("status", status); // Trạng thái đơn hàng
+        model.addAttribute("size", size);
         // Trả về view hiển thị danh sách đơn hàng
         return "orderPurchase";
     }
+
     
 	@GetMapping("/purchases")
     public String updateOrderStatus(@RequestParam("orderId") Long orderId,

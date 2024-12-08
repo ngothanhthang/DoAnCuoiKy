@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import jakarta.servlet.http.HttpSession;
 import vn.iotstar.entity.CartItem;
@@ -96,6 +97,7 @@ public class OrderController {
     }
     
     @PostMapping("/submit-review/{productId}")
+    @ResponseBody // Đánh dấu phản hồi là JSON
     public ResponseEntity<?> submitReview(
         @PathVariable("productId") Long productId,
         @RequestParam("rating") int rating,
@@ -103,19 +105,20 @@ public class OrderController {
         @RequestParam(value = "imageFile", required = false) MultipartFile[] imageFiles,
         @RequestParam(value = "videoFile", required = false) MultipartFile[] videoFiles,
         HttpSession session) {
-    	System.out.println("File name: " + imageFiles);
+        
         try {
             // Tạo thư mục nếu chưa tồn tại
             File uploadDirectory = new File(uploadDir);
             if (!uploadDirectory.exists()) {
                 uploadDirectory.mkdirs();
             }
-         // Lấy thông tin người dùng từ session, nếu không có thì gán User mặc định với ID = 1
+            
+            // Lấy thông tin người dùng từ session, nếu không có thì gán User mặc định với ID = 1
             User user = (User) session.getAttribute("user");
             if (user == null) {
-                // Gán User mặc định nếu không có trong session
                 user = userService.findById(1L);  // Lấy User mặc định có ID = 1 từ cơ sở dữ liệu
             }
+            
             // Khởi tạo các biến để lưu URL ảnh và video
             String imageUrl = null;
             String videoUrl = null;
@@ -123,29 +126,18 @@ public class OrderController {
             // Xử lý và lưu ảnh/video
             if (imageFiles != null) {
                 for (MultipartFile file : imageFiles) {
-                    // Lấy tên file và tạo tên duy nhất cho nó
                     String uniqueFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
                     Path filePath = Paths.get(uploadDirectory.getPath(), uniqueFileName);
-
-                    // Kiểm tra loại file và xử lý tương ứng
+                    
                     String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1).toLowerCase();
                     
-                    // Nếu là ảnh (JPEG, PNG, GIF,...)
                     if (fileExtension.equals("jpg") || fileExtension.equals("jpeg") || fileExtension.equals("png") || fileExtension.equals("gif")) {
                         file.transferTo(filePath.toFile());
-                        imageUrl = "/images/" + uniqueFileName;  // Lưu URL ảnh
-                    }
-                    // Nếu là video (MP4, AVI,...)
-                    else if (fileExtension.equals("mp4") || fileExtension.equals("avi") || fileExtension.equals("mov")) {
-                        file.transferTo(filePath.toFile());
-                        videoUrl = "/images/" + uniqueFileName;  // Lưu URL video
-                    }
-                    // Nếu là file không hợp lệ
-                    else {
-                        return ResponseEntity.status(400).body(new ApiResponse(false, "Chỉ cho phép tải lên ảnh hoặc video hợp lệ!", null));
+                        imageUrl = "/images/" + uniqueFileName;
                     }
                 }
             }
+
             if (videoFiles != null) {
                 for (MultipartFile file : videoFiles) {
                     String uniqueFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
@@ -155,9 +147,7 @@ public class OrderController {
 
                     if (fileExtension.equals("mp4") || fileExtension.equals("avi") || fileExtension.equals("mov")) {
                         file.transferTo(filePath.toFile());
-                        videoUrl = "/images/" + uniqueFileName;  // Lưu URL video
-                    } else {
-                        return ResponseEntity.status(400).body(new ApiResponse(false, "Chỉ cho phép tải lên video hợp lệ!", null));
+                        videoUrl = "/images/" + uniqueFileName;
                     }
                 }
             }
@@ -166,19 +156,27 @@ public class OrderController {
 
             // Tạo đối tượng Review và gán thông tin
             Review review = new Review();
-            review.setProduct(product);  // Gán đối tượng product
-            review.setUser(user);        // Gán đối tượng user
-            review.setRating(rating);    // Lưu đánh giá sao
-            review.setReviewText(reviewText);  // Lưu bình luận
-            review.setImageUrl(imageUrl);  // Lưu URL ảnh
-            review.setVideoUrl(videoUrl);  // Lưu URL video
-            review.setCreatedAt(new Date());  // Đặt thời gian tạo
-            reviewService.saveReview(review);  // Lưu vào cơ sở dữ liệu
+            review.setProduct(product);
+            review.setUser(user);
+            review.setRating(rating);
+            review.setReviewText(reviewText);
+            review.setImageUrl(imageUrl);
+            review.setVideoUrl(videoUrl);
+            review.setCreatedAt(new Date());
+            reviewService.saveReview(review);
 
-            return ResponseEntity.ok(new ApiResponse(true, "Đánh giá đã được gửi thành công!", null));
+            return ResponseEntity.ok(Map.of(
+                    "status", "success", 
+                    "message", "Đánh giá đã được gửi thành công!"
+                ));
 
-        } catch (IOException e) {
-            return ResponseEntity.status(500).body(new ApiResponse(false, "Lỗi khi tải lên media: " + e.getMessage(), null));
+            } catch (Exception e) {
+                // Trả về phản hồi lỗi JSON
+                return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error", 
+                    "message", "Có lỗi xảy ra khi gửi đánh giá"
+                ));
+            }
         }
-    }
+
 }

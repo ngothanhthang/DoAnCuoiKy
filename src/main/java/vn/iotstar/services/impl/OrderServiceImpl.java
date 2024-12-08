@@ -1,6 +1,8 @@
 package vn.iotstar.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.iotstar.entity.*;
 import vn.iotstar.repository.OrderRepository;
@@ -105,15 +107,16 @@ public class OrderServiceImpl implements OrderService{
     
     @Override
  // Tìm danh sách đơn hàng của một user với trạng thái cụ thể
-    public List<Order> findOrdersByStatusAndUserId(String status, Long userId) {
-        return orderRepository.findByStatusAndUserUserId(status, userId);
+    public Page<Order> findOrdersByStatusAndUserId(String status, Long userId, Pageable pageable) {
+        return orderRepository.findByStatusAndUserUserId(status, userId, pageable);
     }
     
     @Override
     // Tìm tất cả đơn hàng của một user
-    public List<Order> findOrdersByUserId(Long userId) {
-        return orderRepository.findByUserUserId(userId);
-    }
+
+	public Page<Order> findOrdersByUserId(Long userId, Pageable pageable) {
+	    return orderRepository.findByUserUserId(userId, pageable);
+	}
     
     @Override
     public void save(Order order) {
@@ -121,9 +124,8 @@ public class OrderServiceImpl implements OrderService{
     }
     
     @Override
-    public List<Order> findOrdersByMultipleStatusesAndUserId(List<String> statuses, Long userId) {
-        // Sử dụng repository hoặc query builder để tìm đơn hàng theo nhiều trạng thái
-        return orderRepository.findByStatusInAndUserUserId(statuses, userId);
+    public Page<Order> findOrdersByMultipleStatusesAndUserId(List<String> statuses, Long userId, Pageable pageable) {
+        return orderRepository.findByStatusInAndUserUserId(statuses, userId, pageable);
     }
     
     @Override

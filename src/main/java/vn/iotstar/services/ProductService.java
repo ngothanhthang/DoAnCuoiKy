@@ -27,4 +27,6 @@ public interface ProductService {
 
 	List<Product> getBestSellingProducts();
 
+	Page<ProductDTO> searchProductsByCategory(Long categoryId, String keyword, int status, Pageable pageable);
+
 }
