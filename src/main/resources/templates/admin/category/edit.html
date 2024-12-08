@@ -38,35 +38,59 @@
 							<h3 class="box-title">Quick Example</h3>
 						</div>
 
-						<form role="form" method="post" th:acction="@{/admin/edit-category}" th:object="${category}"> <!-- bên này đặt object category thì @ModelAttribute("category"). Nó nằm ở trong controller  -->
+						<form role="form" method="post" th:acction="@{/admin/edit-category}" th:object="${category}" enctype="multipart/form-data">  <!-- bên này đặt object category thì @ModelAttribute("category"). Nó nằm ở trong controller  -->
 							<input type="hidden" class="form-control" id="exampleInputEmail1" th:field="*{id}">
 							<div class="box-body">
 								<div class="form-group">
-									<label for="exampleInputEmail1">Category Name</label> 
+									<label for="exampleInputEmail1">Tên danh mục</label> 
 									<input type="text" class="form-control" id="exampleInputEmail1" th:field="*{name}">
 								</div>
 								
+								<label for="exampleInputEmail1">Ảnh danh mục</label> 
 								<div class="form-group">
-									<label for="exampleInputEmail1">Category Image</label> 
-									<input type="text" class="form-control" id="exampleInputEmail1" th:field="*{images}">
+									<td>
+										<img th:if="${category.images != null}" th:src="@{'/uploads/'+${category.images}}" width="150px" alt="User Image">
+										<span th:if="${category.images == null}">No Image</span>
+									</td>
+								</div>
+								
+								<script type="text/javascript">
+									function chooseFile(fileInput) {
+										if (fileInput.files
+												&& fileInput.files[0]) {
+											var reader = new FileReader();
+											reader.onload = function(e) {
+												$('#images').attr('src',
+														e.target.result); // Cập nhật ảnh vào thẻ img
+											};
+											reader.readAsDataURL(fileInput.files[0]); // Đọc file ảnh
+										}
+									}
+								</script>
+
+								<div class="form-group">
+									<label for="exampleInputEmail1">Chọn ảnh mới</label> 
+									<input type="file" id="fileInput" onchange="chooseFile(this)" name="fileImage">
+									<img id="images" th:src="${category.images != null ? '/admin/category/images/' + product.images : '/uploads/default-imageCategory.jpg'}" alt="Category Image" width="300" />
 								</div>
 
 								<div class="form-group">
-									<label for="exampleInputPassword1">Category Status</label>
+									<label for="exampleInputPassword1">Trạng thái danh mục</label>
 
 									<div>
 										<div class="form-check form-check-inline">
 											<input type="radio" class="form-check-input"  th:field="*{status}" value="1" />
-											<label class="form-check-label" for="inlineRadio1">Active</label>
+											<label class="form-check-label" for="inlineRadio1">Còn kinh doanh</label>
 										</div>
 
 										<div class="form-check form-check-inline">
 											<input type="radio" class="form-check-input" th:field="*{status}" value="0" /> 
-											<label class="form-check-label" for="inlineRadio2">Hidden</label>
+											<label class="form-check-label" for="inlineRadio2">Hết kinh doanh</label>
 										</div>
 
 									</div>
 								</div>
+							</div>
 								<!-- /.box-body -->
 
 								<div class="box-footer">

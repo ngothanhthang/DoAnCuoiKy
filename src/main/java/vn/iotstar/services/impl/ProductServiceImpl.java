@@ -97,6 +97,18 @@ public class ProductServiceImpl implements ProductService {
 		return productRepository.findAll();
 	}
 
+	@Override
+	public void deleteProductById(Long id) {
+		productRepository.deleteById(id);
+		
+	}
+
+	@Override
+	public Product saveProduct(Product product) {
+		return productRepository.save(product);
+		
+	}
+
 	/*
 	 * @Override public List<AdminProductDTO> getAllProductDTOs() {
 	 * 

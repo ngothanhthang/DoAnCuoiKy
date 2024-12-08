@@ -12,14 +12,19 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import vn.iotstar.entity.Category;
+import vn.iotstar.entity.Product;
 import vn.iotstar.services.CategoryService;
+import vn.iotstar.services.StorageService;
 
 @Controller
 
 @RequestMapping("/admin")
 public class AdminCategoryController {
+	@Autowired
+	private StorageService storageService;
 	@Autowired
 	private CategoryService categoryService;
 	@GetMapping("/category")
@@ -40,7 +45,11 @@ public class AdminCategoryController {
 	}
 	
 	@PostMapping("/add-category")
-	public String save(@ModelAttribute("category") Category category) {
+	public String save(@ModelAttribute("category") Category category, @RequestParam("fileImage") MultipartFile file) {
+		
+		this.storageService.store(file);
+		String fileName = file.getOriginalFilename(); 	
+		category.setImages(fileName);
 		try {
 			this.categoryService.saveCategory(category);
 			return "redirect:/admin/category";
@@ -64,9 +73,12 @@ public class AdminCategoryController {
 	        return "admin/category/index";
 	    }
 	}
-
+	
 	@PostMapping("/edit-category/{id}")
-	public String update(@ModelAttribute("category") Category category) {
+	public String update(@ModelAttribute("category") Category category, @RequestParam("fileImage") MultipartFile file) {
+		this.storageService.store(file);
+		String fileName = file.getOriginalFilename(); 	
+		category.setImages(fileName);
 		try {
 			this.categoryService.saveCategory(category);
 			return "redirect:/admin/category";

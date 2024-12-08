@@ -44,13 +44,19 @@
 						<table class="table table-bordered">
 							<tbody>
 								<tr>
-									<th style="width: 10px">ID</th>
-									<th>Category Name</th>
-									<th>Status</th>
-									<th>Action</th>
+									<th style="width: 10px">STT</th>
+									<th>Ảnh</th>
+									<th>Tên danh mục</th>
+									<th>Trạng thái</th>
+									<th>Lựa chọn</th>
 								</tr>
 								<tr th:each="category : ${listCate}">
 									<td th:text="${category.id}"></td>
+									<td><img th:if="${category.images != null}"
+										th:src="@{'/uploads/'+${category.images}}" width="150px"
+										alt="User Image"> <span
+										th:if="${category.images == null}">No Image</span>
+									</td>
 									<td th:text="${category.name}"></td>
 									<td th:if="${category.status}"><span class="label label-success">Hiện</span></td>
 									<td th:if="${!category.status}"><span class="label label-danger">Ẩn</span></td>

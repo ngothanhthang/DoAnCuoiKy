@@ -39,11 +39,13 @@
 						</div>
 
 						<form role="form" method="post"
-							th:acction="@{/admin/add-category}" th:object="${category}">
+							th:acction="@{/admin/add-category}" th:object="${category}" enctype="multipart/form-data">
 							<!-- bên này đặt object category thì @ModelAttribute("category"). Nó nằm ở trong controller  -->
 							<div class="box-body">
+							
+								
 								<div class="form-group">
-									<label for="exampleInputEmail1">Category Name</label> <input
+									<label for="exampleInputEmail1">Tên danh mục</label> <input
 										type="text" class="form-control" id="exampleInputEmail1"
 										th:field="*{name}">
 								</div>
@@ -69,31 +71,26 @@
 									}
 								</script>
 
-								<input type="file" id="fileInput" onchange="chooseFile(this)" />
-								<img id="images" th:src="${category.images != null ? '/admin/category/images/' + product.images : '/static/images/default-image.png'}" alt="Product Image" width="300" />
-									width="300" />
-									
-									
-									
-									
-									
-									
-									
-
 								<div class="form-group">
-									<label for="exampleInputPassword1">Category Status</label>
+									<label for="exampleInputEmail1">Ảnh</label> 
+									<input type="file" id="fileInput" onchange="chooseFile(this)" name="fileImage">
+									<img id="images" th:src="${category.images != null ? '/admin/category/images/' + product.images : '/uploads/default-imageCategory.jpg'}" alt="Category Image" width="300" />
+								</div>
+						
+								<div class="form-group">
+									<label for="exampleInputPassword1">Trạng thái danh mục</label>
 
 									<div>
 										<div class="form-check form-check-inline">
 											<input type="radio" class="form-check-input"
 												th:field="*{status}" value="1" /> <label
-												class="form-check-label" for="inlineRadio1">Active</label>
+												class="form-check-label" for="inlineRadio1">Còn kinh doanh</label>
 										</div>
 
 										<div class="form-check form-check-inline">
 											<input type="radio" class="form-check-input"
 												th:field="*{status}" value="0" /> <label
-												class="form-check-label" for="inlineRadio2">Hidden</label>
+												class="form-check-label" for="inlineRadio2">Hết kinh doanh</label>
 										</div>
 
 									</div>

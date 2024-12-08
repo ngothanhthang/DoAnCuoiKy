@@ -24,6 +24,11 @@ public interface ProductService {
 	Boolean create(Product product);
 
 	List<Product> getTable_Products();
+	
+	// Xóa danh mục theo ID
+    void deleteProductById(Long id);
+    
+    Product saveProduct(Product product);
 
 	/* List<ProductDTO> getAllProductDTOs(); */
 
