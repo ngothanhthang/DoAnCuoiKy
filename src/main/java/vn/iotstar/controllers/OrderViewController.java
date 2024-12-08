@@ -162,7 +162,7 @@ public class OrderViewController {
         
         if (order != null) {
             // Cập nhật trạng thái của đơn hàng
-            order.setStatus("Chờ xác nhận");
+            order.setStatus("chờ xác nhận");
             orderService.save(order);
          // Tạo thông báo mới sau khi cập nhật trạng thái đơn hàng
             Notification notification = new Notification();

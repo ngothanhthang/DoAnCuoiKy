@@ -5,6 +5,7 @@ package vn.iotstar.services;
 
 import vn.iotstar.entity.Cart;
 import vn.iotstar.entity.CartItem;
+import vn.iotstar.entity.User;
 
 public interface CartService {
 
@@ -20,4 +21,8 @@ public interface CartService {
 	CartItem getItemById(Long itemId);
 
 	void save(Cart cart);
+
+	Cart findCartByUser(User user);
+
+	int getTotalCartItemCount(User user);
 }

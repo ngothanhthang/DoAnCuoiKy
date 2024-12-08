@@ -178,10 +178,6 @@
 	var orderId = segments.find(function(segment) {
 	    return !isNaN(segment) && segment !== '' && segment !== 'summary';
 	});
-
-	// In kết quả orderId
-	console.log('Order ID:', orderId); // Ví dụ: 83
-
 	// Lấy phần query string (sau dấu "?")
 	var queryString = url.split('?')[1];
 
@@ -196,10 +192,6 @@
 	    .map(function(param) {
 	        return param.split('=')[1];
 	    });
-
-	// In kết quả selectedItems
-	console.log('Selected Items:', selectedItems); // Ví dụ: ["21", "22"]
-
 	// Gán giá trị selectedItems vào input hidden dưới dạng chuỗi "21,22"
 	document.getElementById('selectedItems').value = selectedItems.join(',');
 	// Gán giá trị orderId vào ô input

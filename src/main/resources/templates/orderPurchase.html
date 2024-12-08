@@ -172,6 +172,13 @@
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
+        .confirm-delivery-button {
+    background-color: #28a745; /* Màu xanh lá cây */
+}
+
+.confirm-delivery-button:hover {
+    background-color: #218838;
+}
     </style>
 </head>
 <body>
@@ -238,7 +245,11 @@
                         <div class="order-details">
                             <div th:each="item : ${order.orderItems}" class="order-item">
                             
-                                <img class="order-img" src="https://via.placeholder.com/150" alt="Product Image">
+                                <img class="order-img" 
+								     th:src="${item.product.imageUrl}" 
+								     alt="Product Image"
+								     style="width: 100px; height: 100px; object-fit: contain;"
+								     onerror="this.src='https://via.placeholder.com/150';">
                                 <div class="order-details">
                                     <div class="order-header" th:text="${item.product.name}">Product Name</div>
                                     <div class="order-body" th:text="${item.product.description}">Product Description</div>
@@ -257,15 +268,25 @@
 							    </div>
                             </div>
                         </div>
-						<div th:if="${order.status == 'đã giao'}">
-						    <button class="order-return-button" 
-						            th:data-order-id="${order.id}" 
-						            onclick="cancelButtonClicked(this)">
-						        Hủy
-						    </button>
-						</div>
                         <div class="order-total">
-                            <div th:if="${order.status == 'chờ xác nhận' or order.status == 'đang duyệt' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
+                        <div th:if="${order.status == 'đang giao'}">
+					        <button class="order-return-button confirm-delivery-button" 
+					            th:data-order-id="${order.id}" 
+					            onclick="xacNhanDaGiaoClicked(this)">
+					            Đã nhận hàng
+					        </button>
+					        <small class="text-muted d-block mt-2">
+					            Chỉ nhấn khi bạn đã nhận được đơn hàng
+					        </small>
+					    </div>
+                        <div th:if="${order.status == 'chờ xác nhận'}">
+					        <button class="order-return-button cancel-button" 
+					            th:data-order-id="${order.id}" 
+					            onclick="huyDonHangClicked(this)">
+					            Hủy đơn
+					        </button>
+					    </div>
+                            <div th:if="${order.status == 'đã giao' or order.status == 'đang duyệt' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
                                 <button class="order-return-button" 
                                     th:class="${order.status == 'đang duyệt' ? 'order-return-button disabled' : 'order-return-button'}" 
                                     th:text="${order.status == 'đang duyệt' ? 'Đang duyệt' : 'Trả hàng'}" 
@@ -369,46 +390,78 @@
         // Ví dụ chuyển hướng đến trang đánh giá của sản phẩm
         window.location.href = '/order/review/' + productId;  // Thay đường dẫn theo yêu cầu của bạn
     }
-    function cancelButtonClicked(button) {
-        console.log('Nút Hủy đã được nhấn!');
-        button.textContent = 'Đang hủy';
-        button.classList.add('disabled');
-        button.disabled = true;
-
+    function huyDonHangClicked(button) {
         var orderId = button.getAttribute('data-order-id');
 
         if (!orderId) {
-            console.error('Không tìm thấy orderId');
+            console.error('Không tìm thấy mã đơn hàng');
             return;
         }
 
-        console.log('orderId:', orderId);
-        fetch('/order/update-status', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                orderId: orderId,
-                status: 'Hủy'  // Cập nhật trạng thái đơn hàng thành "Hủy"
+        // Hiển thị xác nhận trước khi hủy
+        if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')) {
+            fetch('/order/update-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    orderId: orderId,
+                    status: 'Hủy'
+                })
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('Trạng thái đơn hàng đã được cập nhật thành "Hủy"');
-                button.textContent = 'Đã hủy';
-            } else {
-                console.error('Cập nhật trạng thái thất bại');
-                button.textContent = 'Lỗi';
-            }
-        })
-        .catch(error => {
-            console.error('Lỗi khi gửi yêu cầu:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Ẩn hoặc loại bỏ đơn hàng khỏi giao diện
+                    button.closest('.order-card').remove();
+                    alert('Đã hủy đơn hàng thành công');
+                } else {
+                    alert('Hủy đơn hàng không thành công');
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi khi gửi yêu cầu:', error);
+                alert('Có lỗi xảy ra khi hủy đơn hàng');
+            });
+        }
     }
+    function xacNhanDaGiaoClicked(button) {
+        var orderId = button.getAttribute('data-order-id');
 
+        if (!orderId) {
+            console.error('Không tìm thấy mã đơn hàng');
+            return;
+        }
 
+        // Hiển thị xác nhận trước khi cập nhật trạng thái
+        if (confirm('Bạn đã nhận được đơn hàng và muốn xác nhận?')) {
+            fetch('/order/update-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    orderId: orderId,
+                    status: 'đã giao'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Ẩn hoặc loại bỏ đơn hàng khỏi giao diện hoặc cập nhật trạng thái
+                    button.closest('.order-card').remove();
+                    alert('Đã xác nhận giao hàng thành công');
+                } else {
+                    alert('Xác nhận giao hàng không thành công');
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi khi gửi yêu cầu:', error);
+                alert('Có lỗi xảy ra khi xác nhận giao hàng');
+            });
+        }
+    }
 </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>

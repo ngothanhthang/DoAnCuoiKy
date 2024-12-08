@@ -12,4 +12,10 @@ public interface AddressService {
 
 	Address saveAddress(Address address);
 
+	Address getDefaultAddressByUserId(Long userId);
+
+	void deleteAddress(Long id);
+
+	Address getAddressById(Long id);
+
 }

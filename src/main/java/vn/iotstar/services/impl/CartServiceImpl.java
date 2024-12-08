@@ -121,5 +121,24 @@ public class CartServiceImpl implements CartService {
         // Lưu lại chính giỏ hàng
         cartRepository.save(cart);
     }
+    
+    @Override
+    public Cart findCartByUser(User user) {
+        return cartRepository.findByUser(user);
+    }
+    
+    @Override
+ // Tính tổng số lượng sản phẩm trong giỏ hàng
+    public int getTotalCartItemCount(User user) {
+        Cart cart = findCartByUser(user);
+        if (cart == null || cart.getCartItems() == null) {
+            return 0; // Nếu không có giỏ hàng hoặc không có sản phẩm, trả về 0
+        }
+
+        // Tính tổng số lượng sản phẩm trong giỏ hàng
+        return cart.getCartItems().stream()
+                .mapToInt(CartItem::getQuantity)  // Lấy số lượng của từng CartItem
+                .sum();  // Tính tổng số lượng
+    }
 
 }

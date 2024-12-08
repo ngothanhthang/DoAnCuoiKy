@@ -65,12 +65,49 @@
                         <span class="fs-5">Hỗ trợ</span> <!-- Thay icon bằng văn bản -->
                     </a>
                 </div>
+                <!-- Tài khoản của tôi -->
+                <div class="me-3">
+                    <a href="/address/info" class="text-light">
+                        <i class="bi bi-person-circle fs-5"></i> <!-- Biểu tượng tài khoản -->
+                        <span class="ms-2">Tài khoản của tôi</span>
+                    </a>
+                </div>
 <a href="/cart/view" class="btn btn-warning position-relative">
   <img src="images/shopping-cart-icon.png" alt="Shopping Cart" class="me-2" />
 
-  <span class="badge bg-danger position-absolute top-0 start-100 translate-middle">3</span>
+<span id="cartItemCount" class="badge bg-danger position-absolute top-0 start-100 translate-middle"></span>
 </a>
             </div>
         </div>
     </nav>
+    <section class="hero">
+        <div class="container">
+            <div class="intro-excerpt">
+                <h1>Welcome to My Store</h1>
+                <p>Discover the latest products and trends.</p>
+            </div>
+            
+        </div>
+    </section>
 </header>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Gọi API để lấy giỏ hàng của người dùng
+    fetch('/cart/user-cart', {
+        method: 'GET',
+    })
+    .then(response => response.json()) // Giả sử server trả về JSON chứa giỏ hàng
+    .then(data => {
+        if (data.cartItems) {
+            // Cập nhật giao diện giỏ hàng (số lượng sản phẩm trong giỏ hàng)
+            const badge = document.getElementById("cartItemCount");
+            badge.textContent = data.cartItems.length; // Cập nhật số lượng sản phẩm
+        }
+    })
+    .catch(error => {
+        console.error('Có lỗi khi lấy giỏ hàng:', error);
+    });
+});
+
+
+</script>

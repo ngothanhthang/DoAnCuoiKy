@@ -2,7 +2,9 @@ package vn.iotstar.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import vn.iotstar.entity.*;
 import vn.iotstar.repository.OrderRepository;
@@ -108,14 +110,16 @@ public class OrderServiceImpl implements OrderService{
     @Override
  // Tìm danh sách đơn hàng của một user với trạng thái cụ thể
     public Page<Order> findOrdersByStatusAndUserId(String status, Long userId, Pageable pageable) {
-        return orderRepository.findByStatusAndUserUserId(status, userId, pageable);
+    	 Pageable sortedByDate = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.desc("createdAt")));
+    	    return orderRepository.findByStatusAndUserUserId(status, userId, sortedByDate);
     }
     
     @Override
     // Tìm tất cả đơn hàng của một user
 
 	public Page<Order> findOrdersByUserId(Long userId, Pageable pageable) {
-    	return orderRepository.findByUserUserIdAndStatusNot(userId, "chờ xử lý", pageable);
+    	Pageable sortedByDate = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.desc("createdAt")));
+        return orderRepository.findByUserUserIdAndStatusNot(userId, "chờ xử lý", sortedByDate);
 	}
     
     @Override
@@ -125,7 +129,8 @@ public class OrderServiceImpl implements OrderService{
     
     @Override
     public Page<Order> findOrdersByMultipleStatusesAndUserId(List<String> statuses, Long userId, Pageable pageable) {
-        return orderRepository.findByStatusInAndUserUserId(statuses, userId, pageable);
+    	Pageable sortedByDate = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.desc("createdAt")));
+        return orderRepository.findByStatusInAndUserUserId(statuses, userId, sortedByDate);
     }
     
     @Override

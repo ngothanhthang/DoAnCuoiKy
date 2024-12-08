@@ -90,7 +90,18 @@
     <!-- Navbar -->
     <nav class="custom-navbar navbar navbar-expand-lg navbar-dark">
         <a class="navbar-brand" href="#">My Store</a>
-        
+        <!-- Phần tìm kiếm -->
+		<div class="search-container">
+		    <form method="get" id="searchForm" action="/category">
+		        <input type="hidden" name="categoryId" th:value="${categoryId}" />
+		        <input type="hidden" name="page" th:value="0" />
+		        <input type="hidden" name="sort" th:value="${sortOption}" />
+		        <div class="input-group mb-3">
+		            <input type="text" class="form-control" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm sản phẩm...">
+		            <button class="btn btn-outline-secondary" type="submit">Tìm kiếm</button>
+		        </div>
+		    </form>
+		</div>
         <ul class="navbar-nav custom-navbar-nav ms-auto">
             <li class="nav-item">
                 <a class="nav-link" href="#">Home</a>

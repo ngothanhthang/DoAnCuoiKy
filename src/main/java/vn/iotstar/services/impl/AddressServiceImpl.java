@@ -29,4 +29,20 @@ public class AddressServiceImpl implements AddressService {
         return addressRepository.save(address);
     }
     
+    @Override
+    public void deleteAddress(Long id) {
+        addressRepository.deleteById(id);
+    }
+    
+    @Override
+    public Address getDefaultAddressByUserId(Long userId) {
+        return addressRepository.findByUserUserIdAndIsDefaultTrue(userId);
+    }
+    
+    @Override
+    public Address getAddressById(Long id) {
+        return addressRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy địa chỉ"));
+    }
+    
 }

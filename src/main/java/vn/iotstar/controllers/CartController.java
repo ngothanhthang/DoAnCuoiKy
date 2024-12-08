@@ -6,11 +6,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpSession;
+import vn.iotstar.entity.Cart;
 import vn.iotstar.entity.CartItem;
+import vn.iotstar.entity.User;
+import vn.iotstar.repository.UserRepository;
 import vn.iotstar.services.CartService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/cart")
@@ -18,6 +26,10 @@ public class CartController {
 
     @Autowired
     private CartService cartService;
+    @Autowired
+    private UserRepository userService;
+ // Tạo logger
+    private static final Logger logger = LoggerFactory.getLogger(CartController.class);
 
     // Thêm sản phẩm vào giỏ hàng và trả về thông báo
     @PostMapping("/cart/add")
@@ -53,5 +65,24 @@ public class CartController {
         response.put("totalPrice", totalPrice);  // Nếu không có sản phẩm nào, tổng tiền là 0
         return response;
     }
+    
+    @GetMapping("/user-cart")
+    public ResponseEntity<?> getCartForUser(HttpSession session) {
+        // Lấy user từ session
+    	 User user = (User) session.getAttribute("user");
 
+         // Nếu không có user trong session, sử dụng user mặc định (userId = 1)
+         if (user == null) {
+             user = new User();
+             user.setUserId(1L);  // Cài đặt id mặc định là 1, hoặc sử dụng giá trị khác nếu cần
+             // Bạn có thể cài đặt thêm các thuộc tính mặc định khác cho User nếu cần
+         }
+
+        // Lấy tổng số lượng sản phẩm trong giỏ hàng của người dùng
+        int totalItems = cartService.getTotalCartItemCount(user);
+        logger.info("Tổng số lượng sản phẩm trong giỏ hàng của user (userId = {}): {}", user.getUserId(), totalItems);
+
+        // Trả về số lượng sản phẩm trong giỏ hàng
+        return ResponseEntity.ok(totalItems);
+    }
 }
