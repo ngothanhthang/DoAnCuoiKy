@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,15 +50,19 @@ public class VendorController {
     private ProductDTOService productDTOService;
     @Autowired
     private CategoryDTOService categoryDTO_2Service;
-
+    @GetMapping
+    public String Vendorpage()
+    {
+    	return "VendorPage";
+    }
     @GetMapping("/manage_products")
     public String getProducts(@RequestParam(value = "page", defaultValue = "0") int page, Model model) {
-        Page<Product> productPage = productService.getProducts(page);
-        List<Product> products = productPage.getContent();
-        model.addAttribute("products", products);
-        model.addAttribute("totalPages", productPage.getTotalPages());
-        model.addAttribute("currentPage", page);
-        return "manageProduct";
+        Page<Product> productPage = productService.getProducts(page);  // Lấy danh sách sản phẩm cho trang
+        List<Product> products = productPage.getContent();  // Lấy các sản phẩm trong trang hiện tại
+        model.addAttribute("products", products);  // Thêm danh sách sản phẩm vào mô hình
+        model.addAttribute("totalPages", productPage.getTotalPages());  // Thêm tổng số trang vào mô hình
+        model.addAttribute("currentPage", page);  // Thêm trang hiện tại vào mô hình
+        return "manageProduct";  // Trả về view manageProduct (tên của trang HTML)
     }
 
     @PostMapping("/add-products")
@@ -69,7 +72,8 @@ public class VendorController {
             @RequestParam("quantity") int quantity,
             @RequestParam("status") int status,
             @RequestParam("image") MultipartFile imageFile,
-            @RequestParam("category") Long categoryId ) 
+            @RequestParam("category") Long categoryId,
+            @RequestParam("description") String description) 
     		
     {
         try 
@@ -95,10 +99,10 @@ public class VendorController {
             product.setQuantity(quantity);
             product.setStatus(status);
             product.setCategory(category);
+            product.setDescription(description); 
 
             // Lưu URL ảnh (tương đối) vào DB, ví dụ: /images/abc.jpg
             product.setImageUrl("/images/" + uniqueFileName);
-
             productService.save(product);
 
             return ResponseEntity.ok(new ApiResponse(true, "Sản phẩm đã được thêm thành công!", product));
@@ -149,7 +153,8 @@ public class VendorController {
             @RequestParam("quantity") int quantity,
             @RequestParam("status") int status,
             @RequestParam(value = "image", required = false) MultipartFile imageFile,
-            @RequestParam("category") Long categoryId) {
+            @RequestParam("category") Long categoryId,
+            @RequestParam("description") String description) {
         try {
             // Chuyển productId từ String sang Long
             Long productLongId = Long.parseLong(productId);  // Chuyển đổi String sang Long
@@ -166,6 +171,7 @@ public class VendorController {
             existingProduct.setQuantity(quantity);
             existingProduct.setStatus(status);
             existingProduct.setCategory(category);
+            existingProduct.setDescription(description);
 
             // Nếu có ảnh mới, xử lý ảnh và lưu vào thư mục
             if (imageFile != null && !imageFile.isEmpty()) {
@@ -225,6 +231,11 @@ public class VendorController {
             ApiResponse response = new ApiResponse(false, "Lỗi không xác định: " + e.getMessage(), null);
             return ResponseEntity.status(500).body(response);  // Trả về mã trạng thái 500 Internal Server Error
         }
+    }
+    @GetMapping("/manage_orders")
+    public String ManageOrderPage()
+    {
+    	return "ManageOrder";
     }
    
 }

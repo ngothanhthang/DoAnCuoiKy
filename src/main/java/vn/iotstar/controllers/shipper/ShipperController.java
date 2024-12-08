@@ -83,34 +83,32 @@ public class ShipperController {
 	    return "Shipper";
 	}
 	// API nhận giao đơn hàng và gửi thông báo cho vendor
-	@PostMapping("/sendToVendor")
-	public ResponseEntity<?> sendToVendor(@RequestBody ShipperNotificationRequest request) {
-	    // Kiểm tra đơn hàng có hợp lệ không
-	    Order order = orderService.getOrderById(request.getOrderId());
-	    if (order == null) {
-	        return ResponseEntity.status(400).body("Đơn hàng không tồn tại.");
-	    }
-
-	    // Kiểm tra shipper có hợp lệ không
-	    User shipper = userService.findById(request.getShipperId());
-	    if (shipper == null) {
-	        return ResponseEntity.status(400).body("Shipper không tồn tại.");
-	    }
-
-	    // Tạo thông báo
-	    String message = "Shipper " + request.getShipperId() + " đã nhận đơn hàng số " + request.getOrderId() +
-	                     " vào lúc " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
-	    // Tạo thông báo cho vendor
-	    Notification notification = new Notification();
-	    notification.setShipper(shipper);  // Set shipper vào thông báo
-	    notification.setOrder(order);      // Set order vào thông báo
-	    notification.setMessage(message);  // Set nội dung thông báo
-	    notification.setTimestamp(LocalDateTime.now());  // Set thời gian tạo thông báo
-
-	    notificationService.save(notification);  // Lưu thông báo vào cơ sở dữ liệu
-
-	    // Trả về phản hồi thành công
-	    return ResponseEntity.ok().body("Thông báo đã được gửi đến vendor.");
-	}
+	/*
+	 * @PostMapping("/sendToVendor") public ResponseEntity<?>
+	 * sendToVendor(@RequestBody ShipperNotificationRequest request) { // Kiểm tra
+	 * đơn hàng có hợp lệ không Order order =
+	 * orderService.getOrderById(request.getOrderId()); if (order == null) { return
+	 * ResponseEntity.status(400).body("Đơn hàng không tồn tại."); }
+	 * 
+	 * // Kiểm tra shipper có hợp lệ không User shipper =
+	 * userService.findById(request.getShipperId()); if (shipper == null) { return
+	 * ResponseEntity.status(400).body("Shipper không tồn tại."); }
+	 * 
+	 * // Tạo thông báo String message = "Shipper " + request.getShipperId() +
+	 * " đã nhận đơn hàng số " + request.getOrderId() + " vào lúc " +
+	 * LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+	 * );
+	 * 
+	 * // Tạo thông báo cho vendor Notification notification = new Notification();
+	 * notification.setShipper(shipper); // Set shipper vào thông báo
+	 * notification.setOrder(order); // Set order vào thông báo
+	 * notification.setMessage(message); // Set nội dung thông báo
+	 * notification.setTimestamp(LocalDateTime.now()); // Set thời gian tạo thông
+	 * báo
+	 * 
+	 * notificationService.save(notification); // Lưu thông báo vào cơ sở dữ liệu
+	 * 
+	 * // Trả về phản hồi thành công return
+	 * ResponseEntity.ok().body("Thông báo đã được gửi đến vendor."); }
+	 */
 }

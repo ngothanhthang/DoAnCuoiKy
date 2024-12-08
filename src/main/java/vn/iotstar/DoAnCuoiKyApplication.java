@@ -4,14 +4,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-
-@SpringBootApplication
-//@SpringBootApplication
-@SpringBootApplication(scanBasePackages = {"vn.iotstar", "configs"})
+@SpringBootApplication(scanBasePackages = {"vn.iotstar"})
 @EnableJpaRepositories("vn.iotstar.repository")
 
 public class DoAnCuoiKyApplication {
@@ -37,3 +35,4 @@ public class DoAnCuoiKyApplication {
 	            .httpBasic(basic -> basic.disable())  // Tắt Basic Authentication nếu không cần thiết
 	            .build();
 	}
+}
