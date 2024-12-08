@@ -58,11 +58,11 @@
 										th:if="${category.images == null}">No Image</span>
 									</td>
 									<td th:text="${category.name}"></td>
-									<td th:if="${category.status}"><span class="label label-success">Hiện</span></td>
-									<td th:if="${!category.status}"><span class="label label-danger">Ẩn</span></td>
+									<td th:if="${category.status}"><span class="label label-success">Còn kinh doanh</span></td>
+									<td th:if="${!category.status}"><span class="label label-danger">Hết kinh doanh</span></td>
 									<td>
-										<a th:href="@{/admin/edit-category/{id}(id=${category.id})}" class="btn btn-success">Edit</a>
-										<a th:href="@{/admin/delete-category/{id}(id=${category.id})}" onclick="return confirm('Bạn chắc chắn không')" class="btn btn-danger">Delete</a>
+										<a th:href="@{/admin/edit-category/{id}(id=${category.id})}" class="btn btn-success">Chỉnh sửa</a>
+										<a th:href="@{/admin/delete-category/{id}(id=${category.id})}" onclick="return confirm('Bạn chắc chắn không')" class="btn btn-danger">Xóa</a>
 									</td>
 								</tr>
 								
