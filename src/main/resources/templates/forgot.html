@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quên Mật Khẩu</title>
+    <!-- Thêm link đến Bootstrap CSS -->
+    <link
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+            rel="stylesheet"
+    />
+    <style>
+        body {
+            background-color: #121212; /* Nền đen huyền bí */
+            color: #fff; /* Chữ trắng để nổi bật trên nền tối */
+            font-family: "Arial", sans-serif;
+        }
+
+        .card {
+            background-color: #1e1e1e; /* Màu nền card tối */
+            border: none; /* Không có viền card */
+            border-radius: 15px; /* Bo góc card */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Hiệu ứng bóng */
+        }
+
+        .card-title {
+            color: #f1c40f; /* Màu vàng ánh kim cho tiêu đề */
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            color: #d3d3d3; /* Màu chữ nhạt cho label */
+        }
+
+        .form-control {
+            background-color: #333; /* Nền input tối */
+            color: #fff; /* Chữ sáng */
+            border: 1px solid #555; /* Viền tối */
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background-color: #444; /* Nền input khi focus */
+            border-color: #f1c40f; /* Viền vàng khi focus */
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.6); /* Hiệu ứng phát sáng khi focus */
+        }
+
+        .btn-primary {
+            background-color: #f1c40f; /* Màu vàng ánh kim */
+            border-color: #f1c40f;
+            font-weight: bold;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #f39c12; /* Màu vàng đậm khi hover */
+            border-color: #f39c12;
+        }
+
+        .btn-primary:focus {
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.6); /* Hiệu ứng phát sáng khi nhấn */
+        }
+
+        .container {
+            height: 100vh;
+        }
+
+        .d-flex {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container d-flex">
+    <div class="card" style="max-width: 400px; width: 100%">
+        <div class="card-body">
+            <h5 class="card-title text-center">Quên Mật Khẩu</h5>
+            <div th:if="${error != null}">
+                <p class="text-danger">
+                    [[${error}]]
+                </p>
+            </div>
+            <form action="forgot-password" method="POST">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input
+                            type="email"
+                            class="form-control"
+                            id="email"
+                            name="email"
+                            placeholder="Nhập email của bạn để reset password!"
+                            required
+                    />
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Gửi</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Thêm link đến Bootstrap JS và các phụ thuộc của nó -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,9 +1,14 @@
 package vn.iotstar.services;
 
+
+import vn.iotstar.dto.UserDTO;
 import vn.iotstar.entity.User;
 
 public interface UserService {
-
 	User findById(Long userId);
-
+	User createUser(UserDTO userDTO) throws Exception;
+	String login(String phoneNumber, String password) throws Exception;
+	void updateResetPasswordToken(String token, String email);
+	User getUser(String token);
+	void updatePassword(User user, String newPassword);
 }
