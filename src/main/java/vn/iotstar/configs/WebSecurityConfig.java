@@ -31,11 +31,13 @@ public class WebSecurityConfig {
                             .requestMatchers(
                                     "users/register",
                                     "users/login",
-                                    "/categories",
                                     "admin/home2",
-                                    "users/forgot-password"
+                                    "users/forgot-password",
+                                    "users/reset-password"
                             )
                             .permitAll()
+                            .requestMatchers("admin/hieu").hasRole("USER")
+                            .requestMatchers("categories").hasRole("ADMIN")
                             .anyRequest().authenticated();
                 });
         return http.build();

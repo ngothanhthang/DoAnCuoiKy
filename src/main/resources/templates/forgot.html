@@ -85,6 +85,11 @@
                     [[${error}]]
                 </p>
             </div>
+            <div th:if="${message != null}">
+                <p class="text-warning">
+                    [[${message}]]
+                </p>
+            </div>
             <form action="forgot-password" method="POST">
                 <div class="form-group">
                     <label for="email">Email</label>

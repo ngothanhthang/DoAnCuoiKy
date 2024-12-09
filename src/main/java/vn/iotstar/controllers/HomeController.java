@@ -14,4 +14,10 @@ public class HomeController {
 		return "home";
 	}
 
+	@GetMapping("/hieu")
+	public String haha()
+	{
+		return "test";
+	}
+
 }

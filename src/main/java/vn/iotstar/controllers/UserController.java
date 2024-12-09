@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -126,12 +127,16 @@ public class UserController {
         try {
             userService.updateResetPasswordToken(token, email);
 
-            String resetPasswordLink = URLUtil.getSiteUrl(request) + "/users/reset_password?token=" + token;
+            String resetPasswordLink = URLUtil.getSiteUrl(request) + "/users/reset-password?token=" + token;
+
+            sendEmail(email, resetPasswordLink);
+
+            model.addAttribute("message", "We have sent a reset password link to your email. Please check email!");
 
         } catch (CustomerNotFoundException e) {
             model.addAttribute("error", e.getMessage());
-        } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
+        } catch (UnsupportedEncodingException | MessagingException ex) {
+            model.addAttribute("error", "Error while sending mail");
         }
         return "forgot";
     }
@@ -139,7 +144,7 @@ public class UserController {
     private void sendEmail(String email, String resetPasswordLink) throws MessagingException, UnsupportedEncodingException {
         MimeMessage mimeMailMessage = mailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMailMessage);
-        mimeMessageHelper.setFrom("hieungo.030604@gmail.com", "Home Nest");
+        mimeMessageHelper.setFrom("bumngo364@gmail.com", "Home Nest");
         mimeMessageHelper.setTo(email);
         String subject = "Here is the link to reset your password ";
 
@@ -156,8 +161,36 @@ public class UserController {
         mimeMessageHelper.setText(content, true);
 
         mailSender.send(mimeMailMessage);
+    }
 
+    @GetMapping("/reset-password")
+    public String showResetPasswordForm(@Param(value = "token") String token, Model model) {
+        User user = userService.getUser(token);
+        model.addAttribute("token", token);
 
+        if (user == null) {
+            model.addAttribute("title", "Reset Your Password");
+            model.addAttribute("message", "Invalid Token");
+            return "message";
+        }
+        model.addAttribute("token", token);
+        return "reset_password";
+    }
+
+    @PostMapping("/reset-password")
+    public String processResetPassword(HttpServletRequest request, Model model) {
+        String token = request.getParameter("token");
+        String password = request.getParameter("password");
+
+        User user = userService.getUser(token);
+        if (user == null) {
+            model.addAttribute("message", "Invalid Token");
+            return "message";
+        } else {
+            userService.updatePassword(user, password);
+            model.addAttribute("message", "You have successfully changed your password.");
+        }
+        return "message";
     }
 
 }
