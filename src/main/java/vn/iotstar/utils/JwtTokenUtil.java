@@ -22,7 +22,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtTokenUtil {
     @Value("${jwt.expiration}")
-    private int expiration; //save to an environment variable
+    private int expiration;
 
     @Value("${jwt.secretKey}")
     private String secretKey;
@@ -31,6 +31,7 @@ public class JwtTokenUtil {
         Map<String, Object> claims = new HashMap<>();
         //this.generateSecretKey();
         claims.put("username", user.getUsername());
+        claims.put("userId", user.getUserId());
         try {
             String token = Jwts.builder()
                     .setClaims(claims) //how to extract claims from this ?  Payload
@@ -51,15 +52,6 @@ public class JwtTokenUtil {
         //Keys.hmacShaKeyFor(Decoders.BASE64.decode("TaqlmGv1iEDMRiFp/pHuID1+T84IABfuA0xXh4GhiUI="));
         return Keys.hmacShaKeyFor(bytes);
     }
-
-
-    //    private String generateSecretKey() {
-//        SecureRandom random = new SecureRandom();
-//        byte[] keyBytes = new byte[32]; // 256-bit key
-//        random.nextBytes(keyBytes);
-//        String secretKey = Encoders.BASE64.encode(keyBytes);
-//        return secretKey;
-//    }
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignInKey())
@@ -67,13 +59,11 @@ public class JwtTokenUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
-
     public  <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = this.extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    //check expiration
     public boolean isTokenExpired(String token) {
         Date expirationDate = this.extractClaim(token, Claims::getExpiration);
         return expirationDate.before(new Date());
@@ -84,7 +74,7 @@ public class JwtTokenUtil {
     public boolean validateToken(String token, UserDetails userDetails) {
         String phoneNumber = extractPhoneNumber(token);
         return (phoneNumber.equals(userDetails.getUsername()))
-                && !isTokenExpired(token); //check hạn của token
+                && !isTokenExpired(token);
     }
 }
 

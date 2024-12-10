@@ -33,11 +33,11 @@ public class WebSecurityConfig {
                                     "users/login",
                                     "admin/home2",
                                     "users/forgot-password",
-                                    "users/reset-password"
+                                    "users/reset-password",
+                                    "users/**",
+                                    "users/verify-otp"
                             )
                             .permitAll()
-                            .requestMatchers("admin/hieu").hasRole("USER")
-                            .requestMatchers("categories").hasRole("ADMIN")
                             .anyRequest().authenticated();
                 });
         return http.build();

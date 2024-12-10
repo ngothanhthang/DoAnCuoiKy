@@ -42,17 +42,17 @@ public class User implements UserDetails {
     @Column(name = "reset_password_token")
     private String resetPasswordToken;
     
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)  // Một User có thể có nhiều Review
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)  // Một User có thể có nhiều Review
     private List<Review> reviews;  // Danh sách các Review mà người dùng đã viết
     
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)  // Một User có thể thích nhiều sản phẩm
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)  // Một User có thể thích nhiều sản phẩm
     private List<ProductLike> productLikes;  // Danh sách các sản phẩm mà người dùng đã thích
     
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
     private Cart cart;
     
  // Mối quan hệ One-to-Many với Address (mỗi user có thể có nhiều địa chỉ)
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Address> addresses;
 
     @ManyToOne

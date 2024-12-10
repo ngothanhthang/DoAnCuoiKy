@@ -134,7 +134,6 @@
             .then(response => response.json())
             .then(data => {
               if (data.token) {
-                alert("Login successful! Token: " + data.token);
                 localStorage.setItem("authToken", data.token);
                 window.location.href = "/admin/home2";  // Điều hướng đến trang dashboard
               } else {

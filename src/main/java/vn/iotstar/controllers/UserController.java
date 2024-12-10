@@ -3,6 +3,7 @@ package vn.iotstar.controllers;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,16 +18,22 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import vn.iotstar.dto.OtpDTO;
 import vn.iotstar.dto.UserDTO;
 import vn.iotstar.dto.UserLoginDTO;
 import vn.iotstar.entity.User;
 import vn.iotstar.exceptions.CustomerNotFoundException;
 import vn.iotstar.services.UserService;
+import vn.iotstar.services.impl.EmailService;
+import vn.iotstar.services.impl.OTPService;
 import vn.iotstar.utils.URLUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/users")
@@ -34,6 +41,12 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private OTPService otpService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private JavaMailSender mailSender;
@@ -46,7 +59,7 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO,
-                                        BindingResult result) {
+                                        BindingResult result, HttpSession session) {
         try {
             if(result.hasErrors()) {
                 List<String> errorMessages = result.getFieldErrors()
@@ -56,21 +69,40 @@ public class UserController {
                 // Trả về thông báo lỗi dưới dạng JSON
                 return ResponseEntity.badRequest().body(Collections.singletonMap("message", String.join(", ", errorMessages)));
             }
-
             if(!userDTO.getPassword().equals(userDTO.getRetypePassword())) {
                 // Trả về thông báo lỗi mật khẩu không khớp
                 return ResponseEntity.badRequest().body(Collections.singletonMap("message", "Password not match"));
             }
-
-            // Giả sử bạn tạo user thành công
-            User user = userService.createUser(userDTO);
-
+            String otp = otpService.generateOTP();
+            // Gửi OTP qua email
+            emailService.sendOTPEmail(userDTO.getEmail(), otp);
+            // Lưu OTP vào session (hoặc lưu vào cơ sở dữ liệu với thời gian hết hạn)
+            session.setAttribute("otp", otp);
+            session.setAttribute("email", userDTO.getEmail());
+            session.setAttribute("userDTO", userDTO);
+//            User user = userService.createUser(userDTO);
             // Trả về thông báo thành công dưới dạng JSON
-            return ResponseEntity.ok(Collections.singletonMap("message", "Thành công tốt đẹp"));
+            return ResponseEntity.ok(Collections.singletonMap("message", "Send mail successfully"));
+//            return ResponseEntity.ok().build();
         } catch (Exception ex) {
             // Trả về thông báo lỗi trong trường hợp có ngoại lệ
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Collections.singletonMap("message", ex.getMessage()));
         }
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOTP(@RequestBody OtpDTO otp, HttpSession session) throws Exception {
+        String sessionOtp = (String) session.getAttribute("otp");
+        String sessionEmail = (String) session.getAttribute("email");
+        UserDTO userDTO = (UserDTO) session.getAttribute("userDTO");
+
+        if (sessionOtp != null && sessionOtp.equals(otp.getOTP())) {
+            // Bước 7: Đăng ký người dùng nếu OTP hợp lệ
+            User user = userService.createUser(userDTO);
+            session.removeAttribute("otp");  // Xóa OTP sau khi xác thực thành công
+            return ResponseEntity.ok(Collections.singletonMap("message", "Send mail successfully"));
+        }
+        return null;
     }
 
     @GetMapping("/login")
@@ -78,17 +110,29 @@ public class UserController {
         model.addAttribute("user", new UserLoginDTO());
         return "login";
     }
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
         try {
             String token = userService.login(userLoginDTO.getUsername(), userLoginDTO.getPassword());
+            HttpSession session = getCurrentSession();
+            Optional<User> user = getUser(userLoginDTO.getUsername());
+            Long userId = user.get().getUserId();
+            session.setAttribute("user0", userId);
             // Trả về token dưới dạng JSON
             return ResponseEntity.ok(new LoginResponse(token));
         } catch (Exception e) {
             // Trả về lỗi dưới dạng JSON
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
+    }
+
+    private HttpSession getCurrentSession() {
+        return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest().getSession();
+    }
+
+    // Giả sử bạn có một phương thức lấy userId từ username
+    private Optional<User> getUser(String username) {
+        return userService.getUserByUsername(username);
     }
 
     public static class LoginResponse {

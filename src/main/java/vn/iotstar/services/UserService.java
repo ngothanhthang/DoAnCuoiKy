@@ -4,6 +4,8 @@ package vn.iotstar.services;
 import vn.iotstar.dto.UserDTO;
 import vn.iotstar.entity.User;
 
+import java.util.Optional;
+
 public interface UserService {
 	User findById(Long userId);
 	User createUser(UserDTO userDTO) throws Exception;
@@ -11,4 +13,6 @@ public interface UserService {
 	void updateResetPasswordToken(String token, String email);
 	User getUser(String token);
 	void updatePassword(User user, String newPassword);
+	User getUserByEmail(String email);
+	Optional<User> getUserByUsername(String username);
 }
