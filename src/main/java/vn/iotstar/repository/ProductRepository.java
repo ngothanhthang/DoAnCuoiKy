@@ -19,6 +19,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 	 * pageable);
 	 */
     Page<Product> findAll(Pageable pageable);
+    
+    @Query("SELECT p FROM Product p WHERE p.productStatus = :status")
+    Page<Product> findAllByProductStatus(@Param("status") int status, Pageable pageable);
+    
     // Các truy vấn khác như: new arrivals, best sellers, etc.
 	/*
 	 * @Query("SELECT p, AVG(r.rating) AS averageRating, COALESCE(SUM(oi.quantity), 0) AS totalSold "
@@ -47,4 +51,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     	       "AND p.name LIKE %:keyword%")
     	Page<Object[]> findByCategoryIdAndStatusWithAvgRatingAndKeyword(Long categoryId, String keyword, int status, Pageable pageable);
 
+    	
+    	
 }
