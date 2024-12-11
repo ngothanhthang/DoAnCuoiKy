@@ -11,7 +11,7 @@ import vn.iotstar.entity.Product;
 
 public interface ProductService {
 
-	Page<ProductDTO> getProductsByCategory(Long categoryId, int status, Pageable pageable);
+	//Page<ProductDTO> getProductsByCategory(Long categoryId, int status, Pageable pageable);
 
 	List<Category> getAllCategories();
 
@@ -27,7 +27,7 @@ public interface ProductService {
 
 	List<Product> getBestSellingProducts();
 
-	Page<ProductDTO> searchProductsByCategory(Long categoryId, String keyword, int status, Pageable pageable);
+	//Page<ProductDTO> searchProductsByCategory(Long categoryId, String keyword, int status, Pageable pageable);
 
 	Page<Product> getApprovedProducts(int pageNum);
 
