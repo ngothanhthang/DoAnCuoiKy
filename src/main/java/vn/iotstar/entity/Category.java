@@ -35,10 +35,4 @@ public class Category implements Serializable {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Product> products;
 
-	/*
-	 * // Tham chiếu tới bảng Products (quan hệ 1-nhiều)
-	 * 
-	 * @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch =
-	 * FetchType.LAZY) private List<Product> products;
-	 */
 }

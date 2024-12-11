@@ -15,4 +15,9 @@ public interface UserService {
 	void updatePassword(User user, String newPassword);
 	User getUserByEmail(String email);
 	Optional<User> getUserByUsername(String username);
+	Page<User> getUsers(int pageNum);
+	User saveUser(User user);
+	Optional<User> getUserById(Long id);
+	void deleteUserById(Long id);
+	Page<User> searchUsers(String keyword, int page);
 }

@@ -125,5 +125,34 @@ public class UserServiceImpl implements UserService {
     public Optional<User> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
+    
+    @Override
+	public Page<User> getUsers(int pageNum) {
+		Pageable pageable = PageRequest.of(pageNum, 10); 
+        return userRepository.findAll(pageable);
+	}
+    
+    @Override
+	public User saveUser(User user) {
+		return userRepository.save(user);
+		
+	}
+    
+    @Override
+	public Optional<User> getUserById(Long id) {
+		 return userRepository.findById(id);
+	}
+    
+    @Override
+	public void deleteUserById(Long id) {
+		userRepository.deleteById(id);
+		
+	}
+
+	@Override
+	public Page<User> searchUsers(String keyword, int page) {
+	    Pageable pageable = PageRequest.of(page, 10);
+	    return userRepository.findByEmailContainingIgnoreCaseOrUsernameContainingIgnoreCase(keyword, keyword, pageable);
+	}
 }
 
