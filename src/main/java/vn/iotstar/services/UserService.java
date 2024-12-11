@@ -6,6 +6,8 @@ import vn.iotstar.entity.User;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+
 public interface UserService {
 	User findById(Long userId);
 	User createUser(UserDTO userDTO) throws Exception;
