@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biểu Đồ Doanh Thu</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .dashboard-card {
+            transition: transform 0.3s ease-in-out;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background-color: #4e73df;
+            color: white;
+            font-weight: bold;
+            padding: 1rem;
+            border-bottom: none;
+        }
+        
+        .page-title {
+            color: #4e73df;
+            margin-bottom: 2rem;
+            font-weight: bold;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e3e6f0;
+        }
+
+        .search-box {
+            border-radius: 15px;
+            border: 2px solid #e3e6f0;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group .btn {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Include navigation -->
+    <div th:replace="~{manageRevenue.html}"></div>
+
+    <div class="container mt-5">
+        <h1 class="page-title">
+            <i class="fas fa-chart-bar me-2"></i>Biểu Đồ Doanh Thu
+        </h1>
+
+        <!-- Các nút và form -->
+       <!-- Các nút và form -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="btn-group" role="group">
+                   <button class="btn btn-primary" id="thisMonthBtn" th:data-month="${currentMonth}">Doanh thu tháng này</button>
+                   <button class="btn btn-secondary" id="thisQuarterBtn" th:data-quarter="${currentQuarter}">Doanh thu quý này</button>
+                   <button class="btn btn-info" id="thisYearBtn" th:data-year="${currentYear}">Doanh thu năm này</button>
+                </div>
+            </div>	
+            <div class="col-md-4">
+                <!-- Thay thế form hiện tại bằng form sử dụng AJAX -->
+                <form id="dateRangeForm" class="d-flex">
+                    <div class="input-group">
+                        <input type="date" name="startDate" class="form-control" placeholder="Từ ngày" required>
+                        <input type="date" name="endDate" class="form-control" placeholder="Đến ngày" required>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-calendar-alt"></i> Lọc
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Biểu đồ doanh thu -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Doanh Thu Theo Thời Gian</h5>
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Các script cần thiết -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    
+   	
+</body>
+</html>

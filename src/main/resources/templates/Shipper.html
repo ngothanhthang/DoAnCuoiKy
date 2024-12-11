@@ -190,11 +190,11 @@
 				</a>
 				
 				<!-- New Hoàn Thành button -->
-			    <a th:if="${order.status == 'Đang giao'}"
+			    <a th:if="${order.status == 'Đã nhận hàng'}"
 				   href="javascript:void(0);"
 				   class="btn btn-success"
 				   th:onclick="|completeOrder(${order.id})|">
-				    <i class="fas fa-check"></i> Hoàn Thành
+				    <i class="fas fa-check"></i> Xác nhận giao xong
 				</a>
 			    
               </div>
@@ -242,28 +242,27 @@
     }
     
     function completeOrder(orderId) {
-        if (confirm('Bạn có chắc chắn muốn hoàn thành đơn hàng này?')) {
-            fetch('/shipper/complete-order/' + orderId, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Đơn hàng đã được hoàn thành thành công!');
-                    window.location.reload(); // Tải lại trang để cập nhật trạng thái
-                } else {
-                    alert(data.message || 'Có lỗi xảy ra khi hoàn thành đơn hàng.');
-                }
-            })
-            .catch(error => {
-                console.error('Lỗi:', error);
-                alert('Có lỗi xảy ra khi hoàn thành đơn hàng.');
-            });
-        }
-    }
+    	  fetch('/shipper/complete-order/' + orderId, {
+    	    method: 'POST',
+    	    headers: {
+    	      'Content-Type': 'application/json',
+    	    },
+    	  })
+    	    .then(response => response.json())
+    	    .then(data => {
+    	      if (data.success) {
+    	        alert(data.message);
+    	        // Optionally refresh the page or update the UI to reflect the changes
+    	        window.location.reload();
+    	      } else {
+    	        alert(data.message);
+    	      }
+    	    })
+    	    .catch(error => {
+    	      console.error('Error:', error);
+    	      alert("Có lỗi xảy ra. Vui lòng thử lại.");
+    	    });
+    	}
     
     
 	</script>

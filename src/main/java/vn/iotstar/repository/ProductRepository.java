@@ -18,7 +18,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 	 * Page<Product> findByCategoryIdAndStatus(Long categoryId, int status, Pageable
 	 * pageable);
 	 */
-    Page<Product> findAll(Pageable pageable);
+	 Page<Product> findByProductStatus(int productStatus, Pageable pageable);
     // Các truy vấn khác như: new arrivals, best sellers, etc.
 	/*
 	 * @Query("SELECT p, AVG(r.rating) AS averageRating, COALESCE(SUM(oi.quantity), 0) AS totalSold "

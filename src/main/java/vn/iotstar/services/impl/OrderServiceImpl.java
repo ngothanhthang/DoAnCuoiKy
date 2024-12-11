@@ -159,7 +159,7 @@ public class OrderServiceImpl implements OrderService{
 	         case "shipping":
 	             return orderRepository.findByStatus("Chờ duyệt đi giao");
 	         case "delivered":
-	             return orderRepository.findByStatus("Đã hoàn thành");
+	             return orderRepository.findByStatus("Đã nhận hàng");
 	         case "canceled":
 	             return orderRepository.findByStatus("Hủy");
 	         case "returned":
@@ -243,5 +243,43 @@ public class OrderServiceImpl implements OrderService{
 	    }
 	    
 	    return orderRepository.findAll(pageable);
+	}
+
+	@Override
+	public Order acceptOrder(Long orderId)
+	{
+		Order order = orderRepository.findById(orderId).orElse(null);
+        if (order != null && order.getStatus().equals("Đang duyệt")) {
+            order.setStatus("Trả hàng");  // Hoặc trạng thái xác nhận phù hợp
+            return orderRepository.save(order);
+        }
+        return null;  // Trả về null nếu không thể xác nhận
+	}
+
+	@Override
+	public Order rejectOrder(Long orderId) 
+	{
+		Order order = orderRepository.findById(orderId).orElse(null);
+        if (order != null && order.getStatus().equals("Đang duyệt")) 
+        {
+            order.setStatus("Đã giao");  // Hoặc trạng thái từ chối phù hợp
+            return orderRepository.save(order);
+        }
+        return null;  // Trả về null nếu không thể từ chối
+	}
+
+	@Override
+	public Order confirmDeliveredOrder(Long orderId) {
+		Optional<Order> optionalOrder = orderRepository.findById(orderId);
+	    
+	    if (optionalOrder.isPresent()) {
+	        Order order = optionalOrder.get();
+	        
+	        if (order.getStatus().equals("Đã nhận hàng")) {
+	            order.setStatus("Đã giao");
+	            return orderRepository.save(order);
+	        }
+	    }
+	    return null;
 	}
 }

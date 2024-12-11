@@ -76,7 +76,7 @@ public class VendorOrderController
 	    model.addAttribute("formattedDates", formattedDates);
 	    model.addAttribute("phoneNumbers", phoneNumbers);
 	    model.addAttribute("defaultAddresses", defaultAddresses);
-	    List<String> statuses = Arrays.asList("mới", "đã nhận giao");
+	    List<String> statuses = Arrays.asList("mới", "đã nhận giao","trả hàng","đã giao xong","đã nhận hàng");
 
         // Lấy số lượng thông báo chưa đọc với trạng thái là "Mới" hoặc "Đã nhận giao"
         Long unreadNewNotificationsCount = notificationService.countNotificationsByStatusAndNotRead(statuses);
@@ -128,4 +128,71 @@ public class VendorOrderController
 	            .body(new ApiResponse(false, "Có lỗi xảy ra khi duyệt đơn hàng: " + e.getMessage(), null));
 	    }
 	}
+	
+	//controller chấp nhận đơn hàng trả lại:
+	 @PostMapping("/vendor/order/accept/{orderId}")
+	    public ResponseEntity<ApiResponse> acceptOrder(@PathVariable("orderId") Long orderId) 
+	 {
+	        try {
+	            Order order = orderService.acceptOrder(orderId);  // Gọi service để chấp nhận đơn hàng
+
+	            if (order != null) {
+	                // Trả về ApiResponse thành công với thông tin đơn hàng đã chấp nhận
+	                return ResponseEntity.ok()
+	                        .body(new ApiResponse(true, "Đơn hàng đã được chấp nhận", null));
+	            } else {
+	                // Trả về ApiResponse thất bại nếu không thể chấp nhận đơn hàng
+	                return ResponseEntity.badRequest()
+	                        .body(new ApiResponse(false, "Không thể chấp nhận đơn hàng", null));
+	            }
+	        } catch (Exception e) {
+	            // Xử lý các exception và trả về thông báo lỗi phù hợp
+	            return ResponseEntity.badRequest()
+	                    .body(new ApiResponse(false, "Có lỗi xảy ra khi chấp nhận đơn hàng: " + e.getMessage(), null));
+	        }
+	  }
+	 
+	 //controller từ chối đơn hàng trả lại:
+	 @PostMapping("/vendor/order/reject/{orderId}")
+	    public ResponseEntity<ApiResponse> rejectOrder(@PathVariable("orderId") Long orderId) 
+	 {
+	        try {
+	            Order order = orderService.rejectOrder(orderId);  // Gọi service để từ chối đơn hàng
+
+	            if (order != null) {
+	                // Trả về ApiResponse thành công với thông tin đơn hàng đã bị từ chối
+	                return ResponseEntity.ok()
+	                        .body(new ApiResponse(true, "Đơn hàng đã bị từ chối", null));
+	            } else {
+	                // Trả về ApiResponse thất bại nếu không thể từ chối đơn hàng
+	                return ResponseEntity.badRequest()
+	                        .body(new ApiResponse(false, "Không thể từ chối đơn hàng", null));
+	            }
+	        } catch (Exception e) {
+	            // Xử lý các exception và trả về thông báo lỗi phù hợp
+	            return ResponseEntity.badRequest()
+	                    .body(new ApiResponse(false, "Có lỗi xảy ra khi từ chối đơn hàng: " + e.getMessage(), null));
+	        }
+	    }
+	 // Xác nhận đơn hàng đã giao:
+	 @PostMapping("/vendor/order/complete/{orderId}")
+	 public ResponseEntity<ApiResponse> confirmDeliveredOrder(@PathVariable("orderId") Long orderId) {
+	     try {
+	         Order order = orderService.confirmDeliveredOrder(orderId);
+	         
+	         if (order != null) {
+	             return ResponseEntity.ok()
+	                 .body(new ApiResponse(true, "Đơn hàng đã được xác nhận giao thành công", null));
+	         } else {
+	             return ResponseEntity.badRequest()
+	                 .body(new ApiResponse(false, "Không tìm thấy đơn hàng hoặc đơn hàng không ở trạng thái đang giao", null));
+	         }
+	     } catch (Exception e) {
+	         return ResponseEntity.badRequest()
+	             .body(new ApiResponse(false, "Có lỗi xảy ra khi xác nhận giao đơn hàng: " + e.getMessage(), null));
+	     }
+	 }
+	 
+	 
+	 
 }

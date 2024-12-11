@@ -12,11 +12,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import jakarta.servlet.http.HttpSession;
 import vn.iotstar.entity.CartItem;
+import vn.iotstar.entity.Notification;
 import vn.iotstar.entity.Order;
 import vn.iotstar.entity.Product;
 import vn.iotstar.entity.Review;
 import vn.iotstar.entity.User;
 import vn.iotstar.repository.UserRepository;
+import vn.iotstar.services.NotificationService;
 import vn.iotstar.services.OrderService;
 import vn.iotstar.services.ProductService;
 import vn.iotstar.services.ReviewService;
@@ -50,6 +52,9 @@ public class OrderController {
     private UserService userService;
     @Autowired
     private ReviewService reviewService;
+    
+    @Autowired 
+    private NotificationService notificationService;
 
     // Tạo đơn hàng từ giỏ hàng
     @PostMapping("/create")
@@ -81,14 +86,39 @@ public class OrderController {
     }
     
     @PostMapping("/update-status")
-    public ResponseEntity<?> updateOrderStatus(@RequestBody Map<String, Object> request) {
-    	final Logger logger = LoggerFactory.getLogger(OrderController.class);
+    public ResponseEntity<?> updateOrderStatus(@RequestBody Map<String, Object> request, HttpSession session) {
+        Long userId = 1L;
+        final Logger logger = LoggerFactory.getLogger(OrderController.class);
         Long orderId = Long.valueOf(request.get("orderId").toString());
         String status = request.get("status").toString();
+
+        Date currentDate = new Date();
+
+        User user = userService.findById(userId);
+        Order order = orderService.getOrderById(orderId);
+        String username = user.getUsername();
+        // Tạo đối tượng Notification
+        Notification notification = new Notification();
+        notification.setUser(user);
+        notification.setOrder(order);
+        notification.setTimestamp(currentDate);
+
+        notification.setRead(false);
+        if (status.equals("Đã nhận hàng")) {
+            notification.setMessage(username + " đã nhận được đơn hàng");
+            notification.setStatus("đã nhận hàng");
+            notificationService.save(notification);
+        } else if (status.equals("Đang duyệt")){
+            notification.setMessage("Yêu cầu trả hàng từ người dùng " + username);
+            notification.setStatus("trả hàng");
+            notificationService.save(notification);
+        }
         logger.info("Updating orderId: {} with status: {}", orderId, status);
+
         // Cập nhật trạng thái đơn hàng trong cơ sở dữ liệu
         boolean success = orderService.updateOrderStatus(orderId, status);
-        
+
+
         if (success) {
             return ResponseEntity.ok(Map.of("success", true));
         } else {

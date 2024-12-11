@@ -240,7 +240,7 @@ public class VendorController {
     @GetMapping("/manage_orders")
     public String ManageOrderPage(Model model) {
         // Định nghĩa danh sách trạng thái cần đếm (dạng chuỗi)
-        List<String> statuses = Arrays.asList("mới", "đã nhận giao");
+        List<String> statuses = Arrays.asList("mới", "đã nhận giao","trả hàng","đã giao xong");
 
         // Lấy số lượng thông báo chưa đọc với trạng thái là "Mới" hoặc "Đã nhận giao"
         Long unreadNewNotificationsCount = notificationService.countNotificationsByStatusAndNotRead(statuses);

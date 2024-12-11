@@ -117,7 +117,7 @@ public class ShipperController {
 	@GetMapping("/confirmed-orders")
 	public String getConfirmedOrders(Model model) {
 		Long shipperId= 1L;
-		List<Order> confirmedOrders = orderService.getOrdersByShipperAndStatus(shipperId, "Đang giao");
+		List<Order> confirmedOrders = orderService.getOrdersByShipperAndStatus(shipperId, "Đã nhận hàng");
 		List<String> formattedDates = new ArrayList<>();
         List<String> phoneNumbers = new ArrayList<>();
         List<Address> defaultAddresses = new ArrayList<>();
@@ -158,21 +158,22 @@ public class ShipperController {
 	    Map<String, Object> response = new HashMap<>();
 	    try {
 	        Order order = orderService.getOrderById(orderId);
-	        if (order != null && "Đang giao".equals(order.getStatus())) {
+	        if (order != null && "Đã nhận hàng".equals(order.getStatus())) {
 	            // Cập nhật trạng thái đơn hàng
-	            orderService.updateOrderStatus(orderId, "Đã hoàn thành");
 	            
-	            // Tạo thông báo hoàn thành
+	            // Tạo thông báo đã giao
 	            Notification notification = new Notification();
 	            notification.setOrder(order);
 	            notification.setUser(order.getUser());
-	            notification.setMessage("Đơn hàng " + orderId + " đã được giao thành công.");
+	            String shipperName = order.getUser() != null ? order.getUser().getUsername() : "Không xác định";
+	            String message = "Đơn hàng " + orderId + " đã được giao thành công bởi shipper " + shipperName + ".";
+	            notification.setMessage(message);
 	            notification.setTimestamp(new Date());
-	            notification.setStatus("đã hoàn thành");
+	            notification.setStatus("đã giao xong");
 	            notificationService.save(notification);
 	            
 	            response.put("success", true);
-	            response.put("message", "Đơn hàng đã được hoàn thành thành công.");
+	            response.put("message", "Thông báo đơn hàng giao thành công đã được gửi đến chủ shop");
 	        } else {
 	            response.put("success", false);
 	            response.put("message", "Không tìm thấy đơn hàng hoặc trạng thái không hợp lệ.");

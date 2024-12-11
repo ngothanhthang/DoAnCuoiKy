@@ -1,6 +1,8 @@
 package vn.iotstar.controllers.vendor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import vn.iotstar.entity.Order;
+import vn.iotstar.repository.OrderRepository;
 import vn.iotstar.services.DashBoardService;
 import vn.iotstar.services.OrderService;
 
@@ -22,6 +25,8 @@ public class VendorRevenueController
 	private DashBoardService dashBoardService;
 	@Autowired
 	private OrderService orderService;
+	@Autowired
+	private OrderRepository orderRepository;
 	@GetMapping()
 	public String revenuePage()
 	{
@@ -49,7 +54,8 @@ public class VendorRevenueController
 	            @RequestParam(name = "search", required = false, defaultValue = "") String search,
 	            @RequestParam(name = "status", required = false, defaultValue = "") String status,
 	            @RequestParam(name = "page", defaultValue = "0") int page,
-	            Model model) {
+	            Model model) 
+	   {
 	        
 	        // Số đơn hàng trên mỗi trang
 	        int size = 10;
@@ -68,5 +74,5 @@ public class VendorRevenueController
 	        
 	        return "manageReceipt";
 	    }
-	
 }
+	

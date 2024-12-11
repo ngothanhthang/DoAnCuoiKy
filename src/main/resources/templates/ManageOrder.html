@@ -124,6 +124,10 @@
 	    border-color: #218838;
 	    transform: translateY(-2px); /* Tạo hiệu ứng nâng lên */
 	}
+	.btn.disabled 
+	{
+    	pointer-events: none;
+	}
 	
 	/* Điều chỉnh Responsive */
 	@media (max-width: 768px) {
@@ -194,7 +198,7 @@
 		        <i class="fas fa-shipping-fast me-2"></i>Chờ duyệt đi giao
 		      </a>
 		      <a href="/vendor/orders?status=delivered" class="btn product-status-btn btn-da-giao">
-		        <i class="fas fa-check-circle me-2"></i>Hoàn thành
+		        <i class="fas fa-check-circle me-2"></i>Duyệt đơn hàng đã nhận
 		      </a>
 		  
 		      <a href="/vendor/orders?status=returned" class="btn product-status-btn btn-tra-hang">
@@ -247,13 +251,37 @@
 				    <i class="fas fa-shipping-fast"></i> Duyệt đi giao
 			</a>
 			</div>
+			
+			<!-- Nút Chấp nhận và Từ chối, chỉ hiển thị nếu trạng thái là 'Đang duyệt' -->
+			<div th:if="${order.status == 'Đang duyệt'}" class="btn-group" role="group" aria-label="Order Actions">
+			    <!-- Nút Chấp nhận -->
+			    <a href="javascript:void(0);"
+			       class="btn btn-success"
+			       th:onclick="|acceptOrder([[${order.id}]])|">
+			        <i class="fas fa-check-circle"></i> Chấp Nhận
+			    </a>
+			
+			    <!-- Nút Từ chối -->
+			    <a href="javascript:void(0);"
+			       class="btn btn-danger"
+			       th:onclick="|rejectOrder([[${order.id}]])|">
+			        <i class="fas fa-times-circle"></i> Từ Chối
+			    </a>
+			</div>
 		
-		        <!-- Nút Hoàn Thành, chỉ hiển thị nếu trạng thái là 'Đã giao' -->
-		        <a th:if="${order.status == 'Đã giao'}" 
-		           th:href="@{/vendor/order/{id}/complete(id=${order.id})}" 
-		           class="btn btn-success">
-		          <i class="fas fa-check-circle"></i> Hoàn Thành
-		        </a>
+		        <!-- Nút xác nhận đã giao, chỉ hiển thị nếu trạng thái là 'Đang giao' -->
+		       <a th:if="${order.status == 'Đã nhận hàng'}"
+				   th:with="deliveredNoti=${notifications.?[order.id == __${order.id}__ && status == 'đã giao xong']},
+				            receivedNoti=${notifications.?[order.id == __${order.id}__ && status == 'đã nhận hàng']},
+				            canConfirm=${!#lists.isEmpty(deliveredNoti) && !#lists.isEmpty(receivedNoti)}"
+				   href="javascript:void(0);"
+				   class="btn btn-success"
+				   th:classappend="${!canConfirm ? 'disabled' : ''}"
+				   th:onclick="${canConfirm} ? |confirmDeliveredOrder(${order.id})| : 'return false;'"
+				   th:style="${!canConfirm ? 'opacity: 0.6; cursor: not-allowed;' : ''}"
+				   th:title="${!canConfirm ? 'Cần có xác nhận đã giao xong và đã nhận hàng' : 'Xác nhận đã giao'}">
+				    <i class="fas fa-check-circle"></i> Xác nhận đã giao
+				</a>
 		      </div>
 		    </div>
 		  </div> 
@@ -354,7 +382,91 @@
 	            alert('Có lỗi xảy ra khi kết nối với server!');
 	        });
 	    }
+	    // Chấp thuận đơn hàng có trạng thái là trả hàng
+	    function acceptOrder(orderId) 
+	    {
+		    fetch(`/vendor/order/accept/${orderId}`, {
+		        method: 'POST',
+		        headers: {
+		            'Content-Type': 'application/json',
+		        },
+		        body: JSON.stringify({ orderId: orderId })
+		    })
+		    .then(response => response.json())
+		    .then(data => {
+		        if (data.success) {
+		            alert('Đơn hàng đã được chấp nhận!');
+		            location.reload();
+		        } else {
+		            alert('Có lỗi xảy ra khi chấp nhận đơn hàng!');
+		        }
+		    })
+		    .catch(error => {
+		        console.error('Lỗi:', error);
+		        alert('Có lỗi xảy ra khi chấp nhận đơn hàng!');
+		    });
+		}
 	    
+	    // Từ chối đơn hàng có trạng thái là trả hàng:
+	    
+	    function rejectOrder(orderId)
+		{
+		    fetch(`/vendor/order/reject/${orderId}`, {
+		        method: 'POST',
+		        headers: {
+		            'Content-Type': 'application/json',
+		        },
+		        body: JSON.stringify({ orderId: orderId })
+		    })
+		    .then(response => response.json())
+		    .then(data => {
+		        if (data.success) {
+		            alert('Đơn hàng đã bị từ chối!');
+		            location.reload();
+		        } else {
+		            alert('Có lỗi xảy ra khi từ chối đơn hàng!');
+		        }
+		    })
+		    .catch(error => {
+		        console.error('Lỗi:', error);
+		        alert('Có lỗi xảy ra khi từ chối đơn hàng!');
+		    });
+		}
+		
+		
+		//Xác nhận là đơn hàng đã giao:
+		function confirmDeliveredOrder(orderId) 
+		{
+		    if (confirm("Bạn có chắc chắn đã giao hàng cho đơn hàng này?"))
+		    {
+		        fetch(`/vendor/order/complete/${orderId}`, {
+		            method: 'POST',
+		            headers: {
+		                'Content-Type': 'application/json'
+		            },
+		            body: JSON.stringify({ orderId: orderId })
+		        })
+		        .then(response => {
+		            if (response.ok) {
+		                return response.json();
+		            }
+		            throw new Error('Network response was not ok');
+		        })
+		        .then(data => {
+		            if (data.success) {
+		                alert('Đơn hàng đã được xác nhận giao thành công!');
+		                location.reload();
+		            } else {
+		                alert(data.message || 'Có lỗi xảy ra khi xác nhận giao đơn hàng!');
+		            }
+		        })
+		        .catch(error => {
+		            console.error('Lỗi:', error);
+		            alert('Có lỗi xảy ra khi xác nhận giao đơn hàng!');
+		        });
+		    }
+		}
+
 	    
 	    
 	</script>

@@ -67,9 +67,10 @@ public class ProductServiceImpl implements ProductService {
 
     // Phân trang sản phẩm, giới hạn 20 sản phẩm mỗi trang
     @Override
-    public Page<Product> getProducts(int pageNumber) {
+    public Page<Product> getProducts(int pageNumber) 
+    {
         Pageable pageable = PageRequest.of(pageNumber, 5);  // 5 sản phẩm mỗi trang
-        return productRepository.findAll(pageable);
+        return productRepository.findByProductStatus(1, pageable); 
     }
     
     @Override

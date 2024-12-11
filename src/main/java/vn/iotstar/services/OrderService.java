@@ -41,5 +41,10 @@ public interface OrderService {
 	
 	Page<Order> getOrders(String search, String status, int page, int size);
 
+	Order acceptOrder(Long orderId);
+	
+	Order rejectOrder(Long orderId);
+	
+	Order confirmDeliveredOrder(Long orderId);
 	
 }

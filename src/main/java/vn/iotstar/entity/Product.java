@@ -63,4 +63,7 @@ public class Product implements Serializable {
 	 * 
 	 * @JoinColumn(name = "vendor_id", nullable = false) private User vendor;
 	 */
-}
+ // Thêm thuộc tính product_status để kiểm tra trạng thái phê duyệt
+    @Column(name = "product_status", nullable = false)
+    private int productStatus; // 0 - chưa phê duyệt, 1 - đã phê duyệt
+}	
