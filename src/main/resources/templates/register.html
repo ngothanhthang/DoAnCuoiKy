@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>Register</title>
+    <style>
+        /* Nền màu đen huyền bí cho toàn bộ trang */
+        html, body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            height: 100%;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #1e1e1e;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin-top: 50px;
+        }
+
+        h2 {
+            color: #f0f0f0;
+        }
+
+        .form-label {
+            color: #d1d1d1;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .form-control, .form-select {
+            background-color: #333;
+            border-color: #444;
+            color: white;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #555;
+            border-color: #007bff;
+            color: white;
+        }
+
+        .back-to-login {
+            color: #007bff;
+            text-align: right;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .back-to-login:hover {
+            text-decoration: underline;
+        }
+
+        /* Thêm một vài chỉnh sửa cho OTP form */
+        .otp-form {
+            display: none; /* Ẩn form OTP ban đầu */
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Register</h2>
+
+    <!-- Form đăng ký tài khoản -->
+    <form id="registerForm">
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="retype_password" class="form-label">Retype Password</label>
+            <input type="password" class="form-control" id="retype_password" name="retypePassword" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="role_id" class="form-label">Role</label>
+            <select class="form-select" id="role_id" name="roleId" required>
+                <option value="1">Admin</option>
+                <option value="2">User</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+
+    <!-- Form nhập OTP sau khi đăng ký -->
+    <div class="otp-form mt-4" id="otpForm">
+        <p>OTP đã được gửi đến email của bạn. Vui lòng nhập OTP để xác nhận đăng ký:</p>
+        <div class="mb-3">
+            <label for="otp" class="form-label">OTP</label>
+            <input type="text" class="form-control" id="otp" name="otp" required>
+        </div>
+        <button type="button" class="btn btn-primary" id="verifyOTPBtn">Verify OTP</button>
+    </div>
+    <a href="/users/login" class="back-to-login">Back to Login</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+<script>
+    // Xử lý form đăng ký
+    document.getElementById("registerForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const formData = {
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value,
+            retypePassword: document.getElementById("retype_password").value,
+            email: document.getElementById("email").value,
+            roleId: document.getElementById("role_id").value
+        };
+
+        fetch("/users/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert("Registration successful! Please check your email for OTP.");
+                    // Hiển thị form nhập OTP
+                    document.getElementById("otpForm").style.display = "block";
+                    // Cập nhật email cho việc xác thực OTP
+                    localStorage.setItem('email', formData.email); // Lưu email vào localStorage
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Registration failed.");
+            });
+    });
+
+    // Xử lý xác thực OTP
+    document.getElementById("verifyOTPBtn").addEventListener("click", function() {
+        const otp = document.getElementById("otp").value;
+        const email = localStorage.getItem('email'); // Lấy email từ localStorage
+
+        if (!otp) {
+            alert("Please enter the OTP.");
+            return;
+        }
+
+        const otpData = {
+            OTP: otp
+        };
+
+        fetch("/users/verify-otp", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(otpData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert("OTP verified successfully. Registration complete!");
+                    window.location.href = "/users/login"; // Chuyển hướng đến trang đăng nhập
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("OTP verification failed.");
+            });
+    });
+</script>
+
+</body>
+</html>
