@@ -33,10 +33,10 @@ public class DashBoardService {
         return orderRepository.sumTotalRevenue(); // Lấy tổng doanh thu từ các đơn hàng đã hoàn thành
     }
 	
-	//tổng số khách hàng:
-	public long getTotalCustomers() {
-        return userRepository.countUsersByRole();
-    }
+	/*
+	 * //tổng số khách hàng: public long getTotalCustomers() { return
+	 * userRepository.countUsersByRole(); }
+	 */
 	
 	// lấy mức độ hài lòng của khách hàng:
 	

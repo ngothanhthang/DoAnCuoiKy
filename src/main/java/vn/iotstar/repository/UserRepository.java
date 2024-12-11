@@ -15,8 +15,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findByUsername(String username);
 	User findByResetPasswordToken(String token);
 	User findByEmail(String email);
-	@Query("SELECT COUNT(u) FROM User u WHERE u.role = 'USER'")
-    long countUsersByRole();
+	/*
+	 * @Query("SELECT COUNT(u) FROM User u WHERE u.role = 'USER'") long
+	 * countUsersByRole();
+	 */
 	
 	Page<User> findByEmailContainingIgnoreCaseOrUsernameContainingIgnoreCase(String email, String username, Pageable pageable);
 }

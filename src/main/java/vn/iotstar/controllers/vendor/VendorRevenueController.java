@@ -38,13 +38,13 @@ public class VendorRevenueController
         // Lấy các dữ liệu từ service
         long totalOrders = dashBoardService.getTotalOrders();
         BigDecimal totalRevenue = dashBoardService.getTotalRevenue();
-        long totalCustomers = dashBoardService.getTotalCustomers();
+		/* long totalCustomers = dashBoardService.getTotalCustomers(); */
         double customerSatisfaction = dashBoardService.getCustomerSatisfaction();
 
         // Đưa dữ liệu vào model để gửi ra view (index.html)
         model.addAttribute("totalOrders", totalOrders);
         model.addAttribute("totalRevenue", totalRevenue);
-        model.addAttribute("totalCustomers", totalCustomers);
+		/* model.addAttribute("totalCustomers", totalCustomers); */
         model.addAttribute("customerSatisfaction", customerSatisfaction);
 
         return "OverViewRevenue";  // Chuyển đến view index.html
