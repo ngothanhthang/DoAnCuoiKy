@@ -96,6 +96,17 @@
 	{
 	  margin-right: 10px; /* Thêm khoảng cách chỉ cho nút đầu tiên */
 	}
+	
+	.btn-da-giao 
+	{ 
+    border: 1px solid #198754; 
+    color: #198754; 
+	}
+	
+	.btn-da-giao:hover {
+    background-color: #198754;
+    color: white;
+	}
     </style>
   </head>
 
@@ -131,11 +142,15 @@
         <!-- Filter Buttons -->
         <div class="d-flex justify-content-start mb-4">
           <a href="/shipper/remaining_orders" class="btn product-status-btn btn-hien-co">
-            <i class="fas fa-box-open me-2"></i>Đơn hàng hiện có
+            <i class="fas fa-box-open me-2"></i>Đơn hàng đang chờ giao
           </a>
-          <a href="/vendor/orders?status=completed" class="btn product-status-btn btn-hoan-thanh">
-            <i class="fas fa-check-circle me-2"></i>Đơn hàng đã hoàn thành
+          <a href="/shipper/confirmed-orders" class="btn product-status-btn btn-hoan-thanh">
+            <i class="fas fa-check-circle me-2"></i>Đơn hàng được duyệt
           </a>
+          
+          <a href="/shipper/completed-orders" class="btn product-status-btn btn-da-giao">
+		    <i class="fas fa-flag-checkered me-2"></i>Đơn đã hoàn thành
+		  </a>
         </div>
         
         <!-- Start Order List -->
@@ -173,6 +188,15 @@
 				   th:onclick="|receiveOrder(${order.id})|">
 				    <i class="fas fa-truck"></i> Nhận Giao
 				</a>
+				
+				<!-- New Hoàn Thành button -->
+			    <a th:if="${order.status == 'Đang giao'}"
+				   href="javascript:void(0);"
+				   class="btn btn-success"
+				   th:onclick="|completeOrder(${order.id})|">
+				    <i class="fas fa-check"></i> Hoàn Thành
+				</a>
+			    
               </div>
             </div>
           </div> 
@@ -216,6 +240,32 @@
             console.error('Lỗi khi gửi thông báo:', error);
         });
     }
+    
+    function completeOrder(orderId) {
+        if (confirm('Bạn có chắc chắn muốn hoàn thành đơn hàng này?')) {
+            fetch('/shipper/complete-order/' + orderId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Đơn hàng đã được hoàn thành thành công!');
+                    window.location.reload(); // Tải lại trang để cập nhật trạng thái
+                } else {
+                    alert(data.message || 'Có lỗi xảy ra khi hoàn thành đơn hàng.');
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi:', error);
+                alert('Có lỗi xảy ra khi hoàn thành đơn hàng.');
+            });
+        }
+    }
+    
+    
 	</script>
   </body>
 </html>

@@ -2,13 +2,16 @@ package vn.iotstar.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.iotstar.entity.*;
 import vn.iotstar.repository.OrderRepository;
 import vn.iotstar.services.OrderService;
 import vn.iotstar.services.UserService;
 import vn.iotstar.repository.CartItemRepository;
+import vn.iotstar.repository.NotificationRepository;
 import vn.iotstar.repository.OrderItemRepository;
 
 import org.slf4j.Logger;
@@ -16,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService{
@@ -30,6 +34,8 @@ public class OrderServiceImpl implements OrderService{
     
     @Autowired
     private UserService userService;
+    
+    @Autowired NotificationRepository notificationRepository;
     
     @Override
     // Phương thức tạo đơn hàng từ giỏ hàng
@@ -153,7 +159,7 @@ public class OrderServiceImpl implements OrderService{
 	         case "shipping":
 	             return orderRepository.findByStatus("Chờ duyệt đi giao");
 	         case "delivered":
-	             return orderRepository.findByStatus("Chờ duyệt đi giao");
+	             return orderRepository.findByStatus("Đã hoàn thành");
 	         case "canceled":
 	             return orderRepository.findByStatus("Hủy");
 	         case "returned":
@@ -184,5 +190,58 @@ public class OrderServiceImpl implements OrderService{
         
         // Nếu đơn hàng không tồn tại hoặc không ở trạng thái "Chờ xác nhận"
         return null;
+	}
+
+	@Override
+	public Order approveDelivery(Long orderId) {
+		Order order = orderRepository.findOrderById(orderId);
+	    if (order != null && "Chờ duyệt đi giao".equals(order.getStatus())) {
+	        order.setStatus("Đang giao"); // Hoặc trạng thái phù hợp trong hệ thống của bạn
+	        return orderRepository.save(order);
+	    }
+	    return null;
+	}
+
+	@Override
+	public List<Order> getOrdersByShipperAndStatus(Long shipperId, String status)
+	{
+		 // Tìm các notification của shipper và status đã nhận giao
+        List<Notification> notifications = notificationRepository. findByUser_UserIdAndStatus(shipperId, "đã nhận giao");
+        
+        // Lấy các orderId từ notifications
+        List<Long> orderIds = notifications.stream()
+                .map(notification -> notification.getOrder().getId())
+                .collect(Collectors.toList());
+        
+        // Trả về các order có id nằm trong danh sách và có status được chỉ định
+        return orderRepository.findByIdInAndStatus(orderIds, status);
+	}
+
+	@Override
+	public Page<Order> getOrders(String search, String status, int page, int size) 
+	{
+		Pageable pageable = PageRequest.of(page, size);
+	    
+	    // Nếu không có bất kỳ điều kiện lọc nào
+	    if (search.isEmpty() && status.isEmpty()) {
+	        return orderRepository.findAll(pageable);
+	    }
+	    
+	    // Nếu chỉ có search
+	    if (!search.isEmpty() && status.isEmpty()) {
+	        return orderRepository.findBySearchOnly(search, pageable);
+	    }
+	    
+	    // Nếu có cả search và status
+	    if (!search.isEmpty() && !status.isEmpty()) {
+	        return orderRepository.findBySearchCriteria(search, status, pageable);
+	    }
+	    
+	    // Nếu chỉ có status
+	    if (search.isEmpty() && !status.isEmpty()) {
+	        return orderRepository.findBySearchCriteria("", status, pageable);
+	    }
+	    
+	    return orderRepository.findAll(pageable);
 	}
 }

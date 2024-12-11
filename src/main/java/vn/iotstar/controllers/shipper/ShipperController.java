@@ -7,12 +7,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import vn.iotstar.dto.NotificationRequest;
@@ -20,6 +22,7 @@ import vn.iotstar.entity.Address;
 import vn.iotstar.entity.Notification;
 import vn.iotstar.entity.Order;
 import vn.iotstar.entity.User;
+import vn.iotstar.repository.NotificationRepository;
 import vn.iotstar.services.NotificationService;
 import vn.iotstar.services.OrderService;
 import vn.iotstar.services.UserService;
@@ -34,6 +37,7 @@ public class ShipperController {
 
 	@Autowired OrderService orderService;
 	@Autowired NotificationService notificationService;
+	@Autowired NotificationRepository notificationRepository;
 	@Autowired UserService userService;
 	@GetMapping()
 	public String shipperHomePage()
@@ -108,5 +112,126 @@ public class ShipperController {
 	        response.put("message", "Có lỗi xảy ra khi tạo thông báo.");
 	    }
 	    return ResponseEntity.ok(response);
+	}
+	
+	@GetMapping("/confirmed-orders")
+	public String getConfirmedOrders(Model model) {
+		Long shipperId= 1L;
+		List<Order> confirmedOrders = orderService.getOrdersByShipperAndStatus(shipperId, "Đang giao");
+		List<String> formattedDates = new ArrayList<>();
+        List<String> phoneNumbers = new ArrayList<>();
+        List<Address> defaultAddresses = new ArrayList<>();
+
+        for (Order order : confirmedOrders) {
+            // Format order creation date
+            String formattedDate = order.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            formattedDates.add(formattedDate);
+            
+            // Get phone number from default address
+            String phoneNumber = null;
+            Address defaultAddress = null;
+
+            if (order.getUser() != null) {
+                for (Address address : order.getUser().getAddresses()) {
+                    if (address.isDefault()) {
+                        defaultAddress = address;
+                        phoneNumber = address.getPhoneNumber();
+                        break;
+                    }
+                }
+            }
+
+            defaultAddresses.add(defaultAddress);
+            phoneNumbers.add(phoneNumber);
+        }
+
+        model.addAttribute("orders", confirmedOrders);
+        model.addAttribute("formattedDates", formattedDates);
+        model.addAttribute("phoneNumbers", phoneNumbers);
+        model.addAttribute("defaultAddresses", defaultAddresses);
+        
+        return "Shipper";
+	}
+	
+	@PostMapping("/complete-order/{orderId}")
+	public ResponseEntity<Map<String, Object>> completeOrder(@PathVariable Long orderId) {
+	    Map<String, Object> response = new HashMap<>();
+	    try {
+	        Order order = orderService.getOrderById(orderId);
+	        if (order != null && "Đang giao".equals(order.getStatus())) {
+	            // Cập nhật trạng thái đơn hàng
+	            orderService.updateOrderStatus(orderId, "Đã hoàn thành");
+	            
+	            // Tạo thông báo hoàn thành
+	            Notification notification = new Notification();
+	            notification.setOrder(order);
+	            notification.setUser(order.getUser());
+	            notification.setMessage("Đơn hàng " + orderId + " đã được giao thành công.");
+	            notification.setTimestamp(new Date());
+	            notification.setStatus("đã hoàn thành");
+	            notificationService.save(notification);
+	            
+	            response.put("success", true);
+	            response.put("message", "Đơn hàng đã được hoàn thành thành công.");
+	        } else {
+	            response.put("success", false);
+	            response.put("message", "Không tìm thấy đơn hàng hoặc trạng thái không hợp lệ.");
+	        }
+	    } catch (Exception e) {
+	        response.put("success", false);
+	        response.put("message", "Có lỗi xảy ra khi hoàn thành đơn hàng.");
+	        e.printStackTrace();
+	    }
+	    return ResponseEntity.ok(response);
+	}
+	
+	@GetMapping("/completed-orders")
+	public String getCompletedOrders(Model model) {
+	    Long shipperId = 1L; // Sau này lấy từ session hoặc authentication
+	    
+	    // Lấy các đơn hàng đã hoàn thành của shipper
+	    List<Order> completedOrders = notificationRepository
+	            .findDistinctOrdersByUser_UserIdAndOrderStatus(shipperId, "Đã hoàn thành")
+	            .stream()
+	            .map(Notification::getOrder)
+	            .distinct()
+	            .collect(Collectors.toList());
+	    
+	    // Chuẩn bị dữ liệu cho view
+	    List<String> formattedDates = new ArrayList<>();
+	    List<String> phoneNumbers = new ArrayList<>();
+	    List<Address> defaultAddresses = new ArrayList<>();
+
+	    for (Order order : completedOrders) {
+	        // Format order creation date
+	        String formattedDate = order.getCreatedAt()
+	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+	        formattedDates.add(formattedDate);
+	        
+	        // Get phone number from default address
+	        String phoneNumber = null;
+	        Address defaultAddress = null;
+
+	        if (order.getUser() != null) {
+	            for (Address address : order.getUser().getAddresses()) {
+	                if (address.isDefault()) {
+	                    defaultAddress = address;
+	                    phoneNumber = address.getPhoneNumber();
+	                    break;
+	                }
+	            }
+	        }
+
+	        defaultAddresses.add(defaultAddress);
+	        phoneNumbers.add(phoneNumber);
+	    }
+
+	    // Add attributes to model
+	    model.addAttribute("orders", completedOrders);
+	    model.addAttribute("formattedDates", formattedDates);
+	    model.addAttribute("phoneNumbers", phoneNumbers);
+	    model.addAttribute("defaultAddresses", defaultAddresses);
+	    
+	    return "Shipper";
 	}
 }

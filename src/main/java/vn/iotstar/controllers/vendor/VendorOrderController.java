@@ -66,14 +66,6 @@ public class VendorOrderController
 	                }
 	            }
 	        }
-	        List<String> statuses = Arrays.asList("mới", "đã nhận giao");
-
-	        // Lấy số lượng thông báo chưa đọc với trạng thái là "Mới" hoặc "Đã nhận giao"
-	        Long unreadNewNotificationsCount = notificationService.countNotificationsByStatusAndNotRead(statuses);
-	        List<Notification> notifications = notificationService.getNotificationsByStatus(statuses);
-	        // Thêm số lượng thông báo vào model
-	        model.addAttribute("unreadNotificationCount", unreadNewNotificationsCount);
-	        model.addAttribute("notifications", notifications);
 	        // Thêm địa chỉ mặc định và số điện thoại vào danh sách
 	        defaultAddresses.add(defaultAddress);
 	        phoneNumbers.add(phoneNumber);
@@ -84,6 +76,14 @@ public class VendorOrderController
 	    model.addAttribute("formattedDates", formattedDates);
 	    model.addAttribute("phoneNumbers", phoneNumbers);
 	    model.addAttribute("defaultAddresses", defaultAddresses);
+	    List<String> statuses = Arrays.asList("mới", "đã nhận giao");
+
+        // Lấy số lượng thông báo chưa đọc với trạng thái là "Mới" hoặc "Đã nhận giao"
+        Long unreadNewNotificationsCount = notificationService.countNotificationsByStatusAndNotRead(statuses);
+        List<Notification> notifications = notificationService.getNotificationsByStatus(statuses);
+        // Thêm số lượng thông báo vào model
+        model.addAttribute("unreadNotificationCount", unreadNewNotificationsCount);
+        model.addAttribute("notifications", notifications);
 
 	    // Trả về trang quản lý đơn hàng
 	    return "ManageOrder";
@@ -106,4 +106,26 @@ public class VendorOrderController
             return ResponseEntity.badRequest().body(new ApiResponse(false, "Có lỗi xảy ra khi xác nhận đơn hàng", null));
         }
     }
+	
+	// controller chuyển duyệt đơn hàng đi giao:
+	@PostMapping("/vendor/order/approve-delivery/{orderId}")
+	public ResponseEntity<ApiResponse> approveDelivery(@PathVariable("orderId") Long orderId) {
+	    try {
+	        Order order = orderService.approveDelivery(orderId); // Gọi service để duyệt đơn hàng đi giao
+
+	        if (order != null) {
+	            // Trả về ApiResponse thành công với thông tin đơn hàng đã duyệt
+	            return ResponseEntity.ok()
+	                .body(new ApiResponse(true, "Đơn hàng đã được duyệt đi giao thành công", null));
+	        } else {
+	            // Trả về ApiResponse thất bại nếu không thể duyệt đơn hàng
+	            return ResponseEntity.badRequest()
+	                .body(new ApiResponse(false, "Không tìm thấy đơn hàng hoặc đơn hàng không ở trạng thái chờ duyệt", null));
+	        }
+	    } catch (Exception e) {
+	        // Xử lý các exception và trả về thông báo lỗi phù hợp
+	        return ResponseEntity.badRequest()
+	            .body(new ApiResponse(false, "Có lỗi xảy ra khi duyệt đơn hàng: " + e.getMessage(), null));
+	    }
+	}
 }

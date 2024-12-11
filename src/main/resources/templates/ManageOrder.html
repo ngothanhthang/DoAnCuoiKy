@@ -194,13 +194,11 @@
 		        <i class="fas fa-shipping-fast me-2"></i>Chờ duyệt đi giao
 		      </a>
 		      <a href="/vendor/orders?status=delivered" class="btn product-status-btn btn-da-giao">
-		        <i class="fas fa-check-circle me-2"></i>Đã Giao
+		        <i class="fas fa-check-circle me-2"></i>Hoàn thành
 		      </a>
-		      <a href="/vendor/orders?status=canceled" class="btn product-status-btn btn-huy">
-		        <i class="fas fa-ban me-2"></i>Hủy
-		      </a>
+		  
 		      <a href="/vendor/orders?status=returned" class="btn product-status-btn btn-tra-hang">
-		        <i class="fas fa-undo me-2"></i>Trả Hàng/Hoàn Tiền
+		        <i class="fas fa-undo me-2"></i>Trả Hàng
 		      </a>
 	    </div>
 
@@ -243,12 +241,11 @@
 		
 		        <!-- Nút Duyệt đi giao -->
 			  <a th:if="${order.status == 'Chờ duyệt đi giao'}"
-			     href="javascript:void(0);" 
-			     id="approve-btn-${order.id}" 
-			     class="btn btn-info" 
-			     onclick="approveDelivery(${order.id})">
-			    <i class="fas fa-shipping-fast"></i> Duyệt đi giao
-			  </a>
+				   href="javascript:void(0);" 
+				   class="btn btn-info" 
+				   th:onclick="|approveDelivery([[${order.id}]])|">
+				    <i class="fas fa-shipping-fast"></i> Duyệt đi giao
+			</a>
 			</div>
 		
 		        <!-- Nút Hoàn Thành, chỉ hiển thị nếu trạng thái là 'Đã giao' -->
@@ -303,7 +300,8 @@
     <!-- Xử lý trạng thái order từ chờ xác nhận thành chờ giao -->
     <script>
     <!-- Xử lý trạng thái order từ chờ xác nhận thành chờ giao -->
-	    function confirmOrder(orderId) {
+	    function confirmOrder(orderId)
+	    {
 	        // Gửi yêu cầu AJAX đến server
 	        fetch(`/vendor/order/confirm/${orderId}`, {
 	            method: 'POST',  // Phương thức HTTP POST
@@ -328,6 +326,35 @@
 	            alert('Có lỗi xảy ra khi xác nhận đơn hàng!');
 	        });
 	    }
+	    // Duyệt đơn hàng đi giao:
+	    function approveDelivery(orderId) {
+	        // Gửi yêu cầu AJAX đến server
+	        fetch(`/vendor/order/approve-delivery/${orderId}`, {
+	            method: 'POST',
+	            headers: {
+	                'Content-Type': 'application/json',
+	            },
+	            body: JSON.stringify({ orderId: orderId })
+	        })
+	        .then(response => response.json())
+	        .then(data => {
+	            if (data.success) {
+	                // Hiển thị thông báo thành công
+	                alert('Đã duyệt đơn hàng đi giao thành công!');
+	                // Tải lại trang để cập nhật trạng thái
+	                location.reload();
+	            } else {
+	                // Xử lý khi có lỗi từ server
+	                alert(data.message || 'Có lỗi xảy ra khi duyệt đơn hàng!');
+	            }
+	        })
+	        .catch(error => {
+	            // Xử lý lỗi kết nối
+	            console.error('Lỗi:', error);
+	            alert('Có lỗi xảy ra khi kết nối với server!');
+	        });
+	    }
+	    
 	    
 	    
 	</script>

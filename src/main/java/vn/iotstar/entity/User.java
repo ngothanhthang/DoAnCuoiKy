@@ -45,11 +45,16 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)  // Một User có thể thích nhiều sản phẩm
     private List<ProductLike> productLikes;  // Danh sách các sản phẩm mà người dùng đã thích
     
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Cart cart;
     
  // Mối quan hệ One-to-Many với Address (mỗi user có thể có nhiều địa chỉ)
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Address> addresses;
+    
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<UserCoupon> userCoupons;
 
 }

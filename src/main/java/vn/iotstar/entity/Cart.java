@@ -24,6 +24,8 @@ public class Cart implements Serializable {
     @Column(name = "cart_id")
     private Long id;
 	
+	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
 	@OneToOne(fetch = FetchType.LAZY)  // Thêm OneToOne để mỗi User chỉ có một Cart
     @JoinColumn(name = "user_id", nullable = false, unique = true)  // Ràng buộc User chỉ có 1 Cart
     private User user;

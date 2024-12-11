@@ -3,7 +3,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,6 +19,8 @@ public class Notification {
     private Long id;
     
     // Liên kết với shipper (User)
+    @ToString.Exclude  // Thêm vào
+    @EqualsAndHashCode.Exclude  // Thêm vào
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

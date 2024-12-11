@@ -1,5 +1,6 @@
 package vn.iotstar.services;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -33,5 +34,12 @@ public interface OrderService {
 	public List<Order> getAllOrders();
 	
 	Order confirmOrder(Long orderId);
+	
+	Order approveDelivery(Long orderId);
+	
+	List<Order> getOrdersByShipperAndStatus(Long shipperId, String status);
+	
+	Page<Order> getOrders(String search, String status, int page, int size);
+
 	
 }
