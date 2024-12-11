@@ -112,27 +112,29 @@ public class OrderServiceImpl implements OrderService{
     }
     
     @Override
- // Tìm danh sách đơn hàng của một user với trạng thái cụ thể
-    public Page<Order> findOrdersByStatusAndUserId(String status, Long userId, Pageable pageable) {
-        return orderRepository.findByStatusAndUserUserId(status, userId, pageable);
+    public Page<Order> findOrdersByMultipleStatusesAndUserId(List<String> statuses, Long userId, Pageable pageable) {
+    	Pageable sortedByDate = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.desc("createdAt")));
+        return orderRepository.findByStatusInAndUserUserId(statuses, userId, sortedByDate);
     }
     
-    @Override
-    // Tìm tất cả đơn hàng của một user
-
-	public Page<Order> findOrdersByUserId(Long userId, Pageable pageable) {
-	    return orderRepository.findByUserUserId(userId, pageable);
-	}
-    
+ 
     @Override
     public void save(Order order) {
         orderRepository.save(order);
     }
     
+    public Page<Order> findOrdersByUserId(Long userId, Pageable pageable) {
+    	Pageable sortedByDate = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.desc("createdAt")));
+        return orderRepository.findByUserUserIdAndStatusNot(userId, "chờ xử lý", sortedByDate);
+	}
+    
+    
     @Override
-    public Page<Order> findOrdersByMultipleStatusesAndUserId(List<String> statuses, Long userId, Pageable pageable) {
-        return orderRepository.findByStatusInAndUserUserId(statuses, userId, pageable);
-    }
+    // Tìm danh sách đơn hàng của một user với trạng thái cụ thể
+       public Page<Order> findOrdersByStatusAndUserId(String status, Long userId, Pageable pageable) {
+       	 Pageable sortedByDate = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.desc("createdAt")));
+       	    return orderRepository.findByStatusAndUserUserId(status, userId, sortedByDate);
+       }
     
     @Override
     public boolean updateOrderStatus(Long orderId, String status) {
@@ -145,6 +147,7 @@ public class OrderServiceImpl implements OrderService{
         }
         return false;
     }
+    
 	@Override
 	public List<Order> getAllOrders() {
 		return orderRepository.findAll();
