@@ -2,11 +2,30 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Quản lý Đơn hàng</title>
-    <link rel="stylesheet" href="/css/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dep.css">
+    <!-- Kết nối với Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+    .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1000;
+    background: rgba(44, 62, 80, 0.95) !important; /* Thêm độ trong suốt nhẹ */
+    backdrop-filter: blur(10px); /* Hiệu ứng blur cho background */
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
         /* Màu nền gradient và hiệu ứng */
         body {
             background: linear-gradient(135deg, #f6f8f9 0%, #e5ebee 100%);
@@ -179,28 +198,79 @@
 .confirm-delivery-button:hover {
     background-color: #218838;
 }
+.payment-button {
+    background-color: #4CAF50 !important; /* Màu xanh lá */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.payment-button:hover {
+    background-color: #45a049 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
     </style>
 </head>
 <body>
-<!-- Navbar -->
-    <nav class="custom-navbar navbar navbar-expand-lg navbar-dark">
-        <a class="navbar-brand" href="#">My Store</a>
-        <!-- Phần tìm kiếm -->
-<div class="search-container">
-</div>
-        
-        <ul class="navbar-nav custom-navbar-nav ms-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="#">Home</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Shop</a>
-            </li>
-        </ul>
-            </nav>
+<header>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" th:href="@{/}">
+    <i class="bi bi-house-heart-fill" style="font-size: 2rem; color: #ffc107;"></i>
+    <span class="ms-2">My Furniture Store</span>
+</a>
+            <!-- Navigation Items -->
+            <div class="d-flex ms-3 nav-items">
+                <!-- Thông báo -->
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-bell-fill"></i>
+                        <span class="nav-text">Thông báo</span>
+                        <span class="notification-dot"></span>
+                    </a>
+                </div>
 
-    <!-- Hero Section -->
-    
+                <!-- Hỗ trợ -->
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-headset"></i>
+                        <span class="nav-text">Hỗ trợ</span>
+                    </a>
+                </div>
+
+                <!-- Tài khoản -->
+                <div class="nav-item">
+                    <a href="/address/info" class="nav-link">
+                        <i class="bi bi-person-circle"></i>
+                        <span class="nav-text">Tài khoản</span>
+                    </a>
+                </div>
+
+                <div class="nav-item cart-wrapper">
+				    <a href="/cart/view" class="cart-button">
+				        <i class="bi bi-cart3"></i>
+				        <span class="nav-text">Giỏ hàng</span>
+				        <span id="cartItemCount" class="cart-badge"></span>
+				    </a>
+				    
+				    <!-- Dropdown menu cho giỏ hàng -->
+				    <div class="cart-dropdown">
+				        <div class="cart-items" id="cartItemsList">
+				            <!-- Các sản phẩm sẽ được thêm vào đây qua JavaScript -->
+				        </div>
+				        <div class="cart-footer">
+				            <a href="/cart/view" class="btn btn-primary w-100">Xem giỏ hàng</a>
+				        </div>
+				    </div>
+				</div>
+            </div>
+        </div>
+    </nav>
     <section class="hero">
         <div class="container">
             <div class="intro-excerpt">
@@ -210,6 +280,7 @@
             
         </div>
     </section>
+</header>
     <!-- Phần còn lại của mã HTML giữ nguyên, chỉ thay đổi vị trí nút trả hàng -->
     <div class="container mt-5">
         <h1 class="text-center header mb-4">Quản lý Đơn hàng</h1>
@@ -279,11 +350,18 @@
 					            Chỉ nhấn khi bạn đã nhận được đơn hàng
 					        </small>
 					    </div>
-                        <div th:if="${order.status == 'chờ xác nhận'}">
+                        <div th:if="${order.status == 'Chờ xác nhận'}">
 					        <button class="order-return-button cancel-button" 
 					            th:data-order-id="${order.id}" 
 					            onclick="huyDonHangClicked(this)">
 					            Hủy đơn
+					        </button>
+					        <!-- Nút thanh toán -->
+					        <button class="order-return-button payment-button"
+					            th:data-order-id="${order.id}"
+					            th:data-amount="${order.totalAmount}"
+					            onclick="showPaymentQR(this)">
+					            <i class="fas fa-qrcode me-2"></i>Thanh toán QR
 					        </button>
 					    </div>
                             <div th:if="${order.status == 'đã giao' or order.status == 'đang duyệt' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
@@ -462,7 +540,15 @@
             });
         }
     }
+    function showPaymentQR(button) {
+        const orderId = button.getAttribute('data-order-id');
+        const amount = button.getAttribute('data-amount');
+        
+        // Chuyển hướng đến trang thanh toán với orderId và amount
+        window.location.href = `/payment/qr?orderId=${orderId}&amount=${amount}`;
+    }
 </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/script.js}"></script>
 </body>
 </html>

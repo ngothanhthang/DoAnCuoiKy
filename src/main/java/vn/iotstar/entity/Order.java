@@ -1,12 +1,3 @@
-
-
-
-
-
-
-
-
-
 package vn.iotstar.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -44,13 +35,19 @@ public class Order implements Serializable {/**
 	
 	@Column(name = "status", nullable = false, length = 50)
 	private String status;
+	
+	@Column(name = "payment_method")
+    private String paymentMethod;
 
 	 @CreationTimestamp
 	 @Column(name = "created_at", nullable = false, updatable = false)
 	 private LocalDateTime createdAt;
 	 
-	// Quan h? OneToMany v?i OrderItem
 	 @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
 	 private List<OrderItem> orderItems;
+	 
+	 @ManyToOne(fetch = FetchType.LAZY)
+	    @JoinColumn(name = "coupon_id")
+	    private Coupon coupon;
 
 }

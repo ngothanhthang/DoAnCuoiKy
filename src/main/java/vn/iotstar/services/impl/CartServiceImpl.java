@@ -140,5 +140,14 @@ public class CartServiceImpl implements CartService {
                 .mapToInt(CartItem::getQuantity)  // Lấy số lượng của từng CartItem
                 .sum();  // Tính tổng số lượng
     }
+    
+    @Override
+    public int getCartItemCount(Long userId) {
+        Cart cart = cartRepository.findByUserUserId(userId);
+        if (cart != null && cart.getCartItems() != null) {
+            return cart.getCartItems().size();
+        }
+        return 0;
+    }
 
 }

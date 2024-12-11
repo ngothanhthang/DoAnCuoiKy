@@ -137,33 +137,51 @@ public class AddressController {
         // Điều hướng đến trang thông tin đơn hàng với orderId
         return "redirect:/address/info";
     }
-
     
-    @PostMapping("/delete-address")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> deleteAddress(@RequestBody Map<String, String> payload) {
-        Map<String, Object> response = new HashMap<>();
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteAddress(@PathVariable Long id, HttpSession session) {
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+        logger.info("Deleting address with id: {}", id);
+        
         try {
-            Long addressId = Long.parseLong(payload.get("id"));
-            
-            // Kiểm tra xem địa chỉ có tồn tại không
-            Address existingAddress = addressService.getAddressById(addressId);
-            if (existingAddress == null) {
-                response.put("success", false);
-                response.put("error", "Địa chỉ không tồn tại");
-                return ResponseEntity.badRequest().body(response);
+            // Lấy userId từ session
+            Long userId = (Long) session.getAttribute("userId");
+            if (userId == null) {
+                userId = 1L; // Giá trị mặc định nếu không có session
             }
 
-            // Xóa địa chỉ
-            addressService.deleteAddress(addressId);
+            // Tìm địa chỉ cần xóa
+            Address address = addressService.getAddressById(id);
             
-            response.put("success", true);
+            // Kiểm tra xem địa chỉ có tồn tại không
+            if (address == null) {
+                logger.error("Address not found with id: {}", id);
+                return ResponseEntity.notFound().build();
+            }
+            
+            // Kiểm tra xem địa chỉ có thuộc về user hiện tại không
+            if (!address.getUser().getUserId().equals(userId)) {
+                logger.error("Unauthorized deletion attempt for address id: {}", id);
+                return ResponseEntity.status(403).body("Không có quyền xóa địa chỉ này");
+            }
+
+            // Nếu là địa chỉ mặc định, không cho phép xóa
+            if (address.isDefault()) {
+                logger.warn("Attempt to delete default address id: {}", id);
+                return ResponseEntity.badRequest().body("Không thể xóa địa chỉ mặc định");
+            }
+
+            // Thực hiện xóa địa chỉ
+            addressService.deleteAddress(id);
+            logger.info("Successfully deleted address with id: {}", id);
+            
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Xóa địa chỉ thành công");
             return ResponseEntity.ok(response);
+            
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            logger.error("Error deleting address with id: " + id, e);
+            return ResponseEntity.status(500).body("Có lỗi xảy ra khi xóa địa chỉ");
         }
     }
-
 }

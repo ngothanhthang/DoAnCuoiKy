@@ -2,10 +2,12 @@ package vn.iotstar.controllers;
 
 import jakarta.servlet.http.HttpSession;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,16 +27,20 @@ import jakarta.servlet.http.HttpSession;
 import vn.iotstar.entity.Address;
 import vn.iotstar.entity.Cart;
 import vn.iotstar.entity.CartItem;
+import vn.iotstar.entity.Coupon;
 import vn.iotstar.entity.Notification;
 import vn.iotstar.entity.Order;
 import vn.iotstar.entity.User;
+import vn.iotstar.entity.UserCoupon;
 import vn.iotstar.repository.CartItemRepository;
 import vn.iotstar.repository.UserRepository;
 import vn.iotstar.services.AddressService;
 import vn.iotstar.services.CartItemService;
 import vn.iotstar.services.CartService;
+import vn.iotstar.services.CouponService;
 import vn.iotstar.services.NotificationService;
 import vn.iotstar.services.OrderService;
+import vn.iotstar.services.UserCouponService;
 import vn.iotstar.services.UserService;
 
 import org.slf4j.Logger;
@@ -47,7 +53,7 @@ public class OrderViewController {
     @Autowired
     private OrderService orderService;
     @Autowired
-    private UserRepository userService;
+    private UserService userService;
     @Autowired
     private CartItemService cartItemService;
     @Autowired
@@ -56,7 +62,12 @@ public class OrderViewController {
     private CartService cartService;
     @Autowired
     private NotificationService notificationService;
-
+    @Autowired
+    private CouponService couponService;
+    
+    @Autowired
+    private UserCouponService userCouponService;
+    
     @GetMapping("/summary/{orderId}")
     public String orderSummary(@PathVariable("orderId") Long orderId, @RequestParam(required = false) List<Long> selectedItems, Model model, HttpSession session) {
     	// Khởi tạo Logger
@@ -151,24 +162,48 @@ public class OrderViewController {
 	@GetMapping("/purchases")
     public String updateOrderStatus(@RequestParam("orderId") Long orderId,
                                     @RequestParam("selectedItem") List<Long> selectedItems,
+                                    @RequestParam("paymentMethod") String paymentMethod,
+                                    @RequestParam("newTotalAmount") BigDecimal newTotalAmount,
+                                    @RequestParam(value = "voucherCode", required = false) String voucherCode,
                                     Model model,
                                     HttpSession session) {
     	Long userId = (Long) session.getAttribute("userId");
         if (userId == null) {
             userId = 1L;
         }
+        User user = userService.findById(userId);
         // Lấy đơn hàng theo orderId
         Order order = orderService.getOrderById(orderId);
+        if (voucherCode != null && !voucherCode.isEmpty()) {
+            Coupon coupon = couponService.findByCode(voucherCode);
+            if (coupon != null) {
+                // Kiểm tra xem người dùng đã sử dụng mã giảm giá này trước đó chưa
+                boolean alreadyUsed = user.getUserCoupons().stream()
+                        .anyMatch(uc -> uc.getCoupon().equals(coupon));
+
+                if (!alreadyUsed) {
+                    // Thêm bản ghi vào bảng UserCoupon
+                    UserCoupon userCoupon = new UserCoupon();
+                    userCoupon.setUser(user);
+                    userCoupon.setCoupon(coupon);
+                    userCoupon.setUsedAt(LocalDateTime.now());
+                    userCouponService.saveUserCoupon(userCoupon);
+
+                    // Giảm số lượng mã giảm giá đi 1
+                    coupon.setQuantity(coupon.getQuantity() - 1);
+                    couponService.saveCoupon(coupon);
+                }
+            }
+        }
         
         if (order != null) {
             // Cập nhật trạng thái của đơn hàng
-            order.setStatus("chờ xác nhận");
+            order.setStatus("Chờ xác nhận");
+            order.setPaymentMethod(paymentMethod);
+            order.setTotalAmount(newTotalAmount);
             orderService.save(order);
          // Tạo thông báo mới sau khi cập nhật trạng thái đơn hàng
             Notification notification = new Notification();
-            
-            // Lấy người dùng từ session
-            User user = userService.findByUserId(userId);
             
             // Cập nhật thông tin cho notification
             notification.setUser(user);

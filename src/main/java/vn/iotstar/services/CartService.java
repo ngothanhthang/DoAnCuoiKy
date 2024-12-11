@@ -25,4 +25,6 @@ public interface CartService {
 	Cart findCartByUser(User user);
 
 	int getTotalCartItemCount(User user);
+
+	int getCartItemCount(Long userId);
 }
