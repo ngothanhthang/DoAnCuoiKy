@@ -18,15 +18,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 	 * Page<Product> findByCategoryIdAndStatus(Long categoryId, int status, Pageable
 	 * pageable);
 	 */
-<<<<<<< HEAD
-	 Page<Product> findByProductStatus(int productStatus, Pageable pageable);
-=======
+	
+	Page<Product> findByProductStatus(int productStatus, Pageable pageable);
     Page<Product> findAll(Pageable pageable);
     
     @Query("SELECT p FROM Product p WHERE p.productStatus = :status")
     Page<Product> findAllByProductStatus(@Param("status") int status, Pageable pageable);
     
->>>>>>> remotes/origin/Nhanh_Cua_Anh_New2
     // Các truy vấn khác như: new arrivals, best sellers, etc.
 	/*
 	 * @Query("SELECT p, AVG(r.rating) AS averageRating, COALESCE(SUM(oi.quantity), 0) AS totalSold "

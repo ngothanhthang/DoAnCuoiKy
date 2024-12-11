@@ -25,9 +25,6 @@ public class Product implements Serializable {
     @Column(name = "product_name", nullable = false)
     private String name;
 
-    // Thêm thuộc tính product_status để kiểm tra trạng thái phê duyệt
-    @Column(name = "product_status", nullable = false)
-    private int productStatus; // 0 - chưa phê duyệt, 1 - đã phê duyệt
     
     @Column(name = "status", nullable = false)
     private int status;
