@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public Page<User> getUsers(int pageNum) {
-		Pageable pageable = PageRequest.of(pageNum, 5);  // 5 sản phẩm mỗi trang
+		Pageable pageable = PageRequest.of(pageNum, 10); 
         return userRepository.findAll(pageable);
 	}
 
@@ -44,6 +44,12 @@ public class UserServiceImpl implements UserService{
 	public void deleteUserById(Long id) {
 		userRepository.deleteById(id);
 		
+	}
+
+	@Override
+	public Page<User> searchUsers(String keyword, int page) {
+	    Pageable pageable = PageRequest.of(page, 10);
+	    return userRepository.findByEmailContainingIgnoreCaseOrUsernameContainingIgnoreCase(keyword, keyword, pageable);
 	}
 
 }

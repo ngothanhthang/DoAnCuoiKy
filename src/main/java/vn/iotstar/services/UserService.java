@@ -17,5 +17,7 @@ public interface UserService {
 	Optional<User> getUserById(Long id);
 
 	void deleteUserById(Long id);
+	
+	Page<User> searchUsers(String keyword, int page);
 
 }
