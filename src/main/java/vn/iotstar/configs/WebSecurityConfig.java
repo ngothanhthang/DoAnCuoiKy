@@ -35,7 +35,15 @@ public class WebSecurityConfig {
                                     "users/forgot-password",
                                     "users/reset-password",
                                     "users/**",
-                                    "users/verify-otp"
+                                    "users/verify-otp",
+                                    "categories/**",
+                                    "cart/**",
+                                    "/css/**",
+                                    "/js/**",
+                                    "/images/**",
+                                    "address/**",
+                                    "address/delete/**",
+                                    "/**"
                             )
                             .permitAll()
                             .anyRequest().authenticated();

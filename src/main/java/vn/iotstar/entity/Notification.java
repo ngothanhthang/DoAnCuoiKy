@@ -1,10 +1,11 @@
 package vn.iotstar.entity;
-
-import java.time.LocalDateTime;
+import org.hibernate.annotations.CreationTimestamp;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,6 +19,8 @@ public class Notification {
     private Long id;
     
     // Liên kết với shipper (User)
+    @ToString.Exclude  // Thêm vào
+    @EqualsAndHashCode.Exclude  // Thêm vào
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -28,8 +31,11 @@ public class Notification {
     private Order order;
     
     // Thời gian tạo thông báo
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    @CreationTimestamp
     @Column(nullable = false)
-    private LocalDateTime timestamp;
+    private java.util.Date timestamp;
     
     // Nội dung thông báo (Kiểu TEXT)
     @Lob

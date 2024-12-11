@@ -11,21 +11,23 @@
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
 
     <style>
-    .navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    z-index: 1000;
-    background: rgba(44, 62, 80, 0.95) !important; /* Thêm độ trong suốt nhẹ */
-    backdrop-filter: blur(10px); /* Hiệu ứng blur cho background */
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(44, 62, 80, 0.95) !important; /* Thêm độ trong suốt nhẹ */
+            backdrop-filter: blur(10px); /* Hiệu ứng blur cho background */
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
         /* Màu nền gradient và hiệu ứng */
         body {
             background: linear-gradient(135deg, #f6f8f9 0%, #e5ebee 100%);
@@ -44,6 +46,7 @@
             text-decoration: none;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .nav-buttons a:hover {
             background-color: #483D8B;
             transform: translateY(-3px);
@@ -191,28 +194,30 @@
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
+
         .confirm-delivery-button {
-    background-color: #28a745; /* Màu xanh lá cây */
-}
+            background-color: #28a745; /* Màu xanh lá cây */
+        }
 
-.confirm-delivery-button:hover {
-    background-color: #218838;
-}
-.payment-button {
-    background-color: #4CAF50 !important; /* Màu xanh lá */
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
+        .confirm-delivery-button:hover {
+            background-color: #218838;
+        }
 
-.payment-button:hover {
-    background-color: #45a049 !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-}
+        .payment-button {
+            background-color: #4CAF50 !important; /* Màu xanh lá */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-button:hover {
+            background-color: #45a049 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -220,24 +225,33 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" th:href="@{/}">
-    <i class="bi bi-house-heart-fill" style="font-size: 2rem; color: #ffc107;"></i>
-    <span class="ms-2">My Furniture Store</span>
-</a>
+            <a class="navbar-brand" th:href="@{/categories}">
+                <i class="bi bi-house-heart-fill" style="font-size: 2rem; color: #ffc107;"></i>
+                <span class="ms-2">My Furniture Store</span>
+            </a>
             <!-- Navigation Items -->
             <div class="d-flex ms-3 nav-items">
-                <!-- Thông báo -->
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="" class="nav-link">
                         <i class="bi bi-bell-fill"></i>
                         <span class="nav-text">Thông báo</span>
                         <span class="notification-dot"></span>
                     </a>
+                    <!-- Dropdown thông báo -->
+                    <div class="notification-dropdown">
+                        <div class="notification-header">
+                            Thông Báo Mới Nhận
+                        </div>
+                        <div class="notification-content">
+                            <i class="bi bi-bell-slash notification-empty-icon"></i>
+                            <p class="notification-empty-text">Bạn chưa có thông báo nào</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Hỗ trợ -->
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="/contact" class="nav-link" target="_blank">  <!-- Thêm target="_blank" để mở tab mới -->
                         <i class="bi bi-headset"></i>
                         <span class="nav-text">Hỗ trợ</span>
                     </a>
@@ -252,22 +266,22 @@
                 </div>
 
                 <div class="nav-item cart-wrapper">
-				    <a href="/cart/view" class="cart-button">
-				        <i class="bi bi-cart3"></i>
-				        <span class="nav-text">Giỏ hàng</span>
-				        <span id="cartItemCount" class="cart-badge"></span>
-				    </a>
-				    
-				    <!-- Dropdown menu cho giỏ hàng -->
-				    <div class="cart-dropdown">
-				        <div class="cart-items" id="cartItemsList">
-				            <!-- Các sản phẩm sẽ được thêm vào đây qua JavaScript -->
-				        </div>
-				        <div class="cart-footer">
-				            <a href="/cart/view" class="btn btn-primary w-100">Xem giỏ hàng</a>
-				        </div>
-				    </div>
-				</div>
+                    <a href="/cart/view" class="cart-button">
+                        <i class="bi bi-cart3"></i>
+                        <span class="nav-text">Giỏ hàng</span>
+                        <span id="cartItemCount" class="cart-badge"></span>
+                    </a>
+
+                    <!-- Dropdown menu cho giỏ hàng -->
+                    <div class="cart-dropdown">
+                        <div class="cart-items" id="cartItemsList">
+                            <!-- Các sản phẩm sẽ được thêm vào đây qua JavaScript -->
+                        </div>
+                        <div class="cart-footer">
+                            <a href="/cart/view" class="btn btn-primary w-100">Xem giỏ hàng</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -277,153 +291,278 @@
                 <h1>Welcome to My Store</h1>
                 <p>Discover the latest products and trends.</p>
             </div>
-            
+
         </div>
     </section>
 </header>
-    <!-- Phần còn lại của mã HTML giữ nguyên, chỉ thay đổi vị trí nút trả hàng -->
-    <div class="container mt-5">
-        <h1 class="text-center header mb-4">Quản lý Đơn hàng</h1>
-<form th:action="@{/order/purchase}" method="get" id="paginationForm">
-    <input type="hidden" name="status" th:value="${status}"/>
-    <input type="hidden" name="page" th:value="0"/>
-    
-    <!-- ComboBox để chọn size -->
-    <select name="size" onchange="document.getElementById('paginationForm').submit();">
-        <option value="5" th:selected="${size == 5}">5</option>
-        <option value="10" th:selected="${size == 10}">10</option>
-        <option value="15" th:selected="${size == 15}">15</option>
-        <option value="20" th:selected="${size == 20}">20</option>
-    </select>
-</form>
-		
-        <!-- Thanh điều hướng -->
-		<div class="nav-buttons d-flex justify-content-center mb-4">
-		    <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=0}" class="btn">
-		        <i class="fas fa-list"></i> Tất cả
-		    </a>
-		    <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=1}" class="btn">
-		        <i class="fas fa-list"></i> Mới
-		    </a>
-		    <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=2}" class="btn">
-		        <i class="fas fa-check-circle"></i> Đã xác nhận
-		    </a>
-		    <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=3}" class="btn">
-		        <i class="fas fa-truck-moving"></i> Đang giao
-		    </a>
-		    <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=4}" class="btn">
-		        <i class="fas fa-box"></i> Đã giao
-		    </a>
-		    <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=5}" class="btn">
-		        <i class="fas fa-ban"></i> Hủy
-		    </a>
-		    <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=6}" class="btn">
-		        <i class="fas fa-sync-alt"></i> Trả hàng/Hoàn tiền
-		    </a>
-		</div>
+<!-- Phần còn lại của mã HTML giữ nguyên, chỉ thay đổi vị trí nút trả hàng -->
+<div class="container mt-5">
+    <h1 class="text-center header mb-4">Quản lý Đơn hàng</h1>
+    <form th:action="@{/order/purchase}" method="get" id="paginationForm">
+        <input type="hidden" name="status" th:value="${status}"/>
+        <input type="hidden" name="page" th:value="0"/>
 
-        <!-- Phần hiển thị danh sách đơn hàng -->
-        <div th:if="${orders != null}">
-            <div class="row">
-                <div class="col-md-12" th:each="order : ${orders}">
-                    <div class="order-card">
-                        <div class="order-details">
-                            <div th:each="item : ${order.orderItems}" class="order-item">
-                            
-                                <img class="order-img" 
-								     th:src="${item.product.imageUrl}" 
-								     alt="Product Image"
-								     style="width: 100px; height: 100px; object-fit: contain;"
-								     onerror="this.src='https://via.placeholder.com/150';">
-                                <div class="order-details">
-                                    <div class="order-header" th:text="${item.product.name}">Product Name</div>
-                                    <div class="order-body" th:text="${item.product.description}">Product Description</div>
-                                    <div class="order-quantity">
-                                        <span>x</span><span th:text="${item.quantity}">Product Quantity</span>
-                                    </div>
+        <!-- ComboBox để chọn size -->
+        <select name="size" onchange="document.getElementById('paginationForm').submit();">
+            <option value="5" th:selected="${size == 5}">5</option>
+            <option value="10" th:selected="${size == 10}">10</option>
+            <option value="15" th:selected="${size == 15}">15</option>
+            <option value="20" th:selected="${size == 20}">20</option>
+        </select>
+    </form>
+
+    <!-- Thanh điều hướng -->
+    <div class="nav-buttons d-flex justify-content-center mb-4">
+        <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=0}" class="btn">
+            <i class="fas fa-list"></i> Tất cả
+        </a>
+        <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=1}" class="btn">
+            <i class="fas fa-list"></i> Mới
+        </a>
+        <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=2}" class="btn">
+            <i class="fas fa-check-circle"></i> Đã xác nhận
+        </a>
+        <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=3}" class="btn">
+            <i class="fas fa-truck-moving"></i> Đang giao
+        </a>
+        <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=4}" class="btn">
+            <i class="fas fa-box"></i> Đã giao
+        </a>
+        <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=5}" class="btn">
+            <i class="fas fa-ban"></i> Hủy
+        </a>
+        <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=6}" class="btn">
+            <i class="fas fa-sync-alt"></i> Trả hàng/Hoàn tiền
+        </a>
+    </div>
+
+    <!-- Phần hiển thị danh sách đơn hàng -->
+    <div th:if="${orders != null}">
+        <div class="row">
+            <div class="col-md-12" th:each="order : ${orders}">
+                <div class="order-card">
+                    <div class="order-details">
+                        <div th:each="item : ${order.orderItems}" class="order-item">
+
+                            <img class="order-img"
+                                 th:src="${item.product.imageUrl}"
+                                 alt="Product Image"
+                                 style="width: 100px; height: 100px; object-fit: contain;"
+                                 onerror="this.src='https://via.placeholder.com/150';">
+                            <div class="order-details">
+                                <div class="order-header" th:text="${item.product.name}">Product Name</div>
+                                <div class="order-body" th:text="${item.product.description}">Product Description</div>
+                                <div class="order-quantity">
+                                    <span>x</span><span th:text="${item.quantity}">Product Quantity</span>
                                 </div>
-                                <div class="order-item-total" th:text="${item.price}">Item Total</div>
-                                <!-- Nút đánh giá cho từng item -->
-                                <div th:if="${order.status == 'đã giao' or order.status == 'đang duyệt' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
-							    <button class="order-return-button" 
-							        th:data-product-id="${item.product.id}"
-							        onclick="reviewButtonClicked(this)">
-							        Đánh giá
-							    </button>
-							    </div>
                             </div>
-                        </div>
-                        <div class="order-total">
-                        <div th:if="${order.status == 'đang giao'}">
-					        <button class="order-return-button confirm-delivery-button" 
-					            th:data-order-id="${order.id}" 
-					            onclick="xacNhanDaGiaoClicked(this)">
-					            Đã nhận hàng
-					        </button>
-					        <small class="text-muted d-block mt-2">
-					            Chỉ nhấn khi bạn đã nhận được đơn hàng
-					        </small>
-					    </div>
-                        <div th:if="${order.status == 'Chờ xác nhận'}">
-					        <button class="order-return-button cancel-button" 
-					            th:data-order-id="${order.id}" 
-					            onclick="huyDonHangClicked(this)">
-					            Hủy đơn
-					        </button>
-					        <!-- Nút thanh toán -->
-					        <button class="order-return-button payment-button"
-					            th:data-order-id="${order.id}"
-					            th:data-amount="${order.totalAmount}"
-					            onclick="showPaymentQR(this)">
-					            <i class="fas fa-qrcode me-2"></i>Thanh toán QR
-					        </button>
-					    </div>
-                            <div th:if="${order.status == 'đã giao' or order.status == 'đang duyệt' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
-                                <button class="order-return-button" 
-                                    th:class="${order.status == 'đang duyệt' ? 'order-return-button disabled' : 'order-return-button'}" 
-                                    th:text="${order.status == 'đang duyệt' ? 'Đang duyệt' : 'Trả hàng'}" 
-                                    th:disabled="${order.status == 'đang duyệt'}"
-                                    th:data-order-id="${order.id}" 
-                                    onclick="returnButtonClicked(this)">
-                                    Trả hàng
+                            <div class="order-item-total" th:text="${item.price}">Item Total</div>
+                            <!-- Nút đánh giá cho từng item -->
+                            <div th:if="${order.status == 'Đã giao' or order.status == 'Đang duyệt' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
+                                <button class="order-return-button"
+                                        th:data-product-id="${item.product.id}"
+                                        onclick="reviewButtonClicked(this)">
+                                    Đánh giá
                                 </button>
                             </div>
-                            <span th:text="${order.totalAmount}">Total Amount</span>
                         </div>
+                    </div>
+                    <div class="order-total">
+                        <div th:if="${order.status == 'Đang giao' or order.status == 'Đã nhận hàng' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
+                            <button class="order-return-button confirm-delivery-button"
+                                    th:class="${order.status == 'Đã nhận hàng' ? 'order-return-button disabled' : 'order-return-button'}"
+                                    th:text="${order.status == 'Đã nhận hàng' ? 'Đã nhận hàng' : 'Xác nhận'}"
+                                    th:disabled="${order.status == 'Đã nhận hàng'}"
+                                    th:data-order-id="${order.id}"
+                                    onclick="xacNhanDaGiaoClicked(this)">
+                                Đã nhận hàng
+                            </button>
+                            <small class="text-muted d-block mt-2">
+                                Chỉ nhấn khi bạn đã nhận được đơn hàng
+                            </small>
+                        </div>
+                        <div th:if="${order.status == 'Chờ xác nhận'}">
+                            <button class="order-return-button cancel-button"
+                                    th:data-order-id="${order.id}"
+                                    onclick="huyDonHangClicked(this)">
+                                Hủy đơn
+                            </button>
+                            <!-- Nút thanh toán -->
+                            <button class="order-return-button payment-button"
+                                    th:data-order-id="${order.id}"
+                                    th:data-amount="${order.totalAmount}"
+                                    onclick="showPaymentQR(this)">
+                                <i class="fas fa-qrcode me-2"></i>Thanh toán QR
+                            </button>
+                        </div>
+                        <div th:if="${order.status == 'Đã giao' or order.status == 'Đang duyệt' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
+                            <button class="order-return-button"
+                                    th:class="${order.status == 'Đang duyệt' ? 'order-return-button disabled' : 'order-return-button'}"
+                                    th:text="${order.status == 'Đang duyệt' ? 'Đang duyệt' : 'Trả hàng'}"
+                                    th:disabled="${order.status == 'Đang duyệt'}"
+                                    th:data-order-id="${order.id}"
+                                    onclick="returnButtonClicked(this)">
+                                Trả hàng
+                            </button>
+                        </div>
+                        <span th:text="${order.totalAmount}">Total Amount</span>
+                    </div>
 
-                        <div class="order-status" th:class="${order.status == 'Hủy' ? 'order-status cancelled' : (order.status == 'Đang giao' ? 'order-status in-progress' : 'order-status completed')}">
-                            <span th:text="${order.status}">Status</span>
-                        </div>
+                    <div class="order-status"
+                         th:class="${order.status == 'Hủy' ? 'order-status cancelled' : (order.status == 'Đang giao' ? 'order-status in-progress' : 'order-status completed')}">
+                        <span th:text="${order.status}">Status</span>
                     </div>
                 </div>
             </div>
         </div>
-        <div th:if="${totalPages > 1}" class="pagination">
-    <ul class="pagination justify-content-center">
-        <!-- Nút "Trang trước" -->
-        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
-            <a class="page-link" th:href="@{/order/purchase(status=${status}, page=${currentPage - 1}, size=${size})}">Trang trước</a>
-        </li>
+    </div>
+    <div th:if="${totalPages > 1}" class="pagination">
+        <ul class="pagination justify-content-center">
+            <!-- Nút "Trang trước" -->
+            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                <a class="page-link"
+                   th:href="@{/order/purchase(status=${status}, page=${currentPage - 1}, size=${size})}">Trang trước</a>
+            </li>
 
-        <!-- Các nút trang -->
-        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-            <a class="page-link" th:href="@{/order/purchase(status=${status}, page=${i}, size=${size})}" th:text="${i + 1}">1</a>
-        </li>
+            <!-- Các nút trang -->
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a class="page-link" th:href="@{/order/purchase(status=${status}, page=${i}, size=${size})}"
+                   th:text="${i + 1}">1</a>
+            </li>
 
-        <!-- Nút "Trang sau" -->
-        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
-            <a class="page-link" th:href="@{/order/purchase(status=${status}, page=${currentPage + 1}, size=${size})}">Trang sau</a>
-        </li>
-    </ul>
-</div>
-        
-
-        <div th:if="${orders == null or orders.isEmpty()}">
-            <p class="no-orders-message">Không có đơn hàng nào trong trạng thái này.</p>
-        </div>
+            <!-- Nút "Trang sau" -->
+            <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                <a class="page-link"
+                   th:href="@{/order/purchase(status=${status}, page=${currentPage + 1}, size=${size})}">Trang sau</a>
+            </li>
+        </ul>
     </div>
 
-    <script type="text/javascript">
+
+    <div th:if="${orders == null or orders.isEmpty()}">
+        <p class="no-orders-message">Không có đơn hàng nào trong trạng thái này.</p>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Thanh toán qua QR Code</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <!-- Mã QR mặc định -->
+                    <img th:src="@{/css/qr.jpg}" alt="QR Code" class="img-fluid" id="qrImage"/>
+
+                    <!-- Ô để người dùng chọn ảnh -->
+                    <input type="file" id="fileInput" class="form-control mb-3" accept="image/*">
+                    <div id="imagePreview">
+                        <!-- Hình ảnh sẽ được hiển thị ở đây sau khi người dùng chọn -->
+                    </div>
+
+                    <p id="paymentAmount" class="mt-3">Bạn cần thanh toán số tiền là: <span id="amount"></span> VND</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="payButton">Thanh toán</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+//Thêm hàm xử lý việc upload ảnh và thanh toán
+function handlePayment() {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+    const orderId = document.getElementById('paymentModal').getAttribute('data-order-id');
+
+    if (!file) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Thông báo',
+            text: 'Vui lòng chọn ảnh thanh toán!'
+        });
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('paymentImage', file);
+    formData.append('orderId', orderId);
+
+    fetch('/order/save-payment', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: 'Đã lưu ảnh thanh toán thành công!'
+            }).then(() => {
+                // Đóng modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+                modal.hide();
+                // Làm mới trang
+                window.location.reload();
+            });
+        } else {
+            throw new Error(data.message || 'Không thể lưu ảnh thanh toán');
+        }
+    })
+    .catch(error => {
+        console.error('Lỗi:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Đã xảy ra lỗi khi lưu ảnh thanh toán. Vui lòng thử lại!'
+        });
+    });
+}
+
+// Cập nhật hàm hiển thị modal
+function showPaymentQR(button) {
+    const orderId = button.getAttribute('data-order-id');
+    const amount = button.getAttribute('data-amount');
+
+    // Cập nhật thông tin trong modal
+    document.getElementById('amount').innerText = amount;
+    document.getElementById('paymentModal').setAttribute('data-order-id', orderId);
+
+    // Reset form và preview
+    document.getElementById('fileInput').value = '';
+    document.getElementById('imagePreview').innerHTML = '';
+
+    // Hiển thị modal
+    const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+    paymentModal.show();
+}
+
+// Thêm preview ảnh
+document.getElementById('fileInput').addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'img-fluid mt-3';
+            document.getElementById('imagePreview').innerHTML = '';
+            document.getElementById('imagePreview').appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Gắn sự kiện cho nút thanh toán trong modal
+document.getElementById('payButton').addEventListener('click', handlePayment);
     function saveScrollPosition() {
         localStorage.setItem('scrollPosition', window.scrollY);
     }
@@ -435,20 +574,21 @@
             localStorage.removeItem('scrollPosition');
         }
     }
+
     // Đặt hàm ở ngoài sự kiện DOMContentLoaded
     function returnButtonClicked(button) {
-    	saveScrollPosition();
-        button.textContent = 'Đang duyệt';
+        saveScrollPosition();
+        button.textContent = 'Đang chờ duyệt trả hàng';
         button.classList.add('disabled');
         button.disabled = true;
-    
+
         var orderId = button.getAttribute('data-order-id');
-    
+
         if (!orderId) {
             console.error('Không tìm thấy orderId');
             return;
         }
-			
+
         console.log('orderId:', orderId);
         fetch('/order/update-status', {
             method: 'POST',
@@ -457,40 +597,42 @@
             },
             body: JSON.stringify({
                 orderId: orderId,
-                status: 'đang duyệt'
+                status: 'Đang duyệt'
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('Trạng thái đơn hàng đã được cập nhật');
-            } else {
-                console.error('Cập nhật trạng thái thất bại');
-            }
-        })
-        .catch(error => {
-            console.error('Lỗi khi gửi yêu cầu:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Trạng thái đơn hàng đã được cập nhật');
+                } else {
+                    console.error('Cập nhật trạng thái thất bại');
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi khi gửi yêu cầu:', error);
+            });
     }
 
     // Chỉ cần DOM đã được tải là có thể sử dụng hàm
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
     });
- // Hàm khi nhấn nút đánh giá
+
+    // Hàm khi nhấn nút đánh giá
     function reviewButtonClicked(button) {
         // Lấy productId từ data attribute
         var productId = button.getAttribute('data-product-id');
-        
+
         if (!productId) {
             console.error('Không tìm thấy productId');
             return;
         }
-        
+
         saveScrollPosition();
         window.location.href = '/order/review/' + productId;  // Thay đường dẫn theo yêu cầu của bạn
     }
+
     function huyDonHangClicked(button) {
-    	saveScrollPosition();
+        saveScrollPosition();
         var orderId = button.getAttribute('data-order-id');
 
         if (!orderId) {
@@ -510,23 +652,29 @@
                     status: 'Hủy'
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Ẩn hoặc loại bỏ đơn hàng khỏi giao diện
-                    button.closest('.order-card').remove();
-                    alert('Đã hủy đơn hàng thành công');
-                } else {
-                    alert('Hủy đơn hàng không thành công');
-                }
-            })
-            .catch(error => {
-                console.error('Lỗi khi gửi yêu cầu:', error);
-                alert('Có lỗi xảy ra khi hủy đơn hàng');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Ẩn hoặc loại bỏ đơn hàng khỏi giao diện
+                        button.closest('.order-card').remove();
+                        alert('Đã hủy đơn hàng thành công');
+                    } else {
+                        alert('Hủy đơn hàng không thành công');
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi khi gửi yêu cầu:', error);
+                    alert('Có lỗi xảy ra khi hủy đơn hàng');
+                });
         }
     }
+
     function xacNhanDaGiaoClicked(button) {
+        saveScrollPosition();
+        button.textContent = 'Đã nhận hàng';
+        button.classList.add('disabled');
+        button.disabled = true;
+
         var orderId = button.getAttribute('data-order-id');
 
         if (!orderId) {
@@ -543,33 +691,35 @@
                 },
                 body: JSON.stringify({
                     orderId: orderId,
-                    status: 'đã giao'
+                    status: 'Đã nhận hàng'
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Ẩn hoặc loại bỏ đơn hàng khỏi giao diện hoặc cập nhật trạng thái
-                    button.closest('.order-card').remove();
-                    alert('Đã xác nhận giao hàng thành công');
-                } else {
-                    alert('Xác nhận giao hàng không thành công');
-                }
-            })
-            .catch(error => {
-                console.error('Lỗi khi gửi yêu cầu:', error);
-                alert('Có lỗi xảy ra khi xác nhận giao hàng');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Ẩn hoặc loại bỏ đơn hàng khỏi giao diện hoặc cập nhật trạng thái
+                        button.closest('.order-card').remove();
+                        alert('Đã xác nhận giao hàng thành công');
+                    } else {
+                        alert('Xác nhận giao hàng không thành công');
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi khi gửi yêu cầu:', error);
+                    alert('Có lỗi xảy ra khi xác nhận giao hàng');
+                });
         }
     }
+
     function showPaymentQR(button) {
         const orderId = button.getAttribute('data-order-id');
         const amount = button.getAttribute('data-amount');
-        
+
         // Chuyển hướng đến trang thanh toán với orderId và amount
         window.location.href = `/payment/qr?orderId=${orderId}&amount=${amount}`;
     }
-    document.addEventListener('DOMContentLoaded', function() {
+
+    document.addEventListener('DOMContentLoaded', function () {
         const hash = window.location.hash;
         if (hash.startsWith('#scroll-')) {
             const position = parseInt(hash.replace('#scroll-', ''));
@@ -577,8 +727,13 @@
         }
     });
     document.addEventListener('DOMContentLoaded', restoreScrollPosition);
+
 </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script th:src="@{/js/script.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/script.js}"></script>
+
+
+
+
 </body>
 </html>

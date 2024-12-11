@@ -18,4 +18,6 @@ public interface AddressService {
 
 	Address getAddressById(Long id);
 
+	Address getAddressByStreetAddressAndCityAndCountry(String streetAddress, String city, String country);
+
 }

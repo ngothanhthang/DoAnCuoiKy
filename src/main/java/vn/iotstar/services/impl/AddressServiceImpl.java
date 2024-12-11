@@ -45,4 +45,9 @@ public class AddressServiceImpl implements AddressService {
             .orElseThrow(() -> new RuntimeException("Không tìm thấy địa chỉ"));
     }
     
+    @Override
+    public Address getAddressByStreetAddressAndCityAndCountry(String streetAddress, String city, String country) {
+        return addressRepository.getAddressByStreetAddressAndCityAndCountry(streetAddress, city, country);
+    }
+    
 }

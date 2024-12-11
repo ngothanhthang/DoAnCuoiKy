@@ -38,6 +38,9 @@ public class Order implements Serializable {/**
 	
 	@Column(name = "payment_method")
     private String paymentMethod;
+	
+	@Column(name = "image_url", columnDefinition = "varchar(255)")
+    private String imageUrl;
 
 	 @CreationTimestamp
 	 @Column(name = "created_at", nullable = false, updatable = false)

@@ -303,78 +303,122 @@
     </div>
   </div>
 </div>
+<!-- Modal Tạo Mã Giảm Giá -->
+<div class="modal fade" id="generateCouponModal" tabindex="-1" aria-labelledby="generateCouponModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="generateCouponModalLabel">Tạo Mã Giảm Giá</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="couponForm">
+          <!-- Mã giảm giá -->
+          <div class="mb-3">
+            <label for="couponCode" class="form-label">Mã Giảm Giá</label>
+            <input type="text" class="form-control" id="couponCode" required>
+          </div>
+          <!-- Giá trị giảm -->
+          <div class="mb-3">
+            <label for="discountAmount" class="form-label">Giá Trị Giảm</label>
+            <input type="number" class="form-control" id="discountAmount" required>
+          </div>
+          <!-- Ngày hết hạn -->
+          <div class="mb-3">
+            <label for="expiryDate" class="form-label">Ngày Hết Hạn</label>
+            <input type="date" class="form-control" id="expiryDate" required>
+          </div>
+          <!-- Số lượng -->
+          <div class="mb-3">
+            <label for="quantity" class="form-label">Số Lượng</label>
+            <input type="number" class="form-control" id="quantity" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        <button type="button" class="btn btn-primary" onclick="generateCoupon()">Tạo Mã</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="mb-3">
+  <button class="btn product-add-btn" data-bs-toggle="modal" data-bs-target="#generateCouponModal">
+    <i class="fas fa-plus-circle me-2"></i> Tạo Mã Giảm Giá
+  </button>
+</div>
   <!-- Bootstrap JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
   <script>
-  function previewImage(event) {
-	  const reader = new FileReader();
+//Hàm tạo mã giảm giá mới
+  function generateCoupon() {
+    const couponCode = document.getElementById('couponCode').value;
+    const discountAmount = document.getElementById('discountAmount').value;
+    const date = document.getElementById('expiryDate').value;
+    const quantity = document.getElementById('quantity').value;
 
-	  // Kiểm tra xem đang ở trong modal nào (Add hoặc Edit) và thay đổi ID của preview img cho phù hợp
-	  const modalId = event.target.closest('.modal').id; // Lấy ID của modal đang hiển thị
+    // Kiểm tra dữ liệu đầu vào
+    if (!couponCode || !discountAmount || !date || !quantity) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Thông báo',
+            text: 'Vui lòng điền đầy đủ thông tin mã giảm giá!'
+        });
+        return;
+    }
 
-	  reader.onload = function () {
-	    let imagePreview;
+    const data = {
+        code: couponCode,
+        discountAmount: discountAmount,
+        expiryDate: date + " 23:59:59",
+        quantity: quantity
+    };
 
-	    // Nếu đang ở trong modal Add
-	    if (modalId === 'addProductModal') {
-	      imagePreview = document.getElementById('imagePreview'); // Image preview của modal Add
-	    }
-	    // Nếu đang ở trong modal Edit
-	    else if (modalId === 'editProductModal') {
-	      imagePreview = document.getElementById('editImagePreview'); // Image preview của modal Edit
-	    }
+    // Gửi yêu cầu tạo mã giảm giá
+    fetch('/vendor/generate-coupon', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(responseData => {
+        // Đóng modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addCouponModal'));
+        modal.hide();
+        
+        // Reset form
+        document.getElementById('couponForm').reset();
+        
+        if (responseData.success) {
+            // Hiển thị thông báo thành công
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: responseData.message || 'Mã giảm giá đã được tạo thành công!'
+            }).then(() => {
+                window.location.reload();
+            });
+        } else {
+            throw new Error(responseData.message || 'Không thể tạo mã giảm giá');
+        }
+    })
+    .catch(error => {
+        console.error('Lỗi:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: error.message || 'Đã xảy ra lỗi khi tạo mã giảm giá. Vui lòng thử lại sau!'
+        });
+    });
+}
 
-	    // Cập nhật src của ảnh preview và hiển thị
-	    if (imagePreview) {
-	      imagePreview.src = reader.result;
-	      imagePreview.style.display = 'block'; // Hiển thị ảnh tải lên
-	    }
-	  };
-	  
-	  // Đọc tệp ảnh từ input file
-	  reader.readAsDataURL(event.target.files[0]);
-	}
-  
-  function addProduct() {
-	    const productName = document.getElementById('productName').value;
-	    const productPrice = document.getElementById('productPrice').value;
-	    const productQuantity = document.getElementById('productQuantity').value;
-	    const productStatus = document.getElementById('productStatus').value;
-	    const productImage = document.getElementById('productImage').files[0];
-	    const productCategory = document.getElementById('productCategory').value; // Lấy danh mục đã chọn
-
-	    if (!productName || !productPrice || !productQuantity || !productImage || !productCategory) {
-	      alert('Vui lòng điền đầy đủ thông tin!');
-	      return;
-	    }
-
-	    const formData = new FormData();
-	    formData.append('name', productName);
-	    formData.append('price', productPrice);
-	    formData.append('quantity', productQuantity);
-	    formData.append('status', productStatus);
-	    formData.append('image', productImage);
-	    formData.append('category', productCategory); // Thêm danh mục vào FormData
-
-	    fetch('/vendor/add-products', {
-	      method: 'POST',
-	      body: formData
-	    })
-	    .then(response => response.json())  // Đảm bảo rằng phản hồi trả về là JSON
-	    .then(data => {
-	      if (data.success) {
-	        alert('Sản phẩm đã được thêm thành công!');
-	        location.reload();  // Làm mới trang để hiển thị sản phẩm mới
-	      } else {
-	        alert('Có lỗi xảy ra: ' + data.message);
-	      }
-	    })
-	    .catch(error => {
-	      console.error('Lỗi:', error);
-	      alert('Có lỗi xảy ra khi thêm sản phẩm!');
-	    });
-	  }
+// Thêm hàm để reset form khi đóng modal
+function resetCouponForm() {
+    document.getElementById('couponForm').reset();
+}
   function loadCategories(selectId, selectedCategoryId = null) {
 	    fetch('/vendor/show-categories')
 	        .then(response => response.json())

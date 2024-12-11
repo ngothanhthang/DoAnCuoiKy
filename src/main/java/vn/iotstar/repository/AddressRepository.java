@@ -8,4 +8,5 @@ import java.util.List;
 public interface AddressRepository extends JpaRepository<Address, Long> {
     List<Address> findByUserUserId(Long userId);  // Lấy tất cả địa chỉ của user
     Address findByUserUserIdAndIsDefaultTrue(Long userId);  // Lấy địa chỉ mặc định của user
+    Address getAddressByStreetAddressAndCityAndCountry(String streetAddress, String city, String country);
 }

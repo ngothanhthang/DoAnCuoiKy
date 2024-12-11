@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -129,7 +130,7 @@ public class OrderViewController {
                 ordersPage = orderService.findOrdersByStatusAndUserId("đã xác nhận", userId, pageable);
                 break;
             case "3":
-                ordersPage = orderService.findOrdersByStatusAndUserId("đang giao", userId, pageable);
+            	ordersPage = orderService.findOrdersByMultipleStatusesAndUserId(Arrays.asList("đang giao", "chờ xác nhận giao"), userId, pageable);
                 break;
             case "4":
                 // Trạng thái đã giao và đang duyệt
@@ -195,6 +196,7 @@ public class OrderViewController {
                 }
             }
         }
+        Date currentDate = new Date();
         
         if (order != null) {
             // Cập nhật trạng thái của đơn hàng
@@ -208,7 +210,7 @@ public class OrderViewController {
             // Cập nhật thông tin cho notification
             notification.setUser(user);
             notification.setOrder(order);
-            notification.setTimestamp(LocalDateTime.now());  // Thời gian hiện tại
+            notification.setTimestamp(currentDate);  // Thời gian hiện tại
             notification.setMessage("Đơn hàng mới");
             notification.setRead(false);  // Mặc định chưa đọc
             notification.setStatus("mới");  // Trạng thái mới

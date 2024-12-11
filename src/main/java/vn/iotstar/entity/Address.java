@@ -9,7 +9,9 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "addresses")
+@Table(name = "addresses", uniqueConstraints = {
+	    @UniqueConstraint(columnNames = {"street_address", "country", "city"})
+	})
 public class Address implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -71,7 +71,19 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of("users/forgot-password", "POST"),
                 Pair.of("users/reset-password", "GET"),
                 Pair.of("users/reset-password", "POST"),
-                Pair.of("users/verify-otp", "POST")
+                Pair.of("users/verify-otp", "POST"),
+                Pair.of("categories", "GET"),
+                Pair.of("categories", "POST"),
+                Pair.of("cart", "POST"),
+                Pair.of("cart", "GET"),
+                Pair.of("address", "POST"),
+                Pair.of("address", "GET"),
+                Pair.of("address", "DELETE"),
+                Pair.of("order", "GET"),
+                Pair.of("order", "POST"),
+                Pair.of("vendor", "GET"),
+                Pair.of("vendor", "POST")
+                
         );
         for(Pair<String, String> bypassToken: bypassTokens) {
             if (request.getServletPath().contains(bypassToken.getFirst()) &&

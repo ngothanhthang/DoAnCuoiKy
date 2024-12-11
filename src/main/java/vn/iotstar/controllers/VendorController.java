@@ -5,12 +5,17 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,9 +33,11 @@ import vn.iotstar.dto.CategoryDTO_2;
 import vn.iotstar.dto.ProductDTOService;
 import vn.iotstar.dto.ProductDTO_2;
 import vn.iotstar.entity.Category;
+import vn.iotstar.entity.Coupon;
 import vn.iotstar.entity.Product;
 import vn.iotstar.repository.CategoryRepository;
 import vn.iotstar.services.CategoryService;
+import vn.iotstar.services.CouponService;
 import vn.iotstar.services.ProductService;
 import vn.iotstar.utils.ApiResponse;
 
@@ -51,6 +58,8 @@ public class VendorController {
     private ProductDTOService productDTOService;
     @Autowired
     private CategoryDTOService categoryDTO_2Service;
+    @Autowired
+    private CouponService couponService;
 
     @GetMapping("/manage_products")
     public String getProducts(@RequestParam(value = "page", defaultValue = "0") int page, Model model) {
@@ -224,6 +233,40 @@ public class VendorController {
             // Trường hợp có lỗi ngoài dự kiến
             ApiResponse response = new ApiResponse(false, "Lỗi không xác định: " + e.getMessage(), null);
             return ResponseEntity.status(500).body(response);  // Trả về mã trạng thái 500 Internal Server Error
+        }
+    }
+    @PostMapping("/generate-coupon")
+    public ResponseEntity<Map<String, Object>> generateCoupon(@RequestBody Coupon coupon) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // Kiểm tra dữ liệu đầu vào
+            if (coupon.getCode() == null || coupon.getDiscountAmount() == null ||
+                coupon.getExpiryDate() == null || coupon.getQuantity() == null) {
+                response.put("success", false);
+                response.put("message", "Thông tin mã giảm giá không hợp lệ");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+
+			/*
+			 * // Kiểm tra mã giảm giá đã tồn tại if
+			 * (couponService.existsByCode(coupon.getCode())) { response.put("success",
+			 * false); response.put("message", "Mã giảm giá đã tồn tại"); return new
+			 * ResponseEntity<>(response, HttpStatus.BAD_REQUEST); }
+			 */
+
+            // Lưu mã giảm giá
+            Coupon savedCoupon = couponService.saveCoupon(coupon);
+            
+            response.put("success", true);
+            response.put("message", "Tạo mã giảm giá thành công");
+            response.put("data", savedCoupon);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Đã xảy ra lỗi khi tạo mã giảm giá: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
    

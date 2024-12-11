@@ -350,6 +350,20 @@
 				            <a href="/cart/view" class="btn btn-primary w-100">Xem giỏ hàng</a>
 				        </div>
 				    </div>
+				     <!-- Đơn mua -->
+				    <div class="nav-item">
+				        <a href="/order/purchase" class="nav-link">
+				            <i class="bi bi-bag-check"></i>
+				            <span class="nav-text">Đơn mua</span>
+				        </a>
+				    </div>
+				    <!-- Logout -->
+				    <div class="nav-item">
+				        <a href="/users/logout" class="nav-link">
+				            <i class="bi bi-box-arrow-right"></i>
+				            <span class="nav-text">Đăng xuất</span>
+				        </a>
+				    </div>
 				</div>
             </div>
         </div>
@@ -657,9 +671,15 @@
             })
             .then(response => response.text())
             .then(data => {
+            	if (data === 'redirect_to_login') {
+                    // Nếu response trả về "redirect_to_login", chuyển hướng đến trang đăng nhập
+                    window.location.href = '/users/login';
+                }
+            	else {
                 // Cập nhật lại số lượt thích trên giao diện
                 document.getElementById('likeCount').textContent = data;  // Dữ liệu trả về là số lượt thích mới
                 document.getElementById('likeButton').classList.toggle('liked');  // Thêm/loại bỏ lớp liked để thay đổi màu sắc nút
+            	}
             })
             .catch(error => {
                 console.error('Có lỗi khi thực hiện like:', error);

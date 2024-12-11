@@ -12,11 +12,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import jakarta.servlet.http.HttpSession;
 import vn.iotstar.entity.CartItem;
+import vn.iotstar.entity.Notification;
 import vn.iotstar.entity.Order;
 import vn.iotstar.entity.Product;
 import vn.iotstar.entity.Review;
 import vn.iotstar.entity.User;
 import vn.iotstar.repository.UserRepository;
+import vn.iotstar.services.NotificationService;
 import vn.iotstar.services.OrderService;
 import vn.iotstar.services.ProductService;
 import vn.iotstar.services.ReviewService;
@@ -27,7 +29,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -41,6 +46,8 @@ public class OrderController {
 	
 	@Value("${product.image.upload.dir}")
     private String uploadDir;
+	@Value("${product.image.upload.dir}")
+    private String paymentUploadDir;
 	
     @Autowired
     private OrderService orderService;
@@ -50,7 +57,8 @@ public class OrderController {
     private UserService userService;
     @Autowired
     private ReviewService reviewService;
-
+    @Autowired
+    private NotificationService notificationService;
     // Tạo đơn hàng từ giỏ hàng
     @PostMapping("/create")
     public ResponseEntity<Long> createOrder(@RequestParam("selectedItems") List<Long> selectedItems, HttpSession session) {
@@ -81,13 +89,38 @@ public class OrderController {
     }
     
     @PostMapping("/update-status")
-    public ResponseEntity<?> updateOrderStatus(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> updateOrderStatus(@RequestBody Map<String, Object> request, HttpSession session) {
+    	Long userId = 1L;
     	final Logger logger = LoggerFactory.getLogger(OrderController.class);
         Long orderId = Long.valueOf(request.get("orderId").toString());
         String status = request.get("status").toString();
+        
+        Date currentDate = new Date();
+        
+        User user = userService.findById(userId);
+        Order order = orderService.getOrderById(orderId);
+        String username = user.getUsername();
+        // Tạo đối tượng Notification
+        Notification notification = new Notification();
+        notification.setUser(user);
+        notification.setOrder(order);
+        notification.setTimestamp(currentDate);
+        
+        notification.setRead(false);
+        if (status.equals("Chờ xác nhận giao")) {
+            notification.setMessage(username + " đã nhận được đơn hàng");
+            notification.setStatus("chờ xác nhận giao");
+            notificationService.save(notification);
+        } else if (status.equals("Đang duyệt")){
+            notification.setMessage("Yêu cầu trả hàng từ người dùng " + username);
+            notification.setStatus("trả hàng");
+            notificationService.save(notification);
+        }
         logger.info("Updating orderId: {} with status: {}", orderId, status);
+        
         // Cập nhật trạng thái đơn hàng trong cơ sở dữ liệu
         boolean success = orderService.updateOrderStatus(orderId, status);
+        
         
         if (success) {
             return ResponseEntity.ok(Map.of("success", true));
@@ -178,5 +211,50 @@ public class OrderController {
                 ));
             }
         }
+    
+    @PostMapping("/save-payment")
+    public ResponseEntity<Map<String, Object>> savePayment(
+            @RequestParam("paymentImage") MultipartFile imageFile,
+            @RequestParam("orderId") Long orderId) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // Kiểm tra và tạo thư mục nếu không tồn tại
+            File uploadDirectory = new File(paymentUploadDir);
+            if (!uploadDirectory.exists()) {
+                uploadDirectory.mkdirs();
+            }
+
+            // Tạo tên file duy nhất
+            String uniqueFileName = UUID.randomUUID().toString() + "_" + imageFile.getOriginalFilename();
+            Path filePath = Paths.get(paymentUploadDir, uniqueFileName);
+
+            // Lưu ảnh vào thư mục
+            imageFile.transferTo(filePath.toFile());
+
+            // Tìm và cập nhật order
+            Order order = orderService.getOrderById(orderId);
+            if (order == null) {
+                response.put("success", false);
+                response.put("message", "Không tìm thấy đơn hàng");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            // Cập nhật thông tin thanh toán
+            order.setImageUrl("/images/" + uniqueFileName);
+            orderService.save(order);
+
+            response.put("success", true);
+            response.put("message", "Đã lưu ảnh thanh toán thành công");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Lỗi khi lưu ảnh thanh toán: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }

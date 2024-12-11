@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 @Entity
 @Table(name = "coupons")
 @Data
@@ -25,7 +27,8 @@ public class Coupon {
 
     @Column(name = "discount_amount", nullable = false)
     private BigDecimal discountAmount;
-
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     @Column(name = "expiry_date")
     private LocalDateTime expiryDate;
 

@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import jakarta.servlet.http.HttpSession;
 import vn.iotstar.dto.ProductDTO;
 import vn.iotstar.entity.Category;
 import vn.iotstar.entity.OrderItem;
@@ -102,39 +103,43 @@ public class ProductController {
 
  // Hiển thị chi tiết sản phẩm
     @GetMapping("/product")
-    public String getProductDetails(@RequestParam("productId") Long productId, Model model) {
-    	// Lấy user có id = 1 từ database
-        User user = userRepository.findByUserId((long) 1) ; // Tìm user có id = 1
+    public String getProductDetails(@RequestParam("productId") Long productId, Model model, HttpSession session) {
+        Long userId = (Long) session.getAttribute("user0");
+        final User user;
+        boolean isLiked = false;
 
-        if (user == null) {
-            // Nếu không tìm thấy user, có thể hiển thị lỗi hoặc thông báo gì đó
-            return "error";
+        if (userId != null) {
+            user = userRepository.findByUserId(userId);
+        } else {
+            user = null;
         }
-        
+
         Product product = productService.getProductById(productId);
 
         // Lấy danh sách đánh giá của sản phẩm
         List<Review> reviews = product.getReviews();
-        
-        int totalLikes= product.getProductLikes().size();
-        
-     // Kiểm tra xem người dùng đã like sản phẩm chưa
-        boolean isLiked = product.getProductLikes().stream()
-                                  .anyMatch(like -> like.getUser().getUserId().equals(user.getUserId()));
-        
-     // Tính tổng số đánh giá và điểm trung bình
+
+        int totalLikes = product.getProductLikes().size();
+
+        // Kiểm tra xem người dùng đã like sản phẩm chưa (nếu đã đăng nhập)
+        if (user != null) {
+            isLiked = product.getProductLikes().stream()
+                    .anyMatch(like -> like.getUser().getUserId().equals(user.getUserId()));
+        }
+
+        // Tính tổng số đánh giá và điểm trung bình
         int totalReviews = reviews.size();
         double averageRating = reviews.isEmpty() ? 0 : reviews.stream().mapToInt(Review::getRating).average().orElse(0);
-        
-     // Làm tròn điểm trung bình đến 1 chữ số thập phân
+
+        // Làm tròn điểm trung bình đến 1 chữ số thập phân
         averageRating = Math.round(averageRating * 10.0) / 10.0;
-        
+
         int totalSoldQuantity = 0;
         for (OrderItem orderItem : product.getOrderItems()) {
             totalSoldQuantity += orderItem.getQuantity(); // Cộng dồn số lượng
         }
-        
-     // Thêm các thông tin vào model
+
+        // Thêm các thông tin vào model
         model.addAttribute("user", user);
         model.addAttribute("product", product);
         model.addAttribute("totalReviews", totalReviews);
@@ -142,7 +147,7 @@ public class ProductController {
         model.addAttribute("averageRating", averageRating);
         model.addAttribute("totalSoldQuantity", totalSoldQuantity);
         model.addAttribute("isLiked", isLiked);
-        
-        return "productDetail";  // Trang chi tiết sản phẩm
+
+        return "productDetail"; // Trang chi tiết sản phẩm
     }
 }
