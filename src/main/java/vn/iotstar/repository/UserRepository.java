@@ -1,5 +1,7 @@
 package vn.iotstar.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -10,4 +12,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	
 	@Query("SELECT COUNT(u) FROM User u WHERE u.role = 'USER'")
     long countUsersByRole();
+	
+	Page<User> findByEmailContainingIgnoreCaseOrUsernameContainingIgnoreCase(String email, String username, Pageable pageable);
+
 }

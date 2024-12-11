@@ -3,8 +3,10 @@ package vn.iotstar.services.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.iotstar.entity.Category;
+import vn.iotstar.entity.Product;
 import vn.iotstar.repository.CategoryRepository;
 import vn.iotstar.services.CategoryService;
 
@@ -36,6 +38,13 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.findAll(pageRequest);
     }
 
+    // Phân trang sản phẩm, giới hạn 20 sản phẩm mỗi trang
+    @Override
+    public Page<Category> getCategories(int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber, 5);  // 5 sản phẩm mỗi trang
+        return categoryRepository.findAll(pageable);
+    }
+    
     // Lưu danh mục mới
     @Override
     public Category saveCategory(Category category) {

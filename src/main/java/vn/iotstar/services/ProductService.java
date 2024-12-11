@@ -29,4 +29,8 @@ public interface ProductService {
 
 	Page<ProductDTO> searchProductsByCategory(Long categoryId, String keyword, int status, Pageable pageable);
 
+	Page<Product> getApprovedProducts(int pageNum);
+
+	Page<Product> getUnapprovedProducts(int pageNum);
+
 }

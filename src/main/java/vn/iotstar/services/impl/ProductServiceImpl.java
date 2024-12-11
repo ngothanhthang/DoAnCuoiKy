@@ -150,5 +150,17 @@ public class ProductServiceImpl implements ProductService {
 	    return productDTOPage;
 	}
 
+	@Override
+	public Page<Product> getApprovedProducts(int pageNum) {
+		Pageable pageable = PageRequest.of(pageNum, 5);  // 5 sản phẩm mỗi trang
+        return productRepository.findAllByProductStatus(1, pageable);
+	}
+
+	@Override
+	public Page<Product> getUnapprovedProducts(int pageNum) {
+		Pageable pageable = PageRequest.of(pageNum, 5);  // 5 sản phẩm mỗi trang
+		return productRepository.findAllByProductStatus(0, pageable);
+	}
+
     
 }
