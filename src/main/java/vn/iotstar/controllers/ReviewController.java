@@ -24,7 +24,7 @@ public class ReviewController {
     @GetMapping("/review/{productId}")
     public String showReviewPage(@PathVariable Long productId, Model model, HttpSession session) {
         // Lấy userId từ session, nếu không có thì mặc định là 1
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = (Long) session.getAttribute("user0");
         if (userId == null) {
             userId = 1L;  // Gán mặc định là 1 nếu không có userId trong session
         }

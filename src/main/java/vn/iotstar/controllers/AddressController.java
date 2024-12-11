@@ -44,9 +44,9 @@ public class AddressController {
         }
         logger.info("Is Default: {}", orderIdLong);
         
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = (Long) session.getAttribute("user0");
         if (userId == null) {
-            userId = 1L;  // Nếu không có userId trong session, giả sử là userId = 1
+            return "redirect:/users/login"; // Nếu không có userId trong session, giả sử là userId = 1
         }
 
         User user = userService.findById(userId);
@@ -81,9 +81,9 @@ public class AddressController {
     public String getAddressInfo(HttpSession session, Model model) {
         Logger logger = LoggerFactory.getLogger(this.getClass());
 
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = (Long) session.getAttribute("user0");
         if (userId == null) {
-            userId = 1L;  // Nếu không có userId trong session, giả sử là userId = 1
+            return "redirect:/users/login";  // Nếu không có userId trong session, giả sử là userId = 1
         }
 
         // Lấy thông tin người dùng
@@ -106,9 +106,9 @@ public class AddressController {
     		,RedirectAttributes redirectAttributes) {
     	Logger logger = LoggerFactory.getLogger(this.getClass());
         
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = (Long) session.getAttribute("user0");
         if (userId == null) {
-            userId = 1L;  // Nếu không có userId trong session, giả sử là userId = 1
+            return "redirect:/users/login"; // Nếu không có userId trong session, giả sử là userId = 1
         }
 
         User user = userService.findById(userId);
@@ -142,10 +142,9 @@ public class AddressController {
     public ResponseEntity<?> deleteAddress(@PathVariable Long id, HttpSession session) {
         Logger logger = LoggerFactory.getLogger(this.getClass());
         logger.info("Deleting address with id: {}", id);
-        
         try {
             // Lấy userId từ session
-            Long userId = (Long) session.getAttribute("userId");
+            Long userId = (Long) session.getAttribute("user0");
             if (userId == null) {
                 userId = 1L; // Giá trị mặc định nếu không có session
             }

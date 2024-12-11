@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,6 +25,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import vn.iotstar.dto.OtpDTO;
 import vn.iotstar.dto.UserDTO;
 import vn.iotstar.dto.UserLoginDTO;
+import vn.iotstar.entity.Role;
 import vn.iotstar.entity.User;
 import vn.iotstar.exceptions.CustomerNotFoundException;
 import vn.iotstar.services.UserService;
@@ -117,9 +120,10 @@ public class UserController {
             HttpSession session = getCurrentSession();
             Optional<User> user = getUser(userLoginDTO.getUsername());
             Long userId = user.get().getUserId();
+            Role role = user.get().getRole();
             session.setAttribute("user0", userId);
             // Trả về token dưới dạng JSON
-            return ResponseEntity.ok(new LoginResponse(token));
+            return ResponseEntity.ok(new LoginResponse(token, role.getName()));
         } catch (Exception e) {
             // Trả về lỗi dưới dạng JSON
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
@@ -135,17 +139,33 @@ public class UserController {
         return userService.getUserByUsername(username);
     }
 
-    public static class LoginResponse {
+    public class LoginResponse {
         private String token;
+        private String role;
 
-        public LoginResponse(String token) {
+        public LoginResponse(String token, String role) {
             this.token = token;
+            this.role = role;
         }
 
+        // Getters and setters
         public String getToken() {
             return token;
         }
+
+        public void setToken(String token) {
+            this.token = token;
+        }
+
+        public String getRole() {
+            return role;
+        }
+
+        public void setRole(String role) {
+            this.role = role;
+        }
     }
+
 
     public static class ErrorResponse {
         private String message;
@@ -235,6 +255,17 @@ public class UserController {
             model.addAttribute("message", "You have successfully changed your password.");
         }
         return "message";
+    }
+
+    @PostMapping("/logout")
+    public String logout() {
+        // Đặt lại Authentication của người dùng khi logout
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            // Đảm bảo rằng người dùng đã logout khỏi hệ thống
+            SecurityContextHolder.clearContext();
+        }
+        return "redirect:/users/login"; // Redirect về trang chủ sau khi logout
     }
 
 }

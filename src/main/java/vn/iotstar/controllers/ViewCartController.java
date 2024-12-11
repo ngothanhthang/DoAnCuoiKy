@@ -25,9 +25,9 @@ public class ViewCartController {
  // Xem giỏ hàng
     @GetMapping("/view")
     public String viewCart(HttpSession session, Model model) {
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = (Long) session.getAttribute("user0");
         if (userId == null) {
-            userId = 1L; // Mặc định là userId = 1
+            userId = 1L;
         }
         List<Product> bestSellingProducts = productService.getBestSellingProducts();
 

@@ -5,12 +5,18 @@
     <title>Trang chủ</title>
 </head>
 <body>
-    <h1>Danh mục sản phẩm</h1>
+<h1>Danh mục sản phẩm</h1>
 
-    <div th:each="category : ${categories}">
-        <p th:text="${category.name}"></p>
-    </div>
-    <h1>Welcome to Your Profile</h1>
-    <p>Your User ID is: <span th:text="${user}"></span></p>
+<div th:each="category : ${categories}">
+    <p th:text="${category.name}"></p>
+</div>
+
+<h1>Welcome to Your Profile</h1>
+<p>Your User ID is: <span th:text="${user}"></span></p>
+
+<!-- Button Logout -->
+<form th:action="@{/users/logout}" method="post">
+    <button type="submit">Logout</button>
+</form>
 </body>
 </html>

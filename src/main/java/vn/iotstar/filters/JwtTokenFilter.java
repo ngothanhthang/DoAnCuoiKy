@@ -60,7 +60,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
     }
 
-    private boolean isBypassToken(@NonNull  HttpServletRequest request) {
+    private boolean isBypassToken(@NonNull HttpServletRequest request) {
         final List<Pair<String, String>> bypassTokens = Arrays.asList(
                 Pair.of("users/register", "GET"),
                 Pair.of("users/login", "GET"),
@@ -71,7 +71,37 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of("users/forgot-password", "POST"),
                 Pair.of("users/reset-password", "GET"),
                 Pair.of("users/reset-password", "POST"),
-                Pair.of("users/verify-otp", "POST")
+                Pair.of("users/verify-otp", "POST"),
+                Pair.of("css/dep.css", "GET"),      // Thêm tài nguyên CSS
+                Pair.of("js/script.js", "GET"),       // Thêm tài nguyên JS
+                Pair.of("images/", "GET"),   // Thêm tài nguyên hình ảnh
+                Pair.of("fonts/", "GET"),     // Thêm tài nguyên font (nếu có)
+                Pair.of("css/qr.jpg", "GET"),
+                Pair.of("css/qr.jpg", "POST"),
+                Pair.of("categories", "GET"),
+                Pair.of("categories", "POST"),
+                Pair.of("cart", "POST"),
+                Pair.of("cart", "GET"),
+                Pair.of("category", "GET"),
+                Pair.of("category", "POST"),
+                Pair.of("product", "GET"),
+                Pair.of("product", "POST"),
+                Pair.of("address", "GET"),
+                Pair.of("address", "POST"),
+                Pair.of("address", "DELETE"),
+                Pair.of("api", "GET"),
+                Pair.of("api", "POST"),
+                Pair.of("order", "GET"),
+                Pair.of("order", "POST"),
+                Pair.of("voucher", "GET"),
+                Pair.of("voucher", "POST"),
+                Pair.of("vendor", "GET"),
+                Pair.of("vendor", "POST"),
+                Pair.of("vendor", "DELETE"),
+                Pair.of("like", "GET"),
+                Pair.of("like", "POST"),
+                Pair.of("contact", "GET"),
+                Pair.of("contact", "POST")
         );
         for(Pair<String, String> bypassToken: bypassTokens) {
             if (request.getServletPath().contains(bypassToken.getFirst()) &&
@@ -81,5 +111,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
         return false;
     }
+
 }
 

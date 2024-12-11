@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
         if(userRepository.existsByUsername(username)) {
             throw new DataIntegrityViolationException("Phone number already exists");
         }
-        Role role =roleRepository.findById(userDTO.getRoleId())
+        Role role =roleRepository.findById(2L)
                 .orElseThrow(() -> new DataNotFoundException("Role not found"));
 //        if(role.getName().toUpperCase().equals(Role.ADMIN)) {
 //            throw new PermissionDenyException("You cannot register an admin account");

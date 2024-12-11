@@ -413,3 +413,46 @@ body {
     text-align: center;
     color: #666;
 }
+
+.notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 400px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.nav-item:hover .notification-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.notification-header {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+}
+
+.notification-content {
+    padding: 20px;
+    text-align: center;
+}
+
+.notification-empty-icon {
+    font-size: 40px;
+    color: #cbd5e0;
+    margin-bottom: 10px;
+}
+
+.notification-empty-text {
+    color: #718096;
+    font-size: 14px;
+}

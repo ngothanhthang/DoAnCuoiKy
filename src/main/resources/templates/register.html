@@ -1,200 +1,264 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Register</title>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet"
+    />
     <style>
-        /* Nền màu đen huyền bí cho toàn bộ trang */
-        html, body {
-            background-color: #121212;
-            color: white;
-            font-family: Arial, sans-serif;
-            height: 100%;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-
-        .container {
-            background-color: #1e1e1e;
-            padding: 40px;
+        body {
+            font-family: "Poppins", sans-serif;
+            background-color: #1a1a2e;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .register-container {
+            background-color: #242437;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
-            margin-top: 50px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 400px;
+            animation: fadeIn 1s ease-in-out;
         }
-
-        h2 {
-            color: #f0f0f0;
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-
-        .form-label {
-            color: #d1d1d1;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
-        }
-
-        .form-control, .form-select {
-            background-color: #333;
-            border-color: #444;
-            color: white;
-        }
-
-        .form-control:focus, .form-select:focus {
-            background-color: #555;
-            border-color: #007bff;
-            color: white;
-        }
-
-        .back-to-login {
-            color: #007bff;
-            text-align: right;
+        .logo {
             display: block;
-            margin-top: 10px;
+            margin: 0 auto 30px;
+            max-width: 150px;
+            animation: logoAnimation 1s ease-in-out infinite alternate;
         }
-
-        .back-to-login:hover {
-            text-decoration: underline;
+        @keyframes logoAnimation {
+            0% {
+                transform: scale(1);
+            }
+            100% {
+                transform: scale(1.1);
+            }
         }
-
-        /* Thêm một vài chỉnh sửa cho OTP form */
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ffffff;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ffffff;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #32324b;
+            font-size: 16px;
+            color: #ffffff;
+            transition: background-color 0.3s ease;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            background-color: #4a4a6a;
+        }
+        .btn-register {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #0077b6;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .btn-register:hover {
+            background-color: #023e8a;
+            transform: translateY(-2px);
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #ffffff;
+        }
+        .login-link a {
+            color: #0077b6;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .login-link a:hover {
+            color: #023e8a;
+        }
         .otp-form {
-            display: none; /* Ẩn form OTP ban đầu */
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #32324b;
+            border-radius: 5px;
+        }
+        .otp-form p {
+            margin-bottom: 10px;
+            color: #ffffff;
         }
     </style>
 </head>
 <body>
-<div class="container mt-5">
+<div class="register-container">
+    <img
+            src="https://i.etsystatic.com/25493577/r/il/fcea59/3570208232/il_fullxfull.3570208232_1wn2.jpg"
+            alt="Logo"
+            class="logo"
+    />
     <h2>Register</h2>
 
-    <!-- Form đăng ký tài khoản -->
+    <!-- Registration Form -->
     <form id="registerForm">
-        <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" class="form-control" id="username" name="username" required>
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required />
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required />
+        </div>
+        <div class="form-group">
+            <label for="retype_password">Retype Password</label>
+            <input
+                    type="password"
+                    id="retype_password"
+                    name="retypePassword"
+                    required
+            />
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required />
         </div>
 
-        <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" name="password" required>
-        </div>
-
-        <div class="mb-3">
-            <label for="retype_password" class="form-label">Retype Password</label>
-            <input type="password" class="form-control" id="retype_password" name="retypePassword" required>
-        </div>
-
-        <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" name="email" required>
-        </div>
-
-        <div class="mb-3">
-            <label for="role_id" class="form-label">Role</label>
-            <select class="form-select" id="role_id" name="roleId" required>
-                <option value="1">Admin</option>
-                <option value="2">User</option>
-            </select>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Register</button>
+        <button type="submit" class="btn-register">Register</button>
     </form>
 
-    <!-- Form nhập OTP sau khi đăng ký -->
-    <div class="otp-form mt-4" id="otpForm">
-        <p>OTP đã được gửi đến email của bạn. Vui lòng nhập OTP để xác nhận đăng ký:</p>
-        <div class="mb-3">
-            <label for="otp" class="form-label">OTP</label>
-            <input type="text" class="form-control" id="otp" name="otp" required>
+    <!-- OTP Form -->
+    <div class="otp-form" id="otpForm">
+        <p>
+            OTP has been sent to your email. Please enter the OTP to confirm your
+            registration:
+        </p>
+        <div class="form-group">
+            <label for="otp">OTP</label>
+            <input type="text" id="otp" name="otp" required />
         </div>
-        <button type="button" class="btn btn-primary" id="verifyOTPBtn">Verify OTP</button>
+        <button type="button" id="verifyOTPBtn" class="btn-register">
+            Verify OTP
+        </button>
     </div>
-    <a href="/users/login" class="back-to-login">Back to Login</a>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-        crossorigin="anonymous"></script>
+    <div class="login-link">
+        Already have an account? <a href="/users/login">Login</a>
+    </div>
+</div>
 
 <script>
     // Xử lý form đăng ký
-    document.getElementById("registerForm").addEventListener("submit", function(event) {
-        event.preventDefault();
+    document
+        .getElementById("registerForm")
+        .addEventListener("submit", function (event) {
+            event.preventDefault();
 
-        const formData = {
-            username: document.getElementById("username").value,
-            password: document.getElementById("password").value,
-            retypePassword: document.getElementById("retype_password").value,
-            email: document.getElementById("email").value,
-            roleId: document.getElementById("role_id").value
-        };
+            const formData = {
+                username: document.getElementById("username").value,
+                password: document.getElementById("password").value,
+                retypePassword: document.getElementById("retype_password").value,
+                email: document.getElementById("email").value,
+            };
 
-        fetch("/users/register", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData)
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    alert("Registration successful! Please check your email for OTP.");
-                    // Hiển thị form nhập OTP
-                    document.getElementById("otpForm").style.display = "block";
-                    // Cập nhật email cho việc xác thực OTP
-                    localStorage.setItem('email', formData.email); // Lưu email vào localStorage
-                }
+            fetch("/users/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
             })
-            .catch(error => {
-                console.error("Error:", error);
-                alert("Registration failed.");
-            });
-    });
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.message) {
+                        alert(
+                            "Registration successful! Please check your email for OTP."
+                        );
+                        // Hiển thị form nhập OTP
+                        document.getElementById("otpForm").style.display = "block";
+                        // Cập nhật email cho việc xác thực OTP
+                        localStorage.setItem("email", formData.email); // Lưu email vào localStorage
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    alert("Registration failed.");
+                });
+        });
 
     // Xử lý xác thực OTP
-    document.getElementById("verifyOTPBtn").addEventListener("click", function() {
-        const otp = document.getElementById("otp").value;
-        const email = localStorage.getItem('email'); // Lấy email từ localStorage
+    document
+        .getElementById("verifyOTPBtn")
+        .addEventListener("click", function () {
+            const otp = document.getElementById("otp").value;
+            const email = localStorage.getItem("email"); // Lấy email từ localStorage
 
-        if (!otp) {
-            alert("Please enter the OTP.");
-            return;
-        }
+            if (!otp) {
+                alert("Please enter the OTP.");
+                return;
+            }
 
-        const otpData = {
-            OTP: otp
-        };
+            const otpData = {
+                OTP: otp,
+            };
 
-        fetch("/users/verify-otp", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(otpData)
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    alert("OTP verified successfully. Registration complete!");
-                    window.location.href = "/users/login"; // Chuyển hướng đến trang đăng nhập
-                }
+            fetch("/users/verify-otp", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(otpData),
             })
-            .catch(error => {
-                console.error("Error:", error);
-                alert("OTP verification failed.");
-            });
-    });
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.message) {
+                        alert("OTP verified successfully. Registration complete!");
+                        window.location.href = "/users/login"; // Chuyển hướng đến trang đăng nhập
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    alert("OTP verification failed.");
+                });
+        });
 </script>
-
 </body>
 </html>

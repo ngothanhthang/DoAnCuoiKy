@@ -35,7 +35,7 @@ public class VoucherController {
         	if (voucher.getQuantity() <= 0) {
                 return ResponseEntity.badRequest().body(Collections.singletonMap("message", "Mã giảm giá đã hết."));
             }
-        	Long userId = (Long) session.getAttribute("userId");
+        	Long userId = (Long) session.getAttribute("user0");
             if (userId == null) {
                 userId = 1L;
             }

@@ -503,39 +503,69 @@ a.card {
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" th:href="@{/}">
+            <a class="navbar-brand" th:href="@{/categories}">
 			    <i class="bi bi-house-heart-fill" style="font-size: 2rem; color: #ffc107;"></i>
 			    <span class="ms-2">My Furniture Store</span>
 			</a>
 
             <!-- Navigation Items -->
-            <div class="d-flex ms-3 nav-items">
-                <!-- Thông báo -->
-                <div class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="bi bi-bell-fill"></i>
-                        <span class="nav-text">Thông báo</span>
-                        <span class="notification-dot"></span>
-                    </a>
-                </div>
+			<div class="d-flex ms-3 nav-items">
+				<div class="nav-item">
+					<a th:if="${session.user0 != null}" href="" class="nav-link">
+						<i class="bi bi-bell-fill"></i>
+						<span class="nav-text">Thông báo</span>
+						<span class="notification-dot"></span>
+					</a>
+					<!-- Dropdown thông báo -->
+					<div class="notification-dropdown">
+						<div class="notification-header">
+							Thông Báo Mới Nhận
+						</div>
+						<div class="notification-content">
+							<i class="bi bi-bell-slash notification-empty-icon"></i>
+							<p class="notification-empty-text">Bạn chưa có thông báo nào</p>
+						</div>
+					</div>
+				</div>
 
-                <!-- Hỗ trợ -->
-                <div class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="bi bi-headset"></i>
-                        <span class="nav-text">Hỗ trợ</span>
-                    </a>
-                </div>
+				<!-- Hỗ trợ -->
+				<div class="nav-item">
+					<a href="/contact" class="nav-link" target="_blank">  <!-- Thêm target="_blank" để mở tab mới -->
+						<i class="bi bi-headset"></i>
+						<span class="nav-text">Hỗ trợ</span>
+					</a>
+				</div>
 
-                <!-- Tài khoản -->
-                <div class="nav-item">
-                    <a href="/address/info" class="nav-link">
-                        <i class="bi bi-person-circle"></i>
-                        <span class="nav-text">Tài khoản</span>
-                    </a>
-                </div>
+				<!-- Tài khoản -->
+				<div class="nav-item">
+					<a href="/address/info" class="nav-link">
+						<i class="bi bi-person-circle"></i>
+						<span class="nav-text">Tài khoản</span>
+					</a>
+				</div>
 
-            </div>
+				<div class="nav-item">
+					<a th:if="${session.user0 != null}" href="/order/purchase" class="nav-link">
+						<i class="bi bi-bag-check"></i>
+						<span class="nav-text">Đơn mua</span>
+					</a>
+					<a th:unless="${session.user0 != null}" href="/users/login" class="nav-link">
+						<i class="bi bi-bag-check"></i>
+						<span class="nav-text">Đơn mua</span>
+					</a>
+				</div>
+				<!-- Logout -->
+				<div class="nav-item">
+					<a th:if="${session.user0 != null}" href="/users/logout" class="nav-link">
+						<i class="bi bi-box-arrow-right"></i>
+						<span class="nav-text">Đăng xuất</span>
+					</a>
+					<a th:unless="${session.user0 != null}" href="/users/login" class="nav-link">
+						<i class="bi bi-box-arrow-in-right"></i>
+						<span class="nav-text">Đăng nhập</span>
+					</a>
+				</div>
+			</div>
         </div>
     </nav>
     <section class="hero">
@@ -548,7 +578,6 @@ a.card {
         </div>
     </section>
 </header>
-
 	    <div class="container mt-5">
 	    <div class="cart-header">
 	        <div class="cart-title">

@@ -1,5 +1,6 @@
 package vn.iotstar.controllers;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,13 +25,13 @@ public class LikeController {
     private ProductLikeRepository productLikeRepository;
 	
     @PostMapping("/product")
-    public String likeProduct(@RequestParam("productId") Long productId) {
+    public String likeProduct(@RequestParam("productId") Long productId, HttpSession session) {
         // Lấy user có id = 1 từ database
-        User user = userRepository.findByUserId((long) 1); // Tìm user có id = 1
+        User user = userRepository.findByUserId((Long) session.getAttribute("user0")); // Tìm user có id = 1
         
         if (user == null) {
             // Nếu không tìm thấy user, có thể hiển thị lỗi hoặc thông báo gì đó
-            return "error";
+            return "redirect_to_login";
         }
 
         Product product = productService.getProductById(productId);

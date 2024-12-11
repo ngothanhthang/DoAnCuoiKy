@@ -40,18 +40,27 @@
 			</a>
             <!-- Navigation Items -->
             <div class="d-flex ms-3 nav-items">
-                <!-- Thông báo -->
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a th:if="${session.user0 != null}" href="" class="nav-link">
                         <i class="bi bi-bell-fill"></i>
                         <span class="nav-text">Thông báo</span>
                         <span class="notification-dot"></span>
                     </a>
+                    <!-- Dropdown thông báo -->
+                    <div class="notification-dropdown">
+                        <div class="notification-header">
+                            Thông Báo Mới Nhận
+                        </div>
+                        <div class="notification-content">
+                            <i class="bi bi-bell-slash notification-empty-icon"></i>
+                            <p class="notification-empty-text">Bạn chưa có thông báo nào</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Hỗ trợ -->
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="/contact" class="nav-link" target="_blank">  <!-- Thêm target="_blank" để mở tab mới -->
                         <i class="bi bi-headset"></i>
                         <span class="nav-text">Hỗ trợ</span>
                     </a>
@@ -66,11 +75,15 @@
                 </div>
 
                 <div class="nav-item cart-wrapper">
-				    <a href="/cart/view" class="cart-button">
+				    <a th:if="${session.user0 != null}" href="/cart/view" class="cart-button">
 				        <i class="bi bi-cart3"></i>
 				        <span class="nav-text">Giỏ hàng</span>
 				        <span id="cartItemCount" class="cart-badge"></span>
 				    </a>
+                    <a th:unless="${session.user0 != null}" href="/users/login" class="cart-button">
+                        <i class="bi bi-cart3"></i>
+                        <span class="nav-text">Giỏ hàng</span>
+                    </a>
 				    
 				    <!-- Dropdown menu cho giỏ hàng -->
 				    <div class="cart-dropdown">
@@ -82,6 +95,27 @@
 				        </div>
 				    </div>
 				</div>
+                <div class="nav-item">
+                    <a th:if="${session.user0 != null}" href="/order/purchase" class="nav-link">
+                        <i class="bi bi-bag-check"></i>
+                        <span class="nav-text">Đơn mua</span>
+                    </a>
+                    <a th:unless="${session.user0 != null}" href="/users/login" class="nav-link">
+                        <i class="bi bi-bag-check"></i>
+                        <span class="nav-text">Đơn mua</span>
+                    </a>
+                </div>
+                <!-- Logout -->
+                <div class="nav-item">
+                    <a th:if="${session.user0 != null}" href="/users/logout" class="nav-link">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span class="nav-text">Đăng xuất</span>
+                    </a>
+                    <a th:unless="${session.user0 != null}" href="/users/login" class="nav-link">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        <span class="nav-text">Đăng nhập</span>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>

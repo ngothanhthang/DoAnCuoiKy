@@ -1,12 +1,15 @@
 package vn.iotstar.controllers;
 
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,14 +36,27 @@ public class CartController {
 
     // Thêm sản phẩm vào giỏ hàng và trả về thông báo
     @PostMapping("/cart/add")
-    public ResponseEntity<String> addToCart(@RequestParam Long userId, 
-                                            @RequestParam Long productId, 
+    public ResponseEntity<String> addToCart(HttpSession session,
+                                            @RequestParam Long productId,
                                             @RequestParam int quantity) {
+        // Lấy userId từ session
+        Long userId = (Long) session.getAttribute("user0");
+
+        // Kiểm tra nếu userId không tồn tại trong session
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng");
+        }
+
         // Xử lý thêm sản phẩm vào giỏ hàng
         cartService.addToCart(userId, productId, quantity);
-
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
         // Trả về thông báo
-        return ResponseEntity.ok("Sản phẩm đã được thêm vào giỏ hàng!");
+//        return ResponseEntity.ok("Sản phẩm đã được thêm vào giỏ hàng!");
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body("Sản phẩm đã được thêm vào giỏ hàng!");
     }
     
     @PostMapping("/update")
@@ -69,7 +85,7 @@ public class CartController {
     @GetMapping("/user-cart")
     public ResponseEntity<?> getCartForUser(HttpSession session) {
         // Lấy user từ session
-    	 User user = (User) session.getAttribute("user");
+        User user = userService.findByUserId((Long) session.getAttribute("user0"));
 
          // Nếu không có user trong session, sử dụng user mặc định (userId = 1)
          if (user == null) {

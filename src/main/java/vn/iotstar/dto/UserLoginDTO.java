@@ -16,8 +16,4 @@ public class UserLoginDTO {
 
     @NotBlank(message = "Password can not be blank")
     private String password;
-
-    @JsonProperty("roleId")
-    @NotBlank(message = "Role is required")
-    private String roleId;
 }

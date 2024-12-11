@@ -174,24 +174,33 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <!-- Logo -->
-            <a class="navbar-brand" th:href="@{/}">
+            <a class="navbar-brand" th:href="@{/categories}">
 			    <i class="bi bi-house-heart-fill" style="font-size: 2rem; color: #ffc107;"></i>
 			    <span class="ms-2">My Furniture Store</span>
 			</a>
             <!-- Navigation Items -->
             <div class="d-flex ms-3 nav-items">
-                <!-- Thông báo -->
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a th:if="${session.user0 != null}" href="" class="nav-link">
                         <i class="bi bi-bell-fill"></i>
                         <span class="nav-text">Thông báo</span>
                         <span class="notification-dot"></span>
                     </a>
+                    <!-- Dropdown thông báo -->
+                    <div class="notification-dropdown">
+                        <div class="notification-header">
+                            Thông Báo Mới Nhận
+                        </div>
+                        <div class="notification-content">
+                            <i class="bi bi-bell-slash notification-empty-icon"></i>
+                            <p class="notification-empty-text">Bạn chưa có thông báo nào</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Hỗ trợ -->
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="/contact" class="nav-link" target="_blank">  <!-- Thêm target="_blank" để mở tab mới -->
                         <i class="bi bi-headset"></i>
                         <span class="nav-text">Hỗ trợ</span>
                     </a>
@@ -206,22 +215,47 @@
                 </div>
 
                 <div class="nav-item cart-wrapper">
-				    <a href="/cart/view" class="cart-button">
-				        <i class="bi bi-cart3"></i>
-				        <span class="nav-text">Giỏ hàng</span>
-				        <span id="cartItemCount" class="cart-badge"></span>
-				    </a>
-				    
-				    <!-- Dropdown menu cho giỏ hàng -->
-				    <div class="cart-dropdown">
-				        <div class="cart-items" id="cartItemsList">
-				            <!-- Các sản phẩm sẽ được thêm vào đây qua JavaScript -->
-				        </div>
-				        <div class="cart-footer">
-				            <a href="/cart/view" class="btn btn-primary w-100">Xem giỏ hàng</a>
-				        </div>
-				    </div>
-				</div>
+                    <a th:if="${session.user0 != null}" href="/cart/view" class="cart-button">
+                        <i class="bi bi-cart3"></i>
+                        <span class="nav-text">Giỏ hàng</span>
+                        <span id="cartItemCount" class="cart-badge"></span>
+                    </a>
+                    <a th:unless="${session.user0 != null}" href="/users/login" class="cart-button">
+                        <i class="bi bi-cart3"></i>
+                        <span class="nav-text">Giỏ hàng</span>
+                    </a>
+
+                    <!-- Dropdown menu cho giỏ hàng -->
+                    <div class="cart-dropdown">
+                        <div class="cart-items" id="cartItemsList">
+                            <!-- Các sản phẩm sẽ được thêm vào đây qua JavaScript -->
+                        </div>
+                        <div class="cart-footer">
+                            <a href="/cart/view" class="btn btn-primary w-100">Xem giỏ hàng</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="nav-item">
+                    <a th:if="${session.user0 != null}" href="/order/purchase" class="nav-link">
+                        <i class="bi bi-bag-check"></i>
+                        <span class="nav-text">Đơn mua</span>
+                    </a>
+                    <a th:unless="${session.user0 != null}" href="/users/login" class="nav-link">
+                        <i class="bi bi-bag-check"></i>
+                        <span class="nav-text">Đơn mua</span>
+                    </a>
+                </div>
+                <!-- Logout -->
+                <div class="nav-item">
+                    <a th:if="${session.user0 != null}" href="/users/logout" class="nav-link">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span class="nav-text">Đăng xuất</span>
+                    </a>
+                    <a th:unless="${session.user0 != null}" href="/users/login" class="nav-link">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        <span class="nav-text">Đăng nhập</span>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
@@ -421,10 +455,10 @@
                                 text: 'Địa chỉ đã được xóa thành công',
                                 icon: 'success',
                                 showConfirmButton: false,
-                                timer: 1500
+                                timer: 2000
                             });
                             // Xóa phần tử khỏi DOM với animation
-                            addressCard.style.transition = 'all 0.3s ease';
+                            addressCard.style.transition = 'all 2s ease';
                             addressCard.style.opacity = '0';
                             addressCard.style.transform = 'translateX(100px)';
                             setTimeout(() => {
@@ -438,7 +472,7 @@
                                     noAddressMsg.innerHTML = '<i class="fas fa-info-circle me-2"></i>Bạn chưa có địa chỉ nào. Vui lòng thêm địa chỉ mới.';
                                     container.appendChild(noAddressMsg);
                                 }
-                            }, 300);
+                            }, 2000);
                         } else {
                             // Xóa thất bại
                             Swal.fire({

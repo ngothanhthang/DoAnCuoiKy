@@ -4,10 +4,7 @@ import jakarta.servlet.http.HttpSession;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -74,7 +71,7 @@ public class OrderViewController {
         Logger logger = LoggerFactory.getLogger(OrderController.class);
      // In thử selectedItems vào log để xem kết quả
         logger.info("Selected items: " + (selectedItems != null ? selectedItems.toString() : "No selected items"));
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = (Long) session.getAttribute("user0");
         if (userId == null) {
             userId = 1L;  // Giả sử là userId = 1 nếu không tìm thấy
         }
@@ -110,7 +107,7 @@ public class OrderViewController {
             HttpSession session) {
 
         // Lấy userId từ session
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = (Long) session.getAttribute("user0");
         if (userId == null) {
             userId = 1L; // Giá trị mặc định nếu userId không có trong session
         }
@@ -129,7 +126,7 @@ public class OrderViewController {
                 ordersPage = orderService.findOrdersByStatusAndUserId("đã xác nhận", userId, pageable);
                 break;
             case "3":
-                ordersPage = orderService.findOrdersByStatusAndUserId("đang giao", userId, pageable);
+                ordersPage = orderService.findOrdersByMultipleStatusesAndUserId(Arrays.asList("đang giao", "Đã nhận hàng"), userId, pageable);
                 break;
             case "4":
                 // Trạng thái đã giao và đang duyệt
@@ -167,7 +164,7 @@ public class OrderViewController {
                                     @RequestParam(value = "voucherCode", required = false) String voucherCode,
                                     Model model,
                                     HttpSession session) {
-    	Long userId = (Long) session.getAttribute("userId");
+    	Long userId = (Long) session.getAttribute("user0");
         if (userId == null) {
             userId = 1L;
         }
@@ -204,11 +201,11 @@ public class OrderViewController {
             orderService.save(order);
          // Tạo thông báo mới sau khi cập nhật trạng thái đơn hàng
             Notification notification = new Notification();
-            
+            Date date = new Date();
             // Cập nhật thông tin cho notification
             notification.setUser(user);
             notification.setOrder(order);
-            notification.setTimestamp(LocalDateTime.now());  // Thời gian hiện tại
+            notification.setTimestamp(date);  // Thời gian hiện tại
             notification.setMessage("Đơn hàng mới");
             notification.setRead(false);  // Mặc định chưa đọc
             notification.setStatus("mới");  // Trạng thái mới

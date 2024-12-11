@@ -26,9 +26,5 @@ public class UserDTO {
 
     @NotBlank(message = "Email can not be blank")
     private String email;
-
-    @NotNull(message = "Role id is required")
-    @JsonProperty("roleId")
-    private Long roleId;
 }
 
