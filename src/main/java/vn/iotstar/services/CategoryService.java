@@ -22,4 +22,6 @@ public interface CategoryService {
 
     // Xóa danh mục theo ID
     void deleteCategoryById(Long id);
+
+	Page<Category> getCategories(int pageNumber);
 }
