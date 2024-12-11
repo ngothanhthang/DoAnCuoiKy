@@ -298,15 +298,29 @@
 </form>
 		
         <!-- Thanh điều hướng -->
-        <div class="nav-buttons d-flex justify-content-center mb-4">
-            <a href="#" th:href="@{/order/purchase?status=0}" class="btn"><i class="fas fa-list"></i> Tất cả</a>
-            <a href="#" th:href="@{/order/purchase?status=1}" class="btn"><i class="fas fa-list"></i> Mới</a>
-            <a href="#" th:href="@{/order/purchase?status=2}" class="btn"><i class="fas fa-check-circle"></i> Đã xác nhận</a>
-            <a href="#" th:href="@{/order/purchase?status=3}" class="btn"><i class="fas fa-truck-moving"></i> Đang giao</a>
-            <a href="#" th:href="@{/order/purchase?status=4}" class="btn"><i class="fas fa-box"></i> Đã giao</a>
-            <a href="#" th:href="@{/order/purchase?status=5}" class="btn"><i class="fas fa-ban"></i> Hủy</a>
-            <a href="#" th:href="@{/order/purchase?status=6}" class="btn"><i class="fas fa-sync-alt"></i> Trả hàng/Hoàn tiền</a>
-        </div>
+		<div class="nav-buttons d-flex justify-content-center mb-4">
+		    <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=0}" class="btn">
+		        <i class="fas fa-list"></i> Tất cả
+		    </a>
+		    <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=1}" class="btn">
+		        <i class="fas fa-list"></i> Mới
+		    </a>
+		    <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=2}" class="btn">
+		        <i class="fas fa-check-circle"></i> Đã xác nhận
+		    </a>
+		    <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=3}" class="btn">
+		        <i class="fas fa-truck-moving"></i> Đang giao
+		    </a>
+		    <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=4}" class="btn">
+		        <i class="fas fa-box"></i> Đã giao
+		    </a>
+		    <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=5}" class="btn">
+		        <i class="fas fa-ban"></i> Hủy
+		    </a>
+		    <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=6}" class="btn">
+		        <i class="fas fa-sync-alt"></i> Trả hàng/Hoàn tiền
+		    </a>
+		</div>
 
         <!-- Phần hiển thị danh sách đơn hàng -->
         <div th:if="${orders != null}">
@@ -410,9 +424,20 @@
     </div>
 
     <script type="text/javascript">
+    function saveScrollPosition() {
+        localStorage.setItem('scrollPosition', window.scrollY);
+    }
+
+    function restoreScrollPosition() {
+        const scrollPosition = localStorage.getItem('scrollPosition');
+        if (scrollPosition) {
+            window.scrollTo(0, parseInt(scrollPosition));
+            localStorage.removeItem('scrollPosition');
+        }
+    }
     // Đặt hàm ở ngoài sự kiện DOMContentLoaded
     function returnButtonClicked(button) {
-        console.log('Button clicked!'); // Kiểm tra xem hàm có được gọi không
+    	saveScrollPosition();
         button.textContent = 'Đang duyệt';
         button.classList.add('disabled');
         button.disabled = true;
@@ -450,7 +475,6 @@
 
     // Chỉ cần DOM đã được tải là có thể sử dụng hàm
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM đã được tải');
     });
  // Hàm khi nhấn nút đánh giá
     function reviewButtonClicked(button) {
@@ -462,13 +486,11 @@
             return;
         }
         
-        console.log('Đang đánh giá sản phẩm với ID:', productId);
-        
-        // Tiến hành gửi yêu cầu tới trang đánh giá, hoặc thực hiện thao tác khác
-        // Ví dụ chuyển hướng đến trang đánh giá của sản phẩm
+        saveScrollPosition();
         window.location.href = '/order/review/' + productId;  // Thay đường dẫn theo yêu cầu của bạn
     }
     function huyDonHangClicked(button) {
+    	saveScrollPosition();
         var orderId = button.getAttribute('data-order-id');
 
         if (!orderId) {
@@ -547,6 +569,14 @@
         // Chuyển hướng đến trang thanh toán với orderId và amount
         window.location.href = `/payment/qr?orderId=${orderId}&amount=${amount}`;
     }
+    document.addEventListener('DOMContentLoaded', function() {
+        const hash = window.location.hash;
+        if (hash.startsWith('#scroll-')) {
+            const position = parseInt(hash.replace('#scroll-', ''));
+            window.scrollTo(0, position);
+        }
+    });
+    document.addEventListener('DOMContentLoaded', restoreScrollPosition);
 </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script th:src="@{/js/script.js}"></script>

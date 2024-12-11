@@ -80,7 +80,7 @@ setInterval(updateCartCount, 30000);
                                     <img src="${item.product.imageUrl}" alt="${item.product.name}">
                                     <div class="cart-item-info">
                                         <div class="cart-item-title">${item.product.name}</div>
-                                        <div class="cart-item-price">${formatPrice(item.product.price)}</div>
+                                        <div class="cart-item-price">${item.product.price}</div>
                                         <div class="cart-item-quantity">Số lượng: ${item.quantity}</div>
                                     </div>
                                 </div>
