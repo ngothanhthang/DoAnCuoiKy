@@ -58,7 +58,7 @@ public class VendorRevenueController
 	   {
 	        
 	        // Số đơn hàng trên mỗi trang
-	        int size = 10;
+	        int size = 5;
 	        
 	        // Gọi service để lấy dữ liệu
 	        Page<Order> orders = orderService.getOrders(search, status, page, size);

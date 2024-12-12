@@ -14,9 +14,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import vn.iotstar.entity.Address;
-import vn.iotstar.entity.Notification;
-import vn.iotstar.entity.Order;
+import vn.iotstar.entity.*;
+import vn.iotstar.repository.ProductRepository;
 import vn.iotstar.services.NotificationService;
 import vn.iotstar.services.OrderService;
 import vn.iotstar.utils.ApiResponse;
@@ -26,6 +25,8 @@ public class VendorOrderController
 {
 	@Autowired OrderService orderService;
 	@Autowired NotificationService notificationService;
+	@Autowired
+	ProductRepository productRepository;
 	@GetMapping("/vendor/orders")
 	public String viewOrders(@RequestParam(value = "status", required = false) String status, Model model) {
 	    // Khai báo danh sách đơn hàng
@@ -177,22 +178,37 @@ public class VendorOrderController
 	 // Xác nhận đơn hàng đã giao:
 	 @PostMapping("/vendor/order/complete/{orderId}")
 	 public ResponseEntity<ApiResponse> confirmDeliveredOrder(@PathVariable("orderId") Long orderId) {
-	     try {
-	         Order order = orderService.confirmDeliveredOrder(orderId);
-	         
-	         if (order != null) {
-	             return ResponseEntity.ok()
-	                 .body(new ApiResponse(true, "Đơn hàng đã được xác nhận giao thành công", null));
-	         } else {
-	             return ResponseEntity.badRequest()
-	                 .body(new ApiResponse(false, "Không tìm thấy đơn hàng hoặc đơn hàng không ở trạng thái đang giao", null));
-	         }
-	     } catch (Exception e) {
-	         return ResponseEntity.badRequest()
-	             .body(new ApiResponse(false, "Có lỗi xảy ra khi xác nhận giao đơn hàng: " + e.getMessage(), null));
-	     }
+		 try {
+			 Order order = orderService.confirmDeliveredOrder(orderId);
+
+			 if (order != null)
+			 {
+				 for (OrderItem orderItem : order.getOrderItems()) {
+					 Product product = orderItem.getProduct();
+					 int orderedQuantity = orderItem.getQuantity();
+
+					 // Kiểm tra và cập nhật số lượng trong kho
+					 int remainingQuantity = product.getQuantity() - orderedQuantity;
+					 if (remainingQuantity < 0) {
+						 throw new RuntimeException("Số lượng sản phẩm " + product.getName() + " không đủ trong kho");
+					 }
+
+					 // Cập nhật số lượng còn lại
+					 product.setQuantity(remainingQuantity);
+
+					 // Lưu cập nhật vào database
+					 productRepository.save(product);
+				 }
+
+				 return ResponseEntity.ok()
+						 .body(new ApiResponse(true, "Đơn hàng đã được xác nhận giao thành công", null));
+			 } else {
+				 return ResponseEntity.badRequest()
+						 .body(new ApiResponse(false, "Không tìm thấy đơn hàng hoặc đơn hàng không ở trạng thái đang giao", null));
+			 }
+		 } catch (Exception e) {
+			 return ResponseEntity.badRequest()
+					 .body(new ApiResponse(false, "Có lỗi xảy ra khi xác nhận giao đơn hàng: " + e.getMessage(), null));
+		 }
 	 }
-	 
-	 
-	 
 }

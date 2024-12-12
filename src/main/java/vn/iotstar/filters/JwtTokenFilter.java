@@ -101,7 +101,29 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of("like", "GET"),
                 Pair.of("like", "POST"),
                 Pair.of("contact", "GET"),
-                Pair.of("contact", "POST")
+                Pair.of("contact", "POST"),
+                Pair.of("admin", "GET"),
+                Pair.of("admin", "POST"),
+                Pair.of("css/style1.css", "GET"),
+                Pair.of("css/AdminLTE.css", "GET"),
+                Pair.of("css/bootstrap.min1.css", "GET"),
+                Pair.of("css/font-awesome.min.css", "GET"),
+                Pair.of("css/jquery-ui.css", "GET"),
+                Pair.of("css/nestable.css", "GET"),
+                Pair.of("css/_all-skins.min.css", "GET"),
+                Pair.of("images/user2-160x160.jpg", "GET"),
+                Pair.of("/images/user2-160x160.jpg", "GET"),
+                Pair.of("js/jquery.min.js", "GET"),
+                Pair.of("js/jquery-ui.js", "GET"),
+                Pair.of("js/bootstrap.min.js", "GET"),
+                Pair.of("js/adminlte.min.js", "GET"),
+                Pair.of("js/dashboard.js", "GET"),
+                Pair.of("js/function.js", "GET"),
+                Pair.of("fonts/fontawesome-webfont.ttf", "GET"),
+                Pair.of("fonts/fontawesome-webfont.woff", "GET"),
+                Pair.of("fonts/fontawesome-webfont.woff2", "GET"),
+                Pair.of("shipper", "GET"),
+                Pair.of("shipper", "POST")
         );
         for(Pair<String, String> bypassToken: bypassTokens) {
             if (request.getServletPath().contains(bypassToken.getFirst()) &&

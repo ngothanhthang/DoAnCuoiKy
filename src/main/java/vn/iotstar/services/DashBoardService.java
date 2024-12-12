@@ -25,7 +25,7 @@ public class DashBoardService {
 	// tổng số đơn hàng đã bán:
 	public long getTotalOrders() 
 	{
-		 return orderRepository.countByStatus("Đã hoàn thành");
+		 return orderRepository.countByStatus("Đã giao");
 	}
 	
 	// tổng doanh thu:

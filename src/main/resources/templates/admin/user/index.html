@@ -26,7 +26,7 @@
             <section class="content">
                 <div class="box">
                     <div class="box-header with-border">
-                        <a class="btn btn-success" href="/admin/add-user">Thêm mới người dùng</a>
+                       <a class="btn btn-success" href="/admin/add-user">Thêm mới người dùng</a>
                         <form method="get" th:action="@{/admin/admin_users}" class="form-inline pull-right">
                             <input type="text" class="form-control" name="keyword" 
                                    th:value="${keyword}" placeholder="Tìm kiếm theo email hoặc tên đăng nhập" style="width: 300px;">
@@ -51,13 +51,13 @@
                                     <td th:text="${user.userId}"></td>
                                     <td th:text="${user.email}"></td>
                                     <td th:text="${user.username}"></td>
-                                    <td th:text="${user.role}"></td>
+                                    <td th:text="${user.role.getName()}"></td>
                                     <td>
                                         <span th:if="${user.isActive}" class="label label-success">Đang hoạt động</span>
                                         <span th:if="${!user.isActive}" class="label label-danger">Tạm khóa</span>
                                     </td>
                                     <td>
-                                        <a th:href="@{/admin/edit-user/{id}(id=${user.userId})}" class="btn btn-success">Chỉnh sửa</a>
+<!--                                        <a th:href="@{/admin/edit-user/{id}(id=${user.userId})}" class="btn btn-success">Chỉnh sửa</a>-->
                                         <a th:href="@{/admin/delete-user/{id}(id=${user.userId})}" class="btn btn-danger" onclick="return confirm('Bạn chắc chắn muốn xóa người dùng này?')">Xóa</a>
                                     </td>
                                 </tr>

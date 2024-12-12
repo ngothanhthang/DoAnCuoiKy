@@ -32,7 +32,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>
 	 long countByStatus(String status);
 	 
 	 //Lấy tổng doanh thu
-	 @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status = 'Đã hoàn thành'")
+	 @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status = 'Đã giao'")
 	 BigDecimal sumTotalRevenue();
 	 
 	 @Query("SELECT o FROM Order o JOIN o.user u WHERE " +

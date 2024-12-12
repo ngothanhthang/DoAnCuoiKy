@@ -381,7 +381,7 @@
                                     <span>x</span><span th:text="${item.quantity}">Product Quantity</span>
                                 </div>
                             </div>
-                            <div class="order-item-total" th:text="${item.price}">Item Total</div>
+                            <div class="order-item-total" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 2, 'POINT')}+ ' VNĐ'">Item Total</div>
                             <!-- Nút đánh giá cho từng item -->
                             <div th:if="${order.status == 'Đã giao' or order.status == 'Đang duyệt' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
                                 <button class="order-return-button"
@@ -413,12 +413,14 @@
                                 Hủy đơn
                             </button>
                             <!-- Nút thanh toán -->
-                            <button class="order-return-button payment-button"
-                                    th:data-order-id="${order.id}"
-                                    th:data-amount="${order.totalAmount}"
-                                    onclick="showPaymentQR(this)">
-                                <i class="fas fa-qrcode me-2"></i>Thanh toán QR
-                            </button>
+                            <div th:if="${order.paymentMethod == 'BANK' and order.imageUrl == null}">
+                                <button class="order-return-button payment-button"
+                                        th:data-order-id="${order.id}"
+                                        th:data-amount="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 2, 'POINT')}"
+                                        onclick="showPaymentQR(this)">
+                                    <i class="fas fa-qrcode me-2"></i>Thanh toán QR
+                                </button>
+                            </div>
                         </div>
                         <div th:if="${order.status == 'Đã giao' or order.status == 'Đang duyệt' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
                             <button class="order-return-button"
@@ -430,7 +432,7 @@
                                 Trả hàng
                             </button>
                         </div>
-                        <span th:text="${order.totalAmount}">Total Amount</span>
+                        <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 2, 'POINT')} + ' VNĐ'">Total Amount</span>
                     </div>
 
                     <div class="order-status"
@@ -470,7 +472,8 @@
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="paymentModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+<div class="modal fade" id="paymentModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="paymentModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -585,12 +588,13 @@
                 });
             });
     }
+
     // Thêm preview ảnh
-    document.getElementById('fileInput').addEventListener('change', function() {
+    document.getElementById('fileInput').addEventListener('change', function () {
         const file = this.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 const img = document.createElement('img');
                 img.src = e.target.result;
                 img.className = 'img-fluid mt-3';
@@ -750,7 +754,13 @@
                 });
         }
     }
-
+    function formatCurrency(amount) {
+        // Làm tròn đến 2 chữ số thập phân và định dạng theo tiếng Việt
+        return new Intl.NumberFormat('vi-VN', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(amount);
+    }
     document.addEventListener('DOMContentLoaded', restoreScrollPosition);
 
     // Hàm hiển thị modal với thông tin thanh toán

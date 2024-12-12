@@ -184,12 +184,15 @@
 
                         // Điều hướng theo role
                         if (role === "ADMIN") {
-                          window.location.href = "/admin/home2";  // Điều hướng đến trang admin
+                          window.location.href = "/admin/admin_categories";  // Điều hướng đến trang admin
                         } else if (role === "USER") {
                           window.location.href = "/categories";  // Điều hướng đến trang user
                         } else if (role === "VENDOR") {
                           window.location.href = "/vendor";  // Điều hướng đến trang vendor
+                        } else if (role === "SHIPPER") {
+                          window.location.href = "/shipper";  // Điều hướng đến trang vendor
                         }
+
                       } else {
                         alert("Login failed: " + data.message);
                       }

@@ -5,22 +5,16 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import vn.iotstar.dto.CategoryDTOService;
@@ -28,10 +22,12 @@ import vn.iotstar.dto.CategoryDTO_2;
 import vn.iotstar.dto.ProductDTOService;
 import vn.iotstar.dto.ProductDTO_2;
 import vn.iotstar.entity.Category;
+import vn.iotstar.entity.Coupon;
 import vn.iotstar.entity.Notification;
 import vn.iotstar.entity.Product;
 import vn.iotstar.repository.CategoryRepository;
 import vn.iotstar.services.CategoryService;
+import vn.iotstar.services.CouponService;
 import vn.iotstar.services.NotificationService;
 import vn.iotstar.services.ProductService;
 import vn.iotstar.utils.ApiResponse;
@@ -55,6 +51,8 @@ public class VendorController {
     private CategoryDTOService categoryDTO_2Service;
     @Autowired 
     private NotificationService notificationService;
+    @Autowired
+    private CouponService couponService;
     @GetMapping
     public String Vendorpage()
     {
@@ -252,5 +250,42 @@ public class VendorController {
         // Trả về view name
         return "ManageOrder";
     }
+
+    @PostMapping("/generate-coupon")
+    public ResponseEntity<Map<String, Object>> generateCoupon(@RequestBody Coupon coupon) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // Kiểm tra dữ liệu đầu vào
+            if (coupon.getCode() == null || coupon.getDiscountAmount() == null ||
+                    coupon.getExpiryDate() == null || coupon.getQuantity() == null) {
+                response.put("success", false);
+                response.put("message", "Thông tin mã giảm giá không hợp lệ");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+
+            /*
+             * // Kiểm tra mã giảm giá đã tồn tại if
+             * (couponService.existsByCode(coupon.getCode())) { response.put("success",
+             * false); response.put("message", "Mã giảm giá đã tồn tại"); return new
+             * ResponseEntity<>(response, HttpStatus.BAD_REQUEST); }
+             */
+
+            // Lưu mã giảm giá
+            Coupon savedCoupon = couponService.saveCoupon(coupon);
+
+            response.put("success", true);
+            response.put("message", "Tạo mã giảm giá thành công");
+            response.put("data", savedCoupon);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Đã xảy ra lỗi khi tạo mã giảm giá: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
    
 }

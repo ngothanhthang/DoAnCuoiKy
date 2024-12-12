@@ -54,12 +54,14 @@
 								
 								<div class="form-group">
                                     <label for="role">Vai trò</label>
+
                                     <select class="form-control" id="role" th:field="*{role}">
-                                        <option value="admin" th:selected="${user.role == 'admin'}">Admin</option>
-                                        <option value="user" th:selected="${user.role == 'user'}">User</option>
-                                        <option value="vendor" th:selected="${user.role == 'vendor'}">Vendor</option>
-                                        <option value="shiper" th:selected="${user.role == 'shiper'}">Shiper</option>
-                                    </select>
+                                        <option value="ADMIN" th:selected="${user.role.getName() == 'ADMIN'}">Admin</option>
+                                        <option value="USER" th:selected="${user.role.getName() == 'USER'}">User</option>
+                                        <option value="VENDOR" th:selected="${user.role.getName() == 'VENDOR'}">Vendor</option>
+                                        <option value="SHIPPER" th:selected="${user.role.getName() == 'SHIPPER'}">Shipper</option>
+
+									</select>
                                 </div>
 								
 								<div class="form-group">

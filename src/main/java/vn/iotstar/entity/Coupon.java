@@ -1,5 +1,6 @@
 package vn.iotstar.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,6 +27,7 @@ public class Coupon {
     @Column(name = "discount_amount", nullable = false)
     private BigDecimal discountAmount;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     @Column(name = "expiry_date")
     private LocalDateTime expiryDate;
 

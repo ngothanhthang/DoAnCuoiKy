@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -115,8 +116,8 @@ public class ShipperController {
 	}
 	
 	@GetMapping("/confirmed-orders")
-	public String getConfirmedOrders(Model model) {
-		Long shipperId= 1L;
+	public String getConfirmedOrders(Model model, HttpSession session) {
+		Long shipperId = (Long) session.getAttribute("user0");
 		List<Order> confirmedOrders = orderService.getOrdersByShipperAndStatus(shipperId, "Đã nhận hàng");
 		List<String> formattedDates = new ArrayList<>();
         List<String> phoneNumbers = new ArrayList<>();
@@ -154,7 +155,8 @@ public class ShipperController {
 	}
 	
 	@PostMapping("/complete-order/{orderId}")
-	public ResponseEntity<Map<String, Object>> completeOrder(@PathVariable Long orderId) {
+	public ResponseEntity<Map<String, Object>> completeOrder(@PathVariable Long orderId, HttpSession session) {
+		Long shipperId = (Long) session.getAttribute("user0");
 	    Map<String, Object> response = new HashMap<>();
 	    try {
 	        Order order = orderService.getOrderById(orderId);
@@ -166,7 +168,8 @@ public class ShipperController {
 	            notification.setOrder(order);
 	            notification.setUser(order.getUser());
 	            String shipperName = order.getUser() != null ? order.getUser().getUsername() : "Không xác định";
-	            String message = "Đơn hàng " + orderId + " đã được giao thành công bởi shipper " + shipperName + ".";
+				User shipper = userService.findById(shipperId);
+	            String message = "Đơn hàng " + orderId + " đã được giao thành công bởi shipper " + shipper.getUsername() + ".";
 	            notification.setMessage(message);
 	            notification.setTimestamp(new Date());
 	            notification.setStatus("đã giao xong");
@@ -187,12 +190,12 @@ public class ShipperController {
 	}
 	
 	@GetMapping("/completed-orders")
-	public String getCompletedOrders(Model model) {
-	    Long shipperId = 1L; // Sau này lấy từ session hoặc authentication
+	public String getCompletedOrders(Model model, HttpSession session) {
+		Long shipperId = (Long) session.getAttribute("user0");
 	    
 	    // Lấy các đơn hàng đã hoàn thành của shipper
 	    List<Order> completedOrders = notificationRepository
-	            .findDistinctOrdersByUser_UserIdAndOrderStatus(shipperId, "Đã hoàn thành")
+	            .findDistinctOrdersByUser_UserIdAndOrderStatus(shipperId, "Đã nhận hàng")
 	            .stream()
 	            .map(Notification::getOrder)
 	            .distinct()
