@@ -226,13 +226,17 @@
 	              
 	              <p><strong>Trạng thái:</strong> <span th:text="${order.status}"></span></p>
 	              <p><strong>Số điện thoại:</strong> <span th:text="${phoneNumbers[iterStat.index]}"></span></p>  <!-- Hiển thị số điện thoại -->
-		
+					
+					<div th:if="${order.imageUrl != null}" class="text-center mb-3">
+                <img th:src="${order.imageUrl}" alt="Payment Image" class="img-fluid" style="max-width: 300px; max-height: 300px; object-fit: contain;">
+            </div>
+            
 		      <!-- Nút Chi Tiết luôn hiển thị -->
 		      <div class="btn-group" role="group" aria-label="Order Actions">
 		        <a th:href="@{/vendor/order/{id}/detail(id=${order.id})}" class="btn btn-primary">
 		          <i class="fas fa-info-circle"></i> Chi Tiết
 		        </a>
-		
+
 		        <!-- Nút Xác Nhận, chỉ hiển thị nếu trạng thái là 'Chờ xác nhận' -->
 			<a th:if="${order.status == 'Chờ xác nhận'}"
 			   href="javascript:void(0);"
@@ -250,6 +254,7 @@
 				   th:onclick="|approveDelivery([[${order.id}]])|">
 				    <i class="fas fa-shipping-fast"></i> Duyệt đi giao
 			</a>
+			
 			</div>
 			
 			<!-- Nút Chấp nhận và Từ chối, chỉ hiển thị nếu trạng thái là 'Đang duyệt' -->

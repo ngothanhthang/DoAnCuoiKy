@@ -43,7 +43,8 @@ public class WebSecurityConfig {
                                     "order/**",
                                     "/**",
                                     "voucher/**",
-                                    "templates/**"
+                                    "templates/**",
+                                    "admin/**"
                             )
                             .permitAll()
                             .requestMatchers("/css/dep.css", "/js/script.js", "/css/style.css", "/images/qr.png", "/fonts/**", "/**/*.css", "/**/*.js", "/**/*.jpg", "/**/*.png")

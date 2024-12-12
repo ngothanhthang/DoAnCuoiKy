@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import vn.iotstar.entity.Role;
 import vn.iotstar.entity.User;
+import vn.iotstar.repository.RoleRepository;
 import vn.iotstar.services.UserService;
 
 @Controller
@@ -21,6 +23,8 @@ public class AdminUserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @GetMapping("/admin_users")
     public String index(@RequestParam(value = "page", defaultValue = "0") int page,
@@ -58,7 +62,16 @@ public class AdminUserController {
             user.setUsername(username);
             user.setPassword(password);
             user.setEmail(email);
-			/* user.setRole(role); */
+
+            // Lấy đối tượng Role từ cơ sở dữ liệu dựa trên tên role
+            Role userRole = roleRepository.findByName(role);
+            
+            if (userRole != null) {
+                user.setRole(userRole);
+            } else {
+                throw new IllegalArgumentException("Invalid role: " + role);
+            }
+
             user.setIsActive(isActive);
 
             userService.saveUser(user);
@@ -66,39 +79,6 @@ public class AdminUserController {
         } catch (Exception e) {
             e.printStackTrace();
             return "admin/user/add";
-        }
-    }
-
-    @GetMapping("/edit-user/{id}")
-    public String edit(@PathVariable Long id, Model model) {
-        Optional<User> userOptional = userService.getUserById(id);
-        if (userOptional.isPresent()) {
-            model.addAttribute("user", userOptional.get());
-            return "admin/user/edit";
-        }
-        return "redirect:/admin/admin_users";
-    }
-
-    @PostMapping("/edit-user/{id}")
-    public String updateUser(@PathVariable Long id,
-                              @RequestParam("username") String username,
-                              @RequestParam("password") String password,
-                              @RequestParam("email") String email,
-                              @RequestParam("role") String role,
-                              @RequestParam("isActive") Boolean isActive) {
-        try {
-            User user = userService.getUserById(id).orElseThrow(() -> new RuntimeException("User not found"));
-            user.setUsername(username);
-            user.setPassword(password);
-            user.setEmail(email);
-			/* user.setRole(role); */
-            user.setIsActive(isActive);
-
-            userService.saveUser(user);
-            return "redirect:/admin/admin_users";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "admin/user/edit";
         }
     }
 

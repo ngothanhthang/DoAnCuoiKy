@@ -101,7 +101,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of("like", "GET"),
                 Pair.of("like", "POST"),
                 Pair.of("contact", "GET"),
-                Pair.of("contact", "POST")
+                Pair.of("contact", "POST"),
+                Pair.of("admin", "GET"),
+                Pair.of("admin", "POST")
         );
         for(Pair<String, String> bypassToken: bypassTokens) {
             if (request.getServletPath().contains(bypassToken.getFirst()) &&

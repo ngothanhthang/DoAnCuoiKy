@@ -51,7 +51,7 @@
                                     <td th:text="${user.userId}"></td>
                                     <td th:text="${user.email}"></td>
                                     <td th:text="${user.username}"></td>
-                                    <td th:text="${user.role}"></td>
+                                    <td th:text="${user.getRole().getName()}"></td>
                                     <td>
                                         <span th:if="${user.isActive}" class="label label-success">Đang hoạt động</span>
                                         <span th:if="${!user.isActive}" class="label label-danger">Tạm khóa</span>

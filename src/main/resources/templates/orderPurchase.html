@@ -411,15 +411,19 @@
                                     th:data-order-id="${order.id}"
                                     onclick="huyDonHangClicked(this)">
                                 Hủy đơn
+                                
                             </button>
                             <!-- Nút thanh toán -->
-                            <button class="order-return-button payment-button"
-                                    th:data-order-id="${order.id}"
-                                    th:data-amount="${order.totalAmount}"
-                                    onclick="showPaymentQR(this)">
-                                <i class="fas fa-qrcode me-2"></i>Thanh toán QR
-                            </button>
-                        </div>
+                            <div th:if="${order.paymentMethod == 'BANK' a order.imageUrl == null}">
+							    <button class="order-return-button payment-button"
+							            th:data-order-id="${order.id}"
+							            th:data-amount="${order.totalAmount}"
+							            onclick="showPaymentQR(this)">
+							        <i class="fas fa-qrcode me-2"></i>Thanh toán QR
+							    </button>
+							</div>
+                            </div>
+                            
                         <div th:if="${order.status == 'Đã giao' or order.status == 'Đang duyệt' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
                             <button class="order-return-button"
                                     th:class="${order.status == 'Đang duyệt' ? 'order-return-button disabled' : 'order-return-button'}"

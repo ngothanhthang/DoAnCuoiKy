@@ -49,11 +49,12 @@
                                 <!-- Vai trò -->
                                 <div class="form-group">
                                     <label for="role">Vai trò</label>
-                                    <select class="form-control" id="role" th:field="*{role}" required>
-                                        <option value="admin" th:selected="${user.role == 'admin'}">Admin</option>
-                                        <option value="user" th:selected="${user.role == 'user'}">User</option>
-                                        <option value="vendor" th:selected="${user.role == 'vendor'}">Vendor</option>
-                                        <option value="shiper" th:selected="${user.role == 'shiper'}">Shiper</option>
+                                    <select class="form-control" id="role" name="role" required>
+                                        <option value="">Chọn vai trò</option>
+                                        <option value="ADMIN">ADMIN</option>
+                                        <option value="VENDOR">USER</option>
+                                        <option value="USER">VENDOR</option>
+                                        <option value="SHIPPER">SHIPPER</option>
                                     </select>
                                 </div>
 
@@ -62,12 +63,12 @@
                                     <label for="isActive">Trạng thái hoạt động</label>
                                     <div>
                                         <div class="form-check form-check-inline">
-                                            <input type="radio" class="form-check-input" th:field="*{isActive}" value="true" />
-                                            <label class="form-check-label" for="inlineRadio1">Hoạt động</label>
+                                            <input type="radio" class="form-check-input" id="isActiveTrue" name="isActive" value="true" th:checked="${user.isActive == true}" />
+                                            <label class="form-check-label" for="isActiveTrue">Hoạt động</label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <input type="radio" class="form-check-input" th:field="*{isActive}" value="false" />
-                                            <label class="form-check-label" for="inlineRadio2">Không hoạt động</label>
+                                            <input type="radio" class="form-check-input" id="isActiveFalse" name="isActive" value="false" th:checked="${user.isActive == false}" />
+                                            <label class="form-check-label" for="isActiveFalse">Không hoạt động</label>
                                         </div>
                                     </div>
                                 </div>
