@@ -7,6 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,6 +62,26 @@ public class User implements UserDetails {
     
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<UserCoupon> userCoupons;
+    
+    @Column(name = "avatar_url", columnDefinition = "nvarchar(500)")
+    private String avatarUrl;
+
+    @Column(name = "phone_number", columnDefinition = "nvarchar(20)")
+    private String phoneNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender")
+    private Gender gender;
+
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
+
+    // Enum cho giới tính
+    public enum Gender {
+        MALE, 
+        FEMALE, 
+        OTHER
+    }
     
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

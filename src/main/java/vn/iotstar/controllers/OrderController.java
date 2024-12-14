@@ -130,6 +130,9 @@ public class OrderController {
             @RequestParam(value = "imageFile", required = false) MultipartFile[] imageFiles,
             @RequestParam(value = "videoFile", required = false) MultipartFile[] videoFiles,
             HttpSession session) {
+    	Logger logger = LoggerFactory.getLogger(OrderController.class);
+    	logger.info("Số lượng ảnh: " + imageFiles.length);
+        logger.info("Tên file ảnh: " + imageFiles);
 
         try {
             // Tạo thư mục nếu chưa tồn tại
@@ -151,28 +154,44 @@ public class OrderController {
             // Xử lý và lưu ảnh/video
             if (imageFiles != null) {
                 for (MultipartFile file : imageFiles) {
-                    String uniqueFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-                    Path filePath = Paths.get(uploadDirectory.getPath(), uniqueFileName);
-                    
-                    String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1).toLowerCase();
-                    
-                    if (fileExtension.equals("jpg") || fileExtension.equals("jpeg") || fileExtension.equals("png") || fileExtension.equals("gif")) {
-                        file.transferTo(filePath.toFile());
-                        imageUrl = "/images/" + uniqueFileName;
+                    if (file != null && !file.isEmpty()) {
+                        // Kiểm tra nếu ảnh đã tồn tại và bắt đầu bằng /images/
+                        if (imageUrl != null && imageUrl.startsWith("/images/")) {
+                            // Giữ nguyên ảnh cũ
+                            continue;
+                        }
+
+                        String uniqueFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+                        Path filePath = Paths.get(uploadDirectory.getPath(), uniqueFileName);
+
+                        String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1).toLowerCase();
+
+                        if (Arrays.asList("jpg", "jpeg", "png", "gif").contains(fileExtension)) {
+                            file.transferTo(filePath.toFile());
+                            imageUrl = "/images/" + uniqueFileName;
+                        }
                     }
                 }
             }
 
             if (videoFiles != null) {
                 for (MultipartFile file : videoFiles) {
-                    String uniqueFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-                    Path filePath = Paths.get(uploadDirectory.getPath(), uniqueFileName);
+                    if (file != null && !file.isEmpty()) {
+                        // Kiểm tra nếu video đã tồn tại và bắt đầu bằng /images/
+                        if (videoUrl != null && videoUrl.startsWith("/images/")) {
+                            // Giữ nguyên video cũ
+                            continue;
+                        }
 
-                    String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1).toLowerCase();
+                        String uniqueFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+                        Path filePath = Paths.get(uploadDirectory.getPath(), uniqueFileName);
 
-                    if (fileExtension.equals("mp4") || fileExtension.equals("avi") || fileExtension.equals("mov")) {
-                        file.transferTo(filePath.toFile());
-                        videoUrl = "/images/" + uniqueFileName;
+                        String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1).toLowerCase();
+
+                        if (Arrays.asList("mp4", "avi", "mov").contains(fileExtension)) {
+                            file.transferTo(filePath.toFile());
+                            videoUrl = "/images/" + uniqueFileName;
+                        }
                     }
                 }
             }

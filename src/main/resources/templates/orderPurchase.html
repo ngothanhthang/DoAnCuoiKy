@@ -310,15 +310,20 @@
             </div>
         </div>
     </nav>
-    <section class="hero">
-        <div class="container">
-            <div class="intro-excerpt">
-                <h1>Welcome to My Store</h1>
-                <p>Discover the latest products and trends.</p>
-            </div>
-
+    <section class="hero position-relative">
+    <div class="container">
+        <div class="position-absolute top-1 end-0 m-3" th:if="${session.userName != null}">
+            <a href="/profile" class="nav-link text-white">
+                <i class="bi bi-person-fill"></i>
+                <span class="nav-text">Xin chào, <span th:text="${session.userName}">Username</span></span>
+            </a>
         </div>
-    </section>
+        <div class="intro-excerpt">
+            <h1>Welcome to My Store</h1>
+            <p>Discover the latest products and trends.</p>
+        </div>
+    </div>
+</section>
 </header>
 <!-- Phần còn lại của mã HTML giữ nguyên, chỉ thay đổi vị trí nút trả hàng -->
 <div class="container mt-5">
@@ -780,6 +785,7 @@
                     if (data.success) {
                         // Ẩn hoặc loại bỏ đơn hàng khỏi giao diện hoặc cập nhật trạng thái
                         button.closest('.order-card').remove();
+                        window.location.reload();
                         alert('Đã xác nhận giao hàng thành công');
                     } else {
                         alert('Xác nhận giao hàng không thành công');

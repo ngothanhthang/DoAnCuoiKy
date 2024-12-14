@@ -123,7 +123,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of("fonts/fontawesome-webfont.woff", "GET"),
                 Pair.of("fonts/fontawesome-webfont.woff2", "GET"),
                 Pair.of("shipper", "GET"),
-                Pair.of("shipper", "POST")
+                Pair.of("shipper", "POST"),
+                Pair.of("profile", "GET"),
+                Pair.of("profile", "POST")
         );
         for(Pair<String, String> bypassToken: bypassTokens) {
             if (request.getServletPath().contains(bypassToken.getFirst()) &&

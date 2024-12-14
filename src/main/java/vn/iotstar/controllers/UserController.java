@@ -120,8 +120,10 @@ public class UserController {
             HttpSession session = getCurrentSession();
             Optional<User> user = getUser(userLoginDTO.getUsername());
             Long userId = user.get().getUserId();
+            String userName=user.get().getUsername();
             Role role = user.get().getRole();
             session.setAttribute("user0", userId);
+            session.setAttribute("userName", userName);
             // Trả về token dưới dạng JSON
             return ResponseEntity.ok(new LoginResponse(token, role.getName()));
         } catch (Exception e) {
