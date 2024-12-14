@@ -378,15 +378,20 @@
 			</div>
         </div>
     </nav>
-    <section class="hero">
-        <div class="container">
-            <div class="intro-excerpt">
-                <h1>Welcome to My Store</h1>
-                <p>Discover the latest products and trends.</p>
-            </div>
-            
-        </div>
-    </section>
+    <section class="hero position-relative">
+	    <div class="container">
+	        <div class="position-absolute top-1 end-0 m-3" th:if="${session.userName != null}">
+	            <a href="/profile" class="nav-link text-white">
+	                <i class="bi bi-person-fill"></i>
+	                <span class="nav-text">Xin chào, <span th:text="${session.userName}">Username</span></span>
+	            </a>
+	        </div>
+	        <div class="intro-excerpt">
+	            <h1>Welcome to My Store</h1>
+	            <p>Discover the latest products and trends.</p>
+	        </div>
+	    </div>
+	</section>
 </header>
 	
 	    <!-- Chi tiết sản phẩm -->
