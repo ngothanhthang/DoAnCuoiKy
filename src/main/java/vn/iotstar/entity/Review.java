@@ -11,7 +11,9 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "Reviews")
+@Table(name = "Reviews", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "product_id"})
+})
 public class Review implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -48,5 +50,6 @@ public class Review implements Serializable {
 
     @Column(name = "video_url")
     private String videoUrl;  // Lưu trữ URL của video
-
+    
+    
 }

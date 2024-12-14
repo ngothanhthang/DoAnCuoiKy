@@ -13,29 +13,35 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpSession;
 import vn.iotstar.entity.Order;
+import vn.iotstar.entity.Product;
 import vn.iotstar.entity.Review;
-
+import vn.iotstar.services.CategoryService;
 import vn.iotstar.services.OrderService;
+import vn.iotstar.services.ProductService;
 import vn.iotstar.services.ReviewService;
 
 @Controller
 @RequestMapping("/order")
 public class ReviewController {
-    @GetMapping("/review/{productId}")
-    public String showReviewPage(@PathVariable Long productId, Model model, HttpSession session) {
-        // Lấy userId từ session, nếu không có thì mặc định là 1
-        Long userId = (Long) session.getAttribute("user0");
-        if (userId == null) {
-            userId = 1L;  // Gán mặc định là 1 nếu không có userId trong session
-        }
-        
-        // Truyền userId và productId qua model
-        model.addAttribute("userId", userId);
-        model.addAttribute("productId", productId);
+	@Autowired
+    private ProductService productService;
+	@Autowired
+    private ReviewService reviewService;
+	@GetMapping("/review/{productId}")
+	public String showReviewForm(@PathVariable("productId") Long productId, Model model, HttpSession session) {
+	    Long userId = (Long) session.getAttribute("user0");
+	    if (userId == null) {
+	        userId = 1L; // Giá trị mặc định nếu userId không có trong session
+	    }
 
-        // Trả về trang đánh giá
-        return "reviewPage";
-    }
+	    Product product = productService.getProductById(productId);
+	    Review existingReview = reviewService.findByUserIdAndProductId(userId, productId);
+
+	    model.addAttribute("product", product);
+	    model.addAttribute("existingReview", existingReview);
+
+	    return "reviewPage"; // Tên của view hiển thị form đánh giá
+	}
 	/*
 	 * @PostMapping("/review/{orderId}") public String submitReview(@PathVariable
 	 * Long orderId, @RequestParam int rating, @RequestParam String comment) { // Xử

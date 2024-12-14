@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import vn.iotstar.entity.Product;
 import vn.iotstar.entity.Review;
+import vn.iotstar.entity.User;
 import vn.iotstar.repository.ReviewRepository;
 import vn.iotstar.services.ReviewService;
 
@@ -23,4 +25,20 @@ public class ReviewServiceImpl implements ReviewService{
 	public void saveReview(Review review) {
         reviewRepository.save(review);
     }
+	
+	@Override
+    public Review findByUserAndProduct(User user, Product product) {
+        return reviewRepository.findByUserAndProduct(user, product);
+    }
+	
+	@Override
+    public boolean hasUserReviewedProduct(Long userId, Long productId) {
+        return reviewRepository.existsByUserUserIdAndProductId(userId, productId);
+    }
+	
+	 @Override
+	    public Review findByUserIdAndProductId(Long userId, Long productId) {
+	        return reviewRepository.findByUserUserIdAndProductId(userId, productId);
+	    }
+
 }

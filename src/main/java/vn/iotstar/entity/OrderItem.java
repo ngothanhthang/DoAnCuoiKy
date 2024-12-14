@@ -33,4 +33,16 @@ public class OrderItem implements Serializable {
 
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
+    
+    @Transient
+    private boolean reviewed;
+    
+    public boolean isReviewed() {
+        return reviewed;
+    }
+
+    public void setReviewed(boolean reviewed) {
+        this.reviewed = reviewed;
+    }
+
 }

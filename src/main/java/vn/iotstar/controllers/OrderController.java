@@ -12,6 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import jakarta.servlet.http.HttpSession;
 import vn.iotstar.entity.*;
+import vn.iotstar.repository.ReturnRequestRepository;
 import vn.iotstar.repository.UserRepository;
 import vn.iotstar.services.*;
 import vn.iotstar.utils.ApiResponse;
@@ -20,8 +21,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.*;
 
+import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +45,9 @@ public class OrderController {
     private ReviewService reviewService;
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private ReturnRequestRepository returnRequestRepository;
+    
     @Value("${product.image.upload.dir}")
     private String paymentUploadDir;
 
@@ -116,15 +122,15 @@ public class OrderController {
     }
     
     @PostMapping("/submit-review/{productId}")
-    @ResponseBody // Đánh dấu phản hồi là JSON
+    @ResponseBody
     public ResponseEntity<?> submitReview(
-        @PathVariable("productId") Long productId,
-        @RequestParam("rating") int rating,
-        @RequestParam("reviewText") String reviewText,
-        @RequestParam(value = "imageFile", required = false) MultipartFile[] imageFiles,
-        @RequestParam(value = "videoFile", required = false) MultipartFile[] videoFiles,
-        HttpSession session) {
-        
+            @PathVariable("productId") Long productId,
+            @RequestParam("rating") int rating,
+            @RequestParam("reviewText") String reviewText,
+            @RequestParam(value = "imageFile", required = false) MultipartFile[] imageFiles,
+            @RequestParam(value = "videoFile", required = false) MultipartFile[] videoFiles,
+            HttpSession session) {
+
         try {
             // Tạo thư mục nếu chưa tồn tại
             File uploadDirectory = new File(uploadDir);
@@ -172,31 +178,46 @@ public class OrderController {
             }
 
             Product product = productService.getProductById(productId);
+            
+            if (user == null) {
+                user = userService.findById(1L);
+            }
 
-            // Tạo đối tượng Review và gán thông tin
-            Review review = new Review();
-            review.setProduct(product);
-            review.setUser(user);
-            review.setRating(rating);
-            review.setReviewText(reviewText);
-            review.setImageUrl(imageUrl);
-            review.setVideoUrl(videoUrl);
-            review.setCreatedAt(new Date());
-            reviewService.saveReview(review);
+            // Tìm kiếm đánh giá trước đó của user cho sản phẩm
+            Review existingReview = reviewService.findByUserAndProduct(user, product);
+
+            if (existingReview != null) {
+                // Nếu tìm thấy đánh giá trước đó, cập nhật thông tin
+                existingReview.setRating(rating);
+                existingReview.setReviewText(reviewText);
+                existingReview.setImageUrl(imageUrl);
+                existingReview.setVideoUrl(videoUrl);
+                reviewService.saveReview(existingReview);
+            } else {
+                // Nếu chưa có đánh giá trước đó, tạo đánh giá mới
+                Review review = new Review();
+                review.setProduct(product);
+                review.setUser(user);
+                review.setRating(rating);
+                review.setReviewText(reviewText);
+                review.setImageUrl(imageUrl);
+                review.setVideoUrl(videoUrl);
+                review.setCreatedAt(new Date());
+                reviewService.saveReview(review);
+            }
 
             return ResponseEntity.ok(Map.of(
-                    "status", "success", 
+                    "status", "success",
                     "message", "Đánh giá đã được gửi thành công!"
-                ));
+            ));
 
-            } catch (Exception e) {
-                // Trả về phản hồi lỗi JSON
-                return ResponseEntity.badRequest().body(Map.of(
-                    "status", "error", 
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
                     "message", "Có lỗi xảy ra khi gửi đánh giá"
-                ));
-            }
+            ));
         }
+    }
 
     @PostMapping("/save-payment")
     public ResponseEntity<Map<String, Object>> savePayment(
@@ -241,6 +262,58 @@ public class OrderController {
             response.put("message", "Lỗi khi lưu ảnh thanh toán: " + e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    
+    @PostMapping("/return-request")
+    public ResponseEntity<?> handleReturnRequest(@RequestParam("orderId") Long orderId,
+                                                  @RequestParam("returnReason") String returnReason,
+                                                  @RequestParam(value = "returnImages", required = false) MultipartFile[] returnImages) throws IllegalStateException, IOException {
+            // Tìm đơn hàng theo orderId
+            Order order = orderService.getOrderById(orderId);
+
+            // Kiểm tra xem đơn hàng đã có yêu cầu trả hàng chưa
+            if (order.getReturnRequest() != null) {
+                throw new BadRequestException("Đơn hàng này đã có yêu cầu trả hàng.");
+            }
+
+            // Tạo một đối tượng ReturnRequest mới
+            ReturnRequest returnRequest = new ReturnRequest();
+            returnRequest.setOrder(order);
+            returnRequest.setReason(returnReason);
+            returnRequest.setCreatedAt(LocalDateTime.now());
+            returnRequest.setUpdatedAt(LocalDateTime.now());
+
+            // Xử lý lưu trữ ảnh minh chứng
+            if (returnImages != null && returnImages.length > 0) {
+                // Tạo thư mục nếu chưa tồn tại
+                File uploadDirectory = new File(uploadDir);
+                if (!uploadDirectory.exists()) {
+                    uploadDirectory.mkdirs();
+                }
+
+                // Lưu ảnh và lấy đường dẫn
+                String imageUrl = null;
+                for (MultipartFile file : returnImages) {
+                    String uniqueFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+                    Path filePath = Paths.get(uploadDirectory.getPath(), uniqueFileName);
+                    file.transferTo(filePath.toFile());
+                    imageUrl = "/images/" + uniqueFileName;
+                }
+                returnRequest.setImageUrl(imageUrl);
+            }
+
+            // Lưu yêu cầu trả hàng vào cơ sở dữ liệu
+            returnRequestRepository.save(returnRequest);
+
+            // Cập nhật trạng thái đơn hàng thành "Đang yêu cầu trả hàng"
+            order.setStatus("Đang duyệt");
+            orderService.save(order);
+
+            // Trả về kết quả
+            Map<String, String> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("message", "Yêu cầu trả hàng đã được gửi thành công!");
+            return ResponseEntity.ok(response);
     }
 
 }

@@ -27,6 +27,7 @@ import vn.iotstar.entity.CartItem;
 import vn.iotstar.entity.Coupon;
 import vn.iotstar.entity.Notification;
 import vn.iotstar.entity.Order;
+import vn.iotstar.entity.OrderItem;
 import vn.iotstar.entity.User;
 import vn.iotstar.entity.UserCoupon;
 import vn.iotstar.repository.CartItemRepository;
@@ -37,6 +38,7 @@ import vn.iotstar.services.CartService;
 import vn.iotstar.services.CouponService;
 import vn.iotstar.services.NotificationService;
 import vn.iotstar.services.OrderService;
+import vn.iotstar.services.ReviewService;
 import vn.iotstar.services.UserCouponService;
 import vn.iotstar.services.UserService;
 
@@ -64,6 +66,9 @@ public class OrderViewController {
     
     @Autowired
     private UserCouponService userCouponService;
+    
+    @Autowired
+    private ReviewService reviewService;
     
     @GetMapping("/summary/{orderId}")
     public String orderSummary(@PathVariable("orderId") Long orderId, @RequestParam(required = false) List<Long> selectedItems, Model model, HttpSession session) {
@@ -143,7 +148,14 @@ public class OrderViewController {
                 ordersPage = orderService.findOrdersByUserId(userId, pageable);
                 break;
         }
-
+        
+        for (Order order : ordersPage.getContent()) {
+            for (OrderItem item : order.getOrderItems()) {
+                boolean reviewed = reviewService.hasUserReviewedProduct(userId, item.getProduct().getId());
+                item.setReviewed(reviewed);
+            }
+        }
+        
         // Thêm danh sách đơn hàng và thông tin phân trang vào model
         model.addAttribute("orders", ordersPage.getContent());  // Lấy danh sách đơn hàng từ Page
         model.addAttribute("currentPage", page); // Trang hiện tại

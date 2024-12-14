@@ -52,5 +52,8 @@ public class Order implements Serializable {/**
 	 @ManyToOne(fetch = FetchType.LAZY)
 	    @JoinColumn(name = "coupon_id")
 	    private Coupon coupon;
+	 
+	 @OneToOne(mappedBy = "order")
+	 private ReturnRequest returnRequest;
 
 }

@@ -383,14 +383,23 @@
                             </div>
                             <div class="order-item-total" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 2, 'POINT')}+ ' VNĐ'">Item Total</div>
                             <!-- Nút đánh giá cho từng item -->
-                            <div th:if="${order.status == 'Đã giao' or order.status == 'Đang duyệt' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
-                                <button class="order-return-button"
-                                        th:data-product-id="${item.product.id}"
-                                        onclick="reviewButtonClicked(this)">
-                                    Đánh giá
-                                </button>
-                            </div>
+							<div th:if="${order.status == 'Đã giao' or order.status == 'Đang duyệt' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
+							    <button th:if="${item.reviewed}" class="order-return-button"
+							            th:data-product-id="${item.product.id}"
+							            onclick="reviewButtonClicked(this)">
+							        Sửa đánh giá
+							    </button>
+							    <button th:unless="${item.reviewed}" class="order-return-button"
+							            th:data-product-id="${item.product.id}"
+							            onclick="reviewButtonClicked(this)">
+							        Thêm đánh giá
+							    </button>
+							</div>
                         </div>
+                        <div class="order-payment-method">
+        <span>Phương thức thanh toán: </span>
+        <span th:text="${order.paymentMethod}"></span>
+    </div>
                     </div>
                     <div class="order-total">
                         <div th:if="${order.status == 'Đang giao' or order.status == 'Đã nhận hàng' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
@@ -424,13 +433,14 @@
                         </div>
                         <div th:if="${order.status == 'Đã giao' or order.status == 'Đang duyệt' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
                             <button class="order-return-button"
-                                    th:class="${order.status == 'Đang duyệt' ? 'order-return-button disabled' : 'order-return-button'}"
-                                    th:text="${order.status == 'Đang duyệt' ? 'Đang duyệt' : 'Trả hàng'}"
-                                    th:disabled="${order.status == 'Đang duyệt'}"
-                                    th:data-order-id="${order.id}"
-                                    onclick="returnButtonClicked(this)">
-                                Trả hàng
-                            </button>
+        th:class="${order.status == 'Đang duyệt' ? 'order-return-button disabled' : 'order-return-button'}"
+        th:text="${order.status == 'Đang duyệt' ? 'Đang duyệt' : 'Trả hàng'}"
+        th:disabled="${order.status == 'Đang duyệt'}"
+        th:data-order-id="${order.id}"
+        data-bs-toggle="modal"
+        data-bs-target="#returnModal">
+    Trả hàng
+</button>
                         </div>
                         <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 2, 'POINT')} + ' VNĐ'">Total Amount</span>
                     </div>
@@ -497,6 +507,33 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                 <button type="button" class="btn btn-primary" id="payButton">Thanh toán</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal trả hàng -->
+<div class="modal fade" id="returnModal" tabindex="-1" aria-labelledby="returnModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="returnModalLabel">Trả Hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="returnForm">
+                    <div class="mb-3">
+                        <label for="returnReason" class="form-label">Lý do trả hàng</label>
+                        <textarea class="form-control" id="returnReason" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="returnImages" class="form-label">Ảnh minh chứng</label>
+                        <input type="file" class="form-control" id="returnImages" accept="image/*" multiple>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="submitReturn">Gửi yêu cầu trả hàng</button>
             </div>
         </div>
     </div>
@@ -761,9 +798,57 @@
             maximumFractionDigits: 2
         }).format(amount);
     }
-    document.addEventListener('DOMContentLoaded', restoreScrollPosition);
+ // Lắng nghe sự kiện khi modal trả hàng được mở
+    document.getElementById('returnModal').addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const orderId = button.getAttribute('data-order-id');
+        this.setAttribute('data-order-id', orderId);
+    });
 
-    // Hàm hiển thị modal với thông tin thanh toán
+    // Xử lý sự kiện khi người dùng nhấn nút gửi yêu cầu trả hàng
+    document.getElementById('submitReturn').addEventListener('click', function () {
+        const returnModal = document.getElementById('returnModal');
+        const orderId = returnModal.getAttribute('data-order-id');
+        const returnReason = document.getElementById('returnReason').value;
+        const returnImages = document.getElementById('returnImages').files;
+
+        if (returnReason.trim() === '') {
+            alert('Vui lòng nhập lý do trả hàng');
+            return;
+        }
+
+        // Tạo FormData để gửi dữ liệu và ảnh minh chứng
+        const formData = new FormData();
+        formData.append('orderId', orderId);
+        formData.append('returnReason', returnReason);
+        for (let i = 0; i < returnImages.length; i++) {
+            formData.append('returnImages', returnImages[i]);
+        }
+
+        // Gửi yêu cầu trả hàng đến server
+        fetch('/order/return-request', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+
+            if (data.status === 'success') {
+                alert('Yêu cầu trả hàng đã được gửi thành công');
+                window.location.reload();
+                document.getElementById('returnForm').reset();
+                bootstrap.Modal.getInstance(returnModal).hide();
+            } else {
+                alert(data.message || 'Có lỗi xảy ra khi gửi yêu cầu trả hàng');
+            }
+        })
+        .catch(error => {
+            alert('Có lỗi xảy ra khi gửi yêu cầu trả hàng');
+        });
+    });
+    document.addEventListener('DOMContentLoaded', restoreScrollPosition);
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
