@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import vn.iotstar.dto.OrderDetailDTO;
 import vn.iotstar.entity.CartItem;
 import vn.iotstar.entity.Order;
 import vn.iotstar.entity.User;
@@ -47,4 +48,11 @@ public interface OrderService {
 	
 	Order confirmDeliveredOrder(Long orderId);
 	
+	Page<Order> getAllOrdersWithPagination(Pageable pageable);
+	
+    Page<Order> getOrdersByStatusWithPagination(String status, Pageable pageable);
+    
+    Page<Order> searchOrdersWithPagination(String keyword, Pageable pageable);
+    
+    OrderDetailDTO getOrderDetail(Long orderId);
 }

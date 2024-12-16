@@ -12,6 +12,7 @@ import vn.iotstar.repository.CategoryRepository;
 import vn.iotstar.repository.ProductRepository;
 import vn.iotstar.services.ProductService;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -160,5 +161,29 @@ public class ProductServiceImpl implements ProductService {
 		Pageable pageable = PageRequest.of(pageNum, 5);  // 5 sản phẩm mỗi trang
 		return productRepository.findAllByProductStatus(0, pageable);
 	}
+
+	@Override
+	public Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable) {
+		return productRepository.findByNameContainingIgnoreCase(name, pageable);
+	}
+
+	@Override
+	public Page<Product> findByIdContaining(Long id, Pageable pageable) {
+		return productRepository.findById(id, pageable);
+	}
+
+	@Override
+	public Page<Product> findByProductId(Long id, Pageable pageable) 
+	{
+		Optional<Product> product = productRepository.findById(id);
+        if (product.isPresent()) {
+            List<Product> productList = new ArrayList<>();
+            productList.add(product.get());
+            return new PageImpl<>(productList, pageable, 1);
+        }
+        return new PageImpl<>(new ArrayList<>(), pageable, 0);
+	}
+
+	
     
 }

@@ -10,6 +10,10 @@ import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -237,13 +241,11 @@ public class VendorController {
     }
     @GetMapping("/manage_orders")
     public String ManageOrderPage(Model model) {
-        // Định nghĩa danh sách trạng thái cần đếm (dạng chuỗi)
-        List<String> statuses = Arrays.asList("mới", "đã nhận giao","trả hàng","đã giao xong");
-
-        // Lấy số lượng thông báo chưa đọc với trạng thái là "Mới" hoặc "Đã nhận giao"
+    	 // Xử lý thông báo
+        List<String> statuses = Arrays.asList("mới", "đã nhận giao", "trả hàng", "đã giao xong", "đã nhận hàng");
         Long unreadNewNotificationsCount = notificationService.countNotificationsByStatusAndNotRead(statuses);
         List<Notification> notifications = notificationService.getNotificationsByStatus(statuses);
-        // Thêm số lượng thông báo vào model
+        
         model.addAttribute("unreadNotificationCount", unreadNewNotificationsCount);
         model.addAttribute("notifications", notifications);
         
@@ -285,7 +287,37 @@ public class VendorController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @GetMapping("/search")
+    public String searchProducts(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            Model model) {
 
+        try {
+            if (keyword == null || keyword.trim().isEmpty()) {
+                return "redirect:/vendor/manage_products";
+            }
 
-   
+            Pageable pageable = PageRequest.of(page, 5, Sort.by("id").descending());
+            Page<Product> productPage;
+
+            if (keyword.matches("\\d+")) {
+                Long productId = Long.parseLong(keyword);
+                productPage = productService.findByProductId(productId, pageable);
+            } else {
+                productPage = productService.findByNameContainingIgnoreCase(keyword, pageable);
+            }
+
+            model.addAttribute("products", productPage.getContent());
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", productPage.getTotalPages());
+            model.addAttribute("keyword", keyword);
+
+            return "manageProduct";
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("errorMessage", "Có lỗi xảy ra trong quá trình tìm kiếm");
+            return "error";
+        }
+    }
 }

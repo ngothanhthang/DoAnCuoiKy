@@ -1,15 +1,12 @@
 package vn.iotstar.services;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import vn.iotstar.dto.RevenueDTO;
+
 public interface RevenueService 
 {
-	List<Object[]> getRevenueByMonth(int year);
-	
-	List<Object[]> getRevenueByQuarter(int year);
-	
-	List<Object[]> getRevenueByYear();
-	
-	List<Object[]> getRevenueByDateRange(LocalDateTime startDate, LocalDateTime endDate);
+	RevenueDTO getRevenueData(LocalDate startDate, LocalDate endDate);
 }

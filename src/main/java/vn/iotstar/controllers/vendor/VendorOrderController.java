@@ -6,6 +6,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,81 +17,92 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import vn.iotstar.dto.OrderDetailDTO;
 import vn.iotstar.entity.Address;
 import vn.iotstar.entity.Notification;
 import vn.iotstar.entity.Order;
+import vn.iotstar.entity.ReturnRequest;
 import vn.iotstar.services.NotificationService;
 import vn.iotstar.services.OrderService;
+import vn.iotstar.services.ReturnRequestService;
 import vn.iotstar.utils.ApiResponse;
 
 @Controller
 public class VendorOrderController 
 {
-	@Autowired OrderService orderService;
-	@Autowired NotificationService notificationService;
+	@Autowired
+	private OrderService orderService;
+	@Autowired 
+	private NotificationService notificationService;
+	@Autowired 
+	private ReturnRequestService returnRequestService;
 	@GetMapping("/vendor/orders")
-	public String viewOrders(@RequestParam(value = "status", required = false) String status, Model model) {
-	    // Khai báo danh sách đơn hàng
-	    List<Order> orders;
+	public String viewOrders(
+	        @RequestParam(value = "status", required = false) String status,
+	        @RequestParam(value = "page", defaultValue = "0") int page,
+	        @RequestParam(value = "size", defaultValue = "5") int size,
+	        Model model) {
 
-	    // Nếu không có tham số status, lấy tất cả các đơn hàng
-	    if (status == null || status.isEmpty()) {
-	        orders = orderService.getAllOrders();
-	    } else {
-	        // Lọc đơn hàng theo trạng thái
-	        orders = orderService.getOrdersByStatus(status);
-	    }
-
-	    // Định dạng ngày tháng cho từng đơn hàng
-	    List<String> formattedDates = new ArrayList<>();
-	    List<String> phoneNumbers = new ArrayList<>();
-	    List<Address> defaultAddresses = new ArrayList<>();
-
-	    // Duyệt qua danh sách đơn hàng để lấy thông tin cần thiết
-	    for (Order order : orders) {
-	        // Định dạng ngày tạo cho từng đơn hàng
-	        String formattedDate = order.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-	        formattedDates.add(formattedDate);
+	        // Tạo Pageable object cho phân trang
+	        Pageable pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "id"));
 	        
-	        // Khởi tạo giá trị mặc định cho số điện thoại và địa chỉ mặc định
-	        String phoneNumber = null;
-	        Address defaultAddress = null;
+	        // Khai báo Page thay vì List để hỗ trợ phân trang
+	        Page<Order> orderPage;	
+	        // Lấy đơn hàng theo trạng thái với phân trang
+	        if (status == null || status.isEmpty()) {
+	            orderPage = orderService.getAllOrdersWithPagination(pageable);
+	        } else {
+	            orderPage = orderService.getOrdersByStatusWithPagination(status, pageable);
+	        }
 
-	        // Kiểm tra nếu đơn hàng có người dùng và địa chỉ
-	        if (order.getUser() != null && order.getUser().getAddresses() != null) {
-	            List<Address> addresses = order.getUser().getAddresses();
-	            // Lặp qua các địa chỉ của người dùng để tìm địa chỉ mặc định
-	            for (Address address : addresses) {
-	                if (address.isDefault()) {
-	                    defaultAddress = address;  // Lưu địa chỉ mặc định
-	                    phoneNumber = address.getPhoneNumber();  // Lấy số điện thoại
-	                    break;  // Dừng vòng lặp khi đã tìm thấy địa chỉ mặc định
+	        List<String> formattedDates = new ArrayList<>();
+	        List<String> phoneNumbers = new ArrayList<>();
+	        List<Address> defaultAddresses = new ArrayList<>();
+
+	        // Xử lý dữ liệu cho từng đơn hàng trong trang hiện tại
+	        for (Order order : orderPage.getContent()) {
+	            String formattedDate = order.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+	            formattedDates.add(formattedDate);
+	            
+	            String phoneNumber = null;
+	            Address defaultAddress = null;
+
+	            if (order.getUser() != null && order.getUser().getAddresses() != null) {
+	                List<Address> addresses = order.getUser().getAddresses();
+	                for (Address address : addresses) {
+	                    if (address.isDefault()) {
+	                        defaultAddress = address;
+	                        phoneNumber = address.getPhoneNumber();
+	                        break;
+	                    }
 	                }
 	            }
+	            defaultAddresses.add(defaultAddress);
+	            phoneNumbers.add(phoneNumber);
 	        }
-	        // Thêm địa chỉ mặc định và số điện thoại vào danh sách
-	        defaultAddresses.add(defaultAddress);
-	        phoneNumbers.add(phoneNumber);
+
+	        // Thêm thông tin phân trang vào model
+	        model.addAttribute("currentPage", page);
+	        model.addAttribute("totalPages", orderPage.getTotalPages());
+	        model.addAttribute("totalItems", orderPage.getTotalElements());
+	        model.addAttribute("orders", orderPage.getContent());
+	        model.addAttribute("formattedDates", formattedDates);
+	        model.addAttribute("phoneNumbers", phoneNumbers);
+	        model.addAttribute("defaultAddresses", defaultAddresses);
+
+	        // Xử lý thông báo
+	        List<String> statuses = Arrays.asList("mới", "đã nhận giao", "trả hàng", "đã giao xong", "đã nhận hàng");
+	        Long unreadNewNotificationsCount = notificationService.countNotificationsByStatusAndNotRead(statuses);
+	        List<Notification> notifications = notificationService.getNotificationsByStatus(statuses);
+	        
+	        model.addAttribute("unreadNotificationCount", unreadNewNotificationsCount);
+	        model.addAttribute("notifications", notifications);
+	        model.addAttribute("currentStatus", status); // Thêm trạng thái hiện tại để duy trì filter khi phân trang
+
+	        return "ManageOrder";
 	    }
-
-	    // Thêm thông tin vào model để truyền vào view
-	    model.addAttribute("orders", orders);
-	    model.addAttribute("formattedDates", formattedDates);
-	    model.addAttribute("phoneNumbers", phoneNumbers);
-	    model.addAttribute("defaultAddresses", defaultAddresses);
-	    List<String> statuses = Arrays.asList("mới", "đã nhận giao","trả hàng","đã giao xong","đã nhận hàng");
-
-        // Lấy số lượng thông báo chưa đọc với trạng thái là "Mới" hoặc "Đã nhận giao"
-        Long unreadNewNotificationsCount = notificationService.countNotificationsByStatusAndNotRead(statuses);
-        List<Notification> notifications = notificationService.getNotificationsByStatus(statuses);
-        // Thêm số lượng thông báo vào model
-        model.addAttribute("unreadNotificationCount", unreadNewNotificationsCount);
-        model.addAttribute("notifications", notifications);
-
-	    // Trả về trang quản lý đơn hàng
-	    return "ManageOrder";
-	}
 	
 	@PostMapping("/vendor/order/confirm/{orderId}")
     public ResponseEntity<ApiResponse> confirmOrder(@PathVariable("orderId") Long orderId)
@@ -193,6 +208,104 @@ public class VendorOrderController
 	     }
 	 }
 	 
+	 @GetMapping("/vendor/order/returned")
+	 public String returnedOrder(
+	     @RequestParam(value = "page", defaultValue = "0") int page,
+	     @RequestParam(value = "size", defaultValue = "10") int size,
+	     Model model) {
+	         
+	     // Tạo Pageable object
+	     Pageable pageable = PageRequest.of(page, size);
+	     
+	     // Lấy return requests với phân trang
+	     Page<ReturnRequest> returnRequestPage = returnRequestService.getReturnRequestsWithPagination(pageable);
+	     
+	     // Thêm thông tin phân trang vào model
+	     model.addAttribute("returnRequests", returnRequestPage.getContent());
+	     model.addAttribute("currentPage", page);
+	     model.addAttribute("totalPages", returnRequestPage.getTotalPages());
+	     model.addAttribute("totalItems", returnRequestPage.getTotalElements());
+	     
+	     // Xử lý thông báo
+	     List<String> statuses = Arrays.asList("mới", "đã nhận giao", "trả hàng", "đã giao xong", "đã nhận hàng");
+	     Long unreadNewNotificationsCount = notificationService.countNotificationsByStatusAndNotRead(statuses);
+	     List<Notification> notifications = notificationService.getNotificationsByStatus(statuses);
+	     
+	     model.addAttribute("unreadNotificationCount", unreadNewNotificationsCount);
+	     model.addAttribute("notifications", notifications);
+	     
+	     return "ManageOrder";
+	 }
 	 
+	 @GetMapping("/vendor/orders/search")
+	 public String searchOrders(
+	         @RequestParam("keyword") String keyword,
+	         @RequestParam(value = "page", defaultValue = "0") int page,
+	         @RequestParam(value = "size", defaultValue = "5") int size,
+	         Model model) {
+
+	     // Tạo Pageable object cho phân trang
+	     Pageable pageable = PageRequest.of(page, size);
+
+	     // Gọi phương thức tìm kiếm đơn hàng theo từ khóa và phân trang
+	     Page<Order> orderPage = orderService.searchOrdersWithPagination(keyword, pageable);
+
+	     // Xử lý dữ liệu tương tự như phương thức viewOrders
+	     List<String> formattedDates = new ArrayList<>();
+	     List<String> phoneNumbers = new ArrayList<>();
+	     List<Address> defaultAddresses = new ArrayList<>();
+
+	     for (Order order : orderPage.getContent()) {
+	            String formattedDate = order.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+	            formattedDates.add(formattedDate);
+	            
+	            String phoneNumber = null;
+	            Address defaultAddress = null;
+
+	            if (order.getUser() != null && order.getUser().getAddresses() != null) {
+	                List<Address> addresses = order.getUser().getAddresses();
+	                for (Address address : addresses) {
+	                    if (address.isDefault()) {
+	                        defaultAddress = address;
+	                        phoneNumber = address.getPhoneNumber();
+	                        break;
+	                    }
+	                }
+	            }
+	            defaultAddresses.add(defaultAddress);
+	            phoneNumbers.add(phoneNumber);
+	        }
+	     // Thêm thông tin phân trang và dữ liệu vào model
+	     model.addAttribute("currentPage", page);
+	     model.addAttribute("totalPages", orderPage.getTotalPages());
+	     model.addAttribute("totalItems", orderPage.getTotalElements());
+	     model.addAttribute("orders", orderPage.getContent());
+	     model.addAttribute("formattedDates", formattedDates);
+	     model.addAttribute("phoneNumbers", phoneNumbers);
+	     model.addAttribute("defaultAddresses", defaultAddresses);
+	     model.addAttribute("keyword", keyword); // Thêm từ khóa tìm kiếm vào model
+
+	     // Xử lý thông báo
+	     List<String> statuses = Arrays.asList("mới", "đã nhận giao", "trả hàng", "đã giao xong", "đã nhận hàng");
+	     Long unreadNewNotificationsCount = notificationService.countNotificationsByStatusAndNotRead(statuses);
+	     List<Notification> notifications = notificationService.getNotificationsByStatus(statuses); 
+	     model.addAttribute("unreadNotificationCount", unreadNewNotificationsCount);
+	     model.addAttribute("notifications", notifications);
+	     return "ManageOrder";
+	 }
 	 
+	 @GetMapping("/vendor/orders/{orderId}/details")
+	 @ResponseBody
+	 public ResponseEntity<?> getOrderDetails(@PathVariable Long orderId) 
+	 {
+	     try
+	     {
+	           	OrderDetailDTO orderDetail = orderService.getOrderDetail(orderId);
+	            return ResponseEntity.ok(orderDetail);
+	     } 
+	     catch (Exception e)
+	     {
+	            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+	     }
+	 }
 }

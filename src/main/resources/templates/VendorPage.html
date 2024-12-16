@@ -10,7 +10,7 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
-  <title>Quản lý Người Bán</title>
+  <title>Trang quản lý dành cho người bán</title>
 
   <style>
     .custom-navbar {
@@ -80,7 +80,7 @@
 <!-- Start Header/Navigation -->
 <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" arial-label="Seller navigation bar">
   <div class="container">
-    <a class="navbar-brand" href="index.html">Vendor<span>.</span></a>
+    <a class="navbar-brand" href="index.html">Vendor Management<span></span></a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsSeller" aria-controls="navbarsSeller" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -88,27 +88,25 @@
 
     <div class="collapse navbar-collapse" id="navbarsSeller">
       <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
-        <li class="nav-item active">
-          <a class="nav-link" href="#"><i class="fas fa-home me-2"></i>Quản lý trang chủ</a>
-        </li>
         <li class="nav-item">
           <a class="nav-link" href="/vendor/manage_products"><i class="fas fa-box me-2"></i>Quản lý sản phẩm</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/vendor/manage_orders"><i class="fas fa-shopping-cart me-2"></i>Quản lý đơn hàng</a>
+          <a class="nav-link" href="/vendor/orders"><i class="fas fa-shopping-cart me-2"></i>Quản lý đơn hàng</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#generateCouponModal"><i class="fas fa-percent me-2"></i>Khuyến mãi</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/vendor/revenue/receipt"><i class="fas fa-chart-line me-2"></i>Quản lý doanh thu</a>
+          <a class="nav-link" href="/vendor/revenue/overview"><i class="fas fa-chart-line me-2"></i>Quản lý doanh thu</a>
         </li>
       </ul>
 
       <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
-        <li><a class="nav-link" href="/users/logout"><i class="fas fa-user"></i></a></li>
-        <li><a class="nav-link" href="#"><i class="fas fa-bell"></i></a></li>
-      </ul>
+        <li class="nav-item">
+          <a class="nav-link" href="/users/logout"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+        </li>
+      </ul>	
     </div>
   </div>
 </nav>
@@ -121,38 +119,7 @@
       <h2>Xin chào, Vendor!</h2>
       <p>Chào mừng bạn đến với trang quản lý</p>
     </div>
-
-    <div class="row">
-      <div class="col-md-3">
-        <div class="stats-card">
-          <h3>Tổng đơn hàng</h3>
-          <h2>150</h2>
-          <p class="text-success"><i class="fas fa-arrow-up"></i> 12% so với tháng trước</p>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="stats-card">
-          <h3>Doanh thu</h3>
-          <h2>45.5M</h2>
-          <p class="text-success"><i class="fas fa-arrow-up"></i> 8% so với tháng trước</p>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="stats-card">
-          <h3>Sản phẩm</h3>
-          <h2>48</h2>
-          <p class="text-muted">Đang hoạt động</p>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="stats-card">
-          <h3>Khuyến mãi</h3>
-          <h2>5</h2>
-          <p class="text-muted">Đang diễn ra</p>
-        </div>
-      </div>
-    </div>
-  </div>
+</div>
 </div>
 <!-- Modal Tạo Mã Giảm Giá -->
 <div class="modal fade" id="generateCouponModal" tabindex="-1" aria-labelledby="generateCouponModalLabel" aria-hidden="true">

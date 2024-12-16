@@ -32,5 +32,12 @@ public interface ProductService {
 	Page<Product> getApprovedProducts(int pageNum);
 
 	Page<Product> getUnapprovedProducts(int pageNum);
+	
+	Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
+	
+    Page<Product> findByIdContaining(Long id, Pageable pageable);
+    //Page<Product> getProducts(int page);
+    
+    Page<Product> findByProductId(Long id, Pageable pageable);
 
 }

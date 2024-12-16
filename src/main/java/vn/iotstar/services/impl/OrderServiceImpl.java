@@ -8,8 +8,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import vn.iotstar.dto.OrderDetailDTO;
+import vn.iotstar.dto.OrderItemDTO;
 import vn.iotstar.entity.*;
 import vn.iotstar.repository.OrderRepository;
+import vn.iotstar.repository.ReturnRequestRepository;
 import vn.iotstar.services.OrderService;
 import vn.iotstar.services.UserService;
 import vn.iotstar.repository.CartItemRepository;
@@ -37,8 +42,11 @@ public class OrderServiceImpl implements OrderService{
     @Autowired
     private UserService userService;
     
-    @Autowired NotificationRepository notificationRepository;
+    @Autowired 
+    private NotificationRepository notificationRepository;
     
+    @Autowired
+    private ReturnRequestRepository returnRequestRepository;
     @Override
     // Phương thức tạo đơn hàng từ giỏ hàng
     public Order createOrder(User user, List<CartItem> cartItems) {
@@ -168,7 +176,7 @@ public class OrderServiceImpl implements OrderService{
 	         case "canceled":
 	             return orderRepository.findByStatus("Hủy");
 	         case "returned":
-	             return orderRepository.findByStatus("Trả hàng");
+	             return orderRepository.findByStatus("Đang duyệt");
 	         case "confirmed":
 	        	 return orderRepository.findByStatus("Đã xác nhận");
 	         default:
@@ -251,10 +259,13 @@ public class OrderServiceImpl implements OrderService{
 	}
 
 	@Override
+	@Transactional
 	public Order acceptOrder(Long orderId)
 	{
 		Order order = orderRepository.findById(orderId).orElse(null);
+		
         if (order != null && order.getStatus().equals("Đang duyệt")) {
+        	returnRequestRepository.deleteByOrderId(order.getId());
             order.setStatus("Trả hàng");  // Hoặc trạng thái xác nhận phù hợp
             return orderRepository.save(order);
         }
@@ -262,11 +273,13 @@ public class OrderServiceImpl implements OrderService{
 	}
 
 	@Override
+	@Transactional
 	public Order rejectOrder(Long orderId) 
 	{
 		Order order = orderRepository.findById(orderId).orElse(null);
         if (order != null && order.getStatus().equals("Đang duyệt")) 
         {
+        	returnRequestRepository.deleteByOrderId(order.getId());
             order.setStatus("Đã giao");  // Hoặc trạng thái từ chối phù hợp
             return orderRepository.save(order);
         }
@@ -286,5 +299,68 @@ public class OrderServiceImpl implements OrderService{
 	        }
 	    }
 	    return null;
+	}
+
+	@Override
+	public Page<Order> getAllOrdersWithPagination(Pageable pageable) {
+		return orderRepository.findAll(pageable);
+	}
+
+	@Override
+	public Page<Order> getOrdersByStatusWithPagination(String status, Pageable pageable)
+	{
+		 switch (status) {
+	        case "pending":
+	            return orderRepository.findByStatus("Chờ xác nhận", pageable);
+	        case "shipping":
+	            return orderRepository.findByStatus("Chờ duyệt đi giao", pageable);
+	        case "delivered":
+	            return orderRepository.findByStatus("Đã nhận hàng", pageable);
+	        case "canceled":
+	            return orderRepository.findByStatus("Hủy", pageable);
+	        case "returned":
+	            return orderRepository.findByStatus("Đang duyệt", pageable);
+	        case "confirmed":
+	            return orderRepository.findByStatus("Đã xác nhận", pageable);
+	        default:
+	            return orderRepository.findAll(pageable);
+	    }
+	}
+
+	@Override
+	public Page<Order> searchOrdersWithPagination(String keyword, Pageable pageable) {
+		 Long id = null;
+		    try {
+		        id = Long.parseLong(keyword);
+		    } catch (NumberFormatException e) {
+		        // Nếu không thể chuyển đổi keyword thành Long, bỏ qua và chỉ tìm kiếm theo tên người dùng
+		    }
+		    return orderRepository.searchOrders(id, keyword, pageable);
+	}
+
+	@Override
+	public OrderDetailDTO getOrderDetail(Long orderId) 
+	{
+		Order order = orderRepository.findById(orderId)
+	            .orElseThrow(() -> new RuntimeException("Order not found"));
+	            
+	        OrderDetailDTO dto = new OrderDetailDTO();
+	        dto.setOrderId(order.getId());
+	        dto.setTotalAmount(order.getTotalAmount());
+	        dto.setStatus(order.getStatus());
+	        dto.setCreatedAt(order.getCreatedAt());
+	        dto.setPaymentMethod(order.getPaymentMethod());
+	        dto.setCustomerName(order.getUser().getUsername());
+	        List<OrderItemDTO> items = order.getOrderItems().stream()
+	            .map(item -> new OrderItemDTO(
+	                item.getProduct().getName(),
+	                item.getQuantity(),
+	                item.getPrice(),
+	                item.getProduct().getImageUrl()
+	            ))
+	            .collect(Collectors.toList());
+	        
+	        dto.setItems(items);
+	        return dto;
 	}
 }

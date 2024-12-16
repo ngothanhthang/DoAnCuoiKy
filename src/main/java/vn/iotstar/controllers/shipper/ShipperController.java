@@ -57,7 +57,7 @@ public class ShipperController {
 	    List<String> formattedDates = new ArrayList<>();
 	    List<String> phoneNumbers = new ArrayList<>();
 	    List<Address> defaultAddresses = new ArrayList<>(); // Lưu các địa chỉ mặc định cho mỗi đơn hàng
-
+	    List<String> paymentMethod= new ArrayList<>();
 	    // Duyệt qua danh sách các đơn hàng
 	    for (Order order : confirmedOrders) {
 	        // Định dạng ngày tạo đơn hàng
@@ -81,12 +81,14 @@ public class ShipperController {
 	        // Thêm địa chỉ mặc định và số điện thoại vào các danh sách
 	        defaultAddresses.add(defaultAddress);
 	        phoneNumbers.add(phoneNumber);
+	        paymentMethod.add(order.getPaymentMethod());
 	    }
 	    // Thêm các thuộc tính vào model để Thymeleaf có thể sử dụng
 	    model.addAttribute("orders", confirmedOrders);
 	    model.addAttribute("formattedDates", formattedDates);
 	    model.addAttribute("phoneNumbers", phoneNumbers);
 	    model.addAttribute("defaultAddresses", defaultAddresses); // Gửi địa chỉ mặc định vào view
+	    model.addAttribute("paymentMethod",paymentMethod);
 
 	    // Trả về tên của trang view
 	    return "Shipper";
@@ -122,7 +124,7 @@ public class ShipperController {
 		List<String> formattedDates = new ArrayList<>();
         List<String> phoneNumbers = new ArrayList<>();
         List<Address> defaultAddresses = new ArrayList<>();
-
+        List<String> paymentMethod= new ArrayList<>();
         for (Order order : confirmedOrders) {
             // Format order creation date
             String formattedDate = order.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -144,13 +146,14 @@ public class ShipperController {
 
             defaultAddresses.add(defaultAddress);
             phoneNumbers.add(phoneNumber);
+            paymentMethod.add(order.getPaymentMethod());
         }
 
         model.addAttribute("orders", confirmedOrders);
         model.addAttribute("formattedDates", formattedDates);
         model.addAttribute("phoneNumbers", phoneNumbers);
         model.addAttribute("defaultAddresses", defaultAddresses);
-        
+        model.addAttribute("paymentMethod",paymentMethod);
         return "Shipper";
 	}
 	
@@ -162,7 +165,8 @@ public class ShipperController {
 	        Order order = orderService.getOrderById(orderId);
 	        if (order != null && "Đã nhận hàng".equals(order.getStatus())) {
 	            // Cập nhật trạng thái đơn hàng
-	            
+	        	order.setStatus("Đã giao");
+	        	orderService.save(order);
 	            // Tạo thông báo đã giao
 	            Notification notification = new Notification();
 	            notification.setOrder(order);
@@ -237,5 +241,51 @@ public class ShipperController {
 	    model.addAttribute("defaultAddresses", defaultAddresses);
 	    
 	    return "Shipper";
+	}
+	@GetMapping("/in-progress-orders")
+	public String getShippingOrders(Model model, HttpSession session) {
+	    // Lấy ID của shipper từ session
+	    Long shipperId = (Long) session.getAttribute("user0");
+	    
+	    // Lấy danh sách đơn hàng đang giao bởi shipper này
+	    List<Order> shippingOrders = orderService.getOrdersByShipperAndStatus(shipperId, "Đang giao");
+
+	    // Tạo các danh sách chứa thông tin cần thiết
+	    List<String> formattedDates = new ArrayList<>();
+	    List<String> phoneNumbers = new ArrayList<>();
+	    List<Address> defaultAddresses = new ArrayList<>();
+	    List<String> paymentMethod = new ArrayList<>();
+
+	    for (Order order : shippingOrders) {
+	        // Định dạng ngày
+	        String formattedDate = order.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+	        formattedDates.add(formattedDate);
+
+	        // Lấy số điện thoại và địa chỉ mặc định
+	        String phoneNumber = null;
+	        Address defaultAddress = null;
+
+	        if (order.getUser() != null && order.getUser().getAddresses() != null) {
+	            for (Address address : order.getUser().getAddresses()) {
+	                if (address.isDefault()) {
+	                    defaultAddress = address;
+	                    phoneNumber = address.getPhoneNumber();
+	                    break;
+	                }
+	            }
+	        }
+
+	        defaultAddresses.add(defaultAddress);
+	        phoneNumbers.add(phoneNumber);
+	        paymentMethod.add(order.getPaymentMethod());
+	    }
+
+	    model.addAttribute("orders", shippingOrders);
+	    model.addAttribute("formattedDates", formattedDates);
+	    model.addAttribute("phoneNumbers", phoneNumbers);
+	    model.addAttribute("defaultAddresses", defaultAddresses);
+	    model.addAttribute("paymentMethod", paymentMethod);
+
+	    return "Shipper"; // Tên template Thymeleaf
 	}
 }

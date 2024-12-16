@@ -47,6 +47,7 @@ public class WebSecurityConfig {
                                     "images/**",
                                     "shipper/**",
                                     "profile"
+                                    
                             )
                             .permitAll()
                             .requestMatchers("/css/dep.css", "/js/script.js", "/css/style.css", "/images/qr.png", "/fonts/**", "/**/*.css", "/**/*.js", "/**/*.jpg", "/**/*.png", "/css/style1.css", "/css/AdminLTE.css","/css/_all-skins.min.css", "/css/bootstrap.min1.css", "/css/font-awesome.min.css","/css/jquery-ui.css","/css/nestable.css", "/assets/images/**",

@@ -60,5 +60,14 @@ public interface OrderRepository extends JpaRepository<Order, Long>
 	           "OR CAST(o.id AS string) LIKE CONCAT('%', :search, '%')")
 	    Page<Order> findBySearchOnly(@Param("search") String search, Pageable pageable);
 	   
-	 
+	   Page<Order> findByStatus(String status, Pageable pageable);
+	   
+	   @Query("SELECT o FROM Order o WHERE o.id = :id OR LOWER(o.user.username) LIKE LOWER(CONCAT('%', :username, '%'))")
+	   Page<Order> searchOrders(@Param("id") Long id, @Param("username") String username, Pageable pageable);
+	   
+	   List<Order> findByCreatedAtBetweenAndStatus(
+		        LocalDateTime startDate, 
+		        LocalDateTime endDate, 
+		        String status
+		    );
 }

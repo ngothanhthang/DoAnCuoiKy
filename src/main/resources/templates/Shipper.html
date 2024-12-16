@@ -132,11 +132,12 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/shipper"><i class="fas fa-home me-2"></i>Trang Chủ</a>
                 </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="#"><i class="fas fa-cogs me-2"></i>Người vận chuyển</a>
-                </li>
-                <li><a class="nav-link" href="/users/logout"><i class="fas fa-user"></i></a></li>
-                <li><a class="nav-link" href="#"><i class="fas fa-bell"></i></a></li>
+                
+                <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
+		        <li class="nav-item">
+		          <a class="nav-link" href="/users/logout"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+		        </li>
+		      </ul>	
             </ul>
         </div>
     </div>
@@ -153,9 +154,13 @@
             <a href="/shipper/remaining_orders" class="btn product-status-btn btn-hien-co">
                 <i class="fas fa-box-open me-2"></i>Đơn hàng đang chờ giao
             </a>
+            <a href="/shipper/in-progress-orders" class="btn product-status-btn btn-da-giao">
+		        <i class="fas fa-shipping-fast me-2"></i>Đơn hàng được duyệt đi giao
+		    </a>
             <a href="/shipper/confirmed-orders" class="btn product-status-btn btn-hoan-thanh">
-                <i class="fas fa-check-circle me-2"></i>Đơn hàng được duyệt
+                <i class="fas fa-check-circle me-2"></i>Xác nhận đã giao
             </a>
+            
         </div>
 
         <!-- Start Order List -->
@@ -166,8 +171,11 @@
                     <h5>Mã đơn hàng: <span th:text="${order.id}"></span></h5>
                     <p><strong>Khách hàng:</strong> <span th:text="${order.user.username}"></span></p>
                     <p><strong>Ngày tạo:</strong> <span th:text="${formattedDates[iterStat.index]}"></span></p>
-                    <p><strong>Tổng tiền:</strong> <span th:text="${order.totalAmount}"></span> VND</p>
-
+					 <p><strong>Phương thức thanh toán:</strong> <span th:text="${order.paymentMethod}"></span></p>
+					 <p><strong>Tổng tiền cần thu:</strong> 
+					    <span th:if="${paymentMethod[iterStat.index] == 'COD'}" th:text="${order.totalAmount}+' VND'">VND</span>
+					    <span th:if="${paymentMethod[iterStat.index] == 'BANK'}" th:text="0+ ' VND'">VND</span>
+					</p>
                     <!-- Hiển thị địa chỉ mặc định -->
                     <p><strong>Địa chỉ:</strong>
                         <span th:if="${defaultAddresses != null and defaultAddresses[iterStat.index] != null}">
@@ -234,6 +242,7 @@
             .then(data => {
                 if (data.success) {
                     alert('Đã gửi tới chủ shop thành công, chờ người ta duyệt cho bạn đi giao nhé!');
+                    window.location.reload();
                 } else {
                     alert('Có lỗi xảy ra khi tạo thông báo.');
                 }

@@ -58,7 +58,7 @@ public class User implements UserDetails {
 
     @ManyToOne
     @JoinColumn(name = "role_id")
-    private Role role;
+    private Role role;	
     
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<UserCoupon> userCoupons;

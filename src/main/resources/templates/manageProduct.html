@@ -1,5 +1,5 @@
 <!doctype html>
-	<html lang="vi">
+	<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 	<head>
 	  <meta charset="utf-8">
 	  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -44,17 +44,23 @@
 	    }
 	
 	    .product-btn {
-	      font-weight: bold;
+	      font-weight: 500;
 	      background-color: #3b5d50;
 	      color: white;
-	      margin: 5px;
 	      border: none;
-	      padding: 10px;
+	      padding: 8px 16px;
+	      border-radius: 4px;
 	      transition: background-color 0.3s;
+	      display: flex;
+	      align-items: center;
+	      gap: 8px;
+	      text-decoration: none;
 	    }
 	
 	    .product-btn:hover {
 	      background-color: #2c4d3c;
+	      color: white;
+	      text-decoration: none;
 	    }
 	
 	    .product-actions {
@@ -95,28 +101,27 @@
 		    object-fit: cover; /* Đảm bảo ảnh không bị méo mà vẫn lấp đầy khung */
 		    border-radius: 8px; /* Tạo bo góc cho ảnh nếu muốn */
 		}
-	    .search-bar {
-		  display: flex;
-		  align-items: center;
-		}
-		
-		.search-input {
-		  width: 350px; /* Tăng chiều rộng để thanh tìm kiếm dài hơn */
-		  height: 38px; /* Chiều cao vừa phải */
-		  font-size: 16px; /* Kích thước chữ dễ nhìn */
-		  padding-left: 10px; /* Khoảng cách chữ với viền */
-		}
-		
-		.search-bar button {
-		  width: 120px; /* Điều chỉnh chiều rộng của nút tìm kiếm */
-		  height: 38px; /* Chiều cao đồng nhất với input */
-		  font-size: 16px; /* Kích thước chữ cho nút tìm kiếm */
-		  padding-left: 10px; /* Đả	m bảo chữ "Tìm kiếm" không bị chặt */
-		}
-		
-		.search-bar .ms-2 {
-		  margin-left: 10px; /* Khoảng cách giữa thanh tìm kiếm và nút */
-		}
+	    .actions-bar {
+	      display: flex;
+	      justify-content: flex-start;
+	      align-items: center;
+	      gap: 15px;
+	      margin-bottom: 20px;
+	    }
+	    .search-container {
+	      display: flex;
+	      align-items: center;
+	      gap: 10px;
+	    }
+	    .search-input {
+	      width: 250px;
+	      height: 38px;
+	      font-size: 16px;
+	      border-radius: 4px;
+	      border: 1px solid #ced4da;
+	      padding: 0.375rem 0.75rem;
+	    }
+	    
 	    
 	  </style>
 	</head>
@@ -153,82 +158,119 @@
 	          <!-- Button to Add New Product and Search bar -->
     <div class="mb-3 d-flex justify-content-between align-items-center">
       <!-- Add Product Button -->
-      <button class="btn product-add-btn" data-bs-toggle="modal" data-bs-target="#addProductModal">
-        <i class="fas fa-plus-circle me-2"></i> Thêm Sản Phẩm
-      </button>
-    </div>
+		      <div class="d-flex gap-2">
+		    <button class="btn product-add-btn" data-bs-toggle="modal" data-bs-target="#addProductModal">
+		      <i class="fas fa-plus-circle me-2"></i> Thêm Sản phẩm
+		    </button>
+		    
+		    <a href="/vendor/manage_products" class="btn product-add-btn">
+		      <i class="fas fa-list me-2"></i> Tất cả sản phẩm
+		    </a>
+		  </div>
+      
+
+        <div class="search-container">
+		    <form th:action="@{/vendor/search}" method="get" class="d-flex align-items-center gap-2">
+		        <input type="text" 
+		               name="keyword" 
+		               th:value="${keyword}"
+		               class="search-input" 
+		               placeholder="Id, Tên sản phẩm">
+		        <button type="submit" class="product-btn">
+		            <i class="fas fa-search"></i>
+		            Tìm kiếm
+		        </button>
+		    </form>
+		</div>
+      </div>
+      
 
 	
-	        <!-- Product Table -->
-	        <div id="productTableContainer">
-	            <table class="table table-bordered product-table">
-	                <thead>
-	                    <tr>
-	                        <th>Số Thứ Tự</th>
-	                        <th>Tên Sản Phẩm</th>
-	                        <th>Giá</th>
-	                        <th>Số Lượng</th>
-	                        <th>Trạng Thái</th>
-	                        <th>Danh Mục</th>
-	                        <th>Hình Ảnh</th> <!-- Cột hình ảnh -->
-	                        <th>Mô Tả</th> <!-- Cột mô tả mới -->
-	                        <th style="width: 150px;">Thao Tác</th>
-	                    </tr>
-	                </thead>
-	                <tbody>
-	                    <!-- Loop through products -->
-	                    <tr th:each="product, iterStat : ${products}">
-	                        <td th:text="${iterStat.count}"></td>
-	                        <td th:text="${product.name}"></td>
-	                        <td th:text="${product.price}"></td>
-	                        <td th:text="${product.quantity}"></td>
-	                        <td th:text="${product.status == 1 ? 'Hoạt động' : 'Không hoạt động'}"></td>
-	                        <td th:text="${product.category.name}"></td> <!-- Hiển thị tên danh mục -->
-	                        <td>
-	   					 <!-- Hiển thị hình ảnh sản phẩm -->
-							    <img th:src="@{${product.imageUrl}}" alt="Product Image" class="product-image"/>
-							</td>
-							 <td th:text="${product.description}"></td> 
-	                        <td>
-	                            <!-- Edit button -->
-	                          <button class="btn btn-warning btn-sm" th:attr="onclick='openEditProductModal(' + ${product.id} + ')'" >
-							    <i class="fas fa-edit"></i> Sửa
-							</button>
-	                            <!-- Delete button -->
-	                            <button 
-							    class="btn btn-danger btn-sm" 
-							    th:attr="onclick='deleteProduct(' + ${product.id} + ')'" >
-							    <i class="fas fa-trash"></i> Xóa
-							</button>
-	                        </td>
-	                    </tr>
-	                    
-	                </tbody>
-				
-	            </table>
-	            <!-- Pagination -->
-	        <div class="container">
+	       <!-- Bảng sản phẩm -->
+			<table class="table table-bordered product-table">
+			    <thead>
+			        <tr>
+			            <th>Mã sản phẩm</th>
+			            <th>Tên Sản phẩm</th>
+			            <th>Giá</th>
+			            <th>Số lượng</th>
+			            <th>Trạng thái</th>
+			            <th>Danh mục</th>
+			            <th>Hình ảnh</th>
+			            <th>Mô tả</th>
+			            <th>Admin Status</th>
+			            <th style="width: 150px;">Thao tác</th>
+			        </tr>
+			    </thead>
+			    <tbody>
+			        <!-- Nếu không có kết quả tìm kiếm -->
+			        <tr th:if="${#lists.isEmpty(products)}">
+			            <td colspan="10" class="text-center">Không tìm thấy sản phẩm nào</td>
+			        </tr>
+			        
+			        <!-- Hiển thị kết quả -->
+			        <tr th:each="product, iterStat : ${products}">
+			            <td th:text="${product.id}"></td>
+			            <td th:text="${product.name}"></td>
+			            <td th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+			            <td th:text="${product.quantity}"></td>
+			            <td>
+			                <span th:if="${product.status == 1}" class="badge bg-success">Còn hàng</span>
+			                <span th:if="${product.status == 0}" class="badge bg-danger">Ngừng kinh doanh</span>
+			            </td>
+			            <td th:text="${product.category.name}"></td>
+			            <td>
+			                <img th:if="${product.imageUrl != null}" 
+			                     th:src="@{${product.imageUrl}}" 
+			                     alt="Product Image" 
+			                     class="product-image"/>
+			                <span th:if="${product.imageUrl == null}">Không có ảnh</span>
+			            </td>
+			            <td>
+			                <span th:text="${#strings.length(product.description) > 50 ? #strings.substring(product.description, 0, 50) + '...' : product.description}"></span>
+			            </td>
+			            <td>
+			                <span th:if="${product.productStatus == 1}" class="badge bg-success">Đã duyệt</span>
+			                <span th:if="${product.productStatus == 0}" class="badge bg-warning">Chưa duyệt</span>
+			            </td>
+			            <td>
+			                <button class="btn btn-warning btn-sm" 
+			                        th:onclick="'openEditProductModal(' + ${product.id} + ')'">
+			                    <i class="fas fa-edit"></i> Sửa
+			                </button>
+			                <button class="btn btn-danger btn-sm" 
+			                        th:onclick="'deleteProduct(' + ${product.id} + ')'">
+			                    <i class="fas fa-trash"></i> Xóa
+			                </button>
+			            </td>
+			        </tr>
+			    </tbody>
+			</table>
+	            <!-- Phần phân trang -->
+			<div class="container">
 			    <ul class="pagination justify-content-center">
 			        <!-- Trang trước -->
 			        <li th:if="${currentPage > 0}" class="page-item">
-			            <a th:href="@{/vendor/manage_products(page=${currentPage - 1})}" class="page-link">Previous</a>
+			            <a th:href="@{${keyword != null ? '/vendor/search' : '/vendor/manage_products'}(page=${currentPage - 1}, keyword=${keyword})}" 
+			               class="page-link">Trước</a>
 			        </li>
 			
 			        <!-- Các số trang -->
 			        <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-			            th:classappend="${i == currentPage} ? 'active' : ''" class="page-item">
-			            <a th:href="@{/vendor/manage_products(page=${i})}" class="page-link" th:text="${i + 1}"></a>
+			            th:classappend="${i == currentPage} ? 'active' : ''" 
+			            class="page-item">
+			            <a th:href="@{${keyword != null ? '/vendor/search' : '/vendor/manage_products'}(page=${i}, keyword=${keyword})}" 
+			               class="page-link" 
+			               th:text="${i + 1}"></a>
 			        </li>
 			
 			        <!-- Trang sau -->
 			        <li th:if="${currentPage < totalPages - 1}" class="page-item">
-			            <a th:href="@{/vendor/manage_products(page=${currentPage + 1})}" class="page-link">Next</a>
+			            <a th:href="@{${keyword != null ? '/vendor/search' : '/vendor/manage_products'}(page=${currentPage + 1}, keyword=${keyword})}" 
+			               class="page-link">Sau</a>
 			        </li>
 			    </ul>
 			</div>
-	        </div>
-	    </div>
-	</div>
 	
 	  <!-- End Product Management Content -->
 	
@@ -278,8 +320,8 @@
           <div class="mb-3">
             <label for="productStatus" class="form-label">Trạng Thái</label>
             <select class="form-select" id="productStatus" required>
-              <option value="1">Hoạt động</option>
-              <option value="0">Không hoạt động</option>
+              <option value="1">Còn hàng</option>
+              <option value="0">Ngừng kinh doanh</option>
             </select>
           </div>
           <div class="mb-3">
@@ -343,8 +385,8 @@
 	          <div class="mb-3">
 	            <label for="editProductStatus" class="form-label">Trạng Thái</label>
 	            <select class="form-select" id="editProductStatus" required>
-	              <option value="1">Hoạt động</option>
-	              <option value="0">Không hoạt động</option>
+	              <option value="1">Còn hàng</option>
+	              <option value="0">Ngừng kinh doanh</option>
 	            </select>
 	          </div>
 	          <div class="mb-3">

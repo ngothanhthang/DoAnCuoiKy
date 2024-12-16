@@ -42,7 +42,7 @@ public class Order implements Serializable {/**
 	@Column(name = "image_url", columnDefinition = "varchar(255)")
 	private String imageUrl;
 
-	@CreationTimestamp
+	 @CreationTimestamp
 	 @Column(name = "created_at", nullable = false, updatable = false)
 	 private LocalDateTime createdAt;
 	 
@@ -50,8 +50,8 @@ public class Order implements Serializable {/**
 	 private List<OrderItem> orderItems;
 	 
 	 @ManyToOne(fetch = FetchType.LAZY)
-	    @JoinColumn(name = "coupon_id")
-	    private Coupon coupon;
+	 @JoinColumn(name = "coupon_id")
+	 private Coupon coupon;
 	 
 	 @OneToOne(mappedBy = "order")
 	 private ReturnRequest returnRequest;

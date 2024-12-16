@@ -6,16 +6,21 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import vn.iotstar.dto.RevenueDTO;
 import vn.iotstar.entity.Order;
 import vn.iotstar.repository.OrderRepository;
 import vn.iotstar.services.DashBoardService;
 import vn.iotstar.services.OrderService;
+import vn.iotstar.services.RevenueService;
 
 @Controller
 @RequestMapping("/vendor/revenue")
@@ -27,6 +32,8 @@ public class VendorRevenueController
 	private OrderService orderService;
 	@Autowired
 	private OrderRepository orderRepository;
+	@Autowired
+	private RevenueService revenueService;
 	@GetMapping()
 	public String revenuePage()
 	{
@@ -73,6 +80,32 @@ public class VendorRevenueController
 	        model.addAttribute("totalPages", orders.getTotalPages());
 	        
 	        return "manageReceipt";
+	    }
+	   @GetMapping("/chart")
+	    public String getRevenueChart() {
+	        return "revenueChart"; // This will return revenueChart.html view
+	    }
+	// Add new endpoint for API
+	    @GetMapping("/api/chart-data")
+	    @ResponseBody
+	    public ResponseEntity<?> getRevenueData(
+	        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+	        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate
+	    ) {
+	        try {
+	            if (startDate == null) {
+	                startDate = LocalDate.now().minusDays(30);
+	            }
+	            if (endDate == null) {
+	                endDate = LocalDate.now();
+	            }
+	            
+	            RevenueDTO revenueData = revenueService.getRevenueData(startDate, endDate);
+	            return ResponseEntity.ok(revenueData);
+	        } catch (Exception e) {
+	            return ResponseEntity.badRequest()
+	                .body("Error: " + e.getMessage());
+	        }
 	    }
 }
 	

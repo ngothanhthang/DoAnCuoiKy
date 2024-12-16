@@ -47,8 +47,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 			"AND p.productStatus = 1 " +
 			"AND p.name LIKE %:keyword%")
 	Page<Object[]> findByCategoryIdAndStatusWithAvgRatingAndKeyword(Long categoryId, String keyword, int status, Pageable pageable);
-
-
-
-
+	
+	Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
+	
+	Page<Product> findById(Long id, Pageable pageable);
 }
