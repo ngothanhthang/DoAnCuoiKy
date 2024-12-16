@@ -75,12 +75,18 @@ setInterval(updateCartCount, 30000);
                     if (data.cartItems && data.cartItems.length > 0) {
                         let html = '';
                         data.cartItems.forEach(item => {
+							// Định dạng giá trị giá sản phẩm
+		                    const formattedPrice = parseFloat(item.product.price).toLocaleString('vi-VN', {
+		                        minimumFractionDigits: 0,
+		                        maximumFractionDigits: 0
+		                    });
+												
                             html += `
                                 <div class="cart-item">
                                     <img src="${item.product.imageUrl}" alt="${item.product.name}">
                                     <div class="cart-item-info">
                                         <div class="cart-item-title">${item.product.name}</div>
-                                        <div class="cart-item-price">${item.product.price}</div>
+                                        <div class="cart-item-price">${formattedPrice} VNĐ</div>
                                         <div class="cart-item-quantity">Số lượng: ${item.quantity}</div>
                                     </div>
                                 </div>

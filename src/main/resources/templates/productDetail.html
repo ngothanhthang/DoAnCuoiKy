@@ -443,7 +443,7 @@
 	                <p th:text="${product.description}">Mô tả sản phẩm sẽ hiển thị ở đây</p>
 	
 	                <!-- Giá sản phẩm -->
-	                <p class="h4 text-success" th:text="${product.price}">Giá: 0</p>
+	                <p class="h4 text-success" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}+ ' VNĐ'">Giá: 0</p>
 					
 					<!-- Phần chọn số lượng -->
 					<div class="d-flex align-items-center">
