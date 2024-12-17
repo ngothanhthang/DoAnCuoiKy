@@ -93,7 +93,7 @@
                         <div class="stat-icon">
                             <i class="fas fa-coins"></i>
                         </div>
-                        <div class="stat-value" th:text="${totalRevenue}"></div>
+                        <div class="stat-value" th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')}"></div>
                         <div class="stat-label">VND</div>
                     </div>
                 </div>
