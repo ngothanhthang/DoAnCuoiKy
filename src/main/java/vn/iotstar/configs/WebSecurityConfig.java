@@ -46,7 +46,8 @@ public class WebSecurityConfig {
                                     "templates/**",
                                     "images/**",
                                     "shipper/**",
-                                    "profile"
+                                    "profile",
+                                    "vendor/**"
                                     
                             )
                             .permitAll()

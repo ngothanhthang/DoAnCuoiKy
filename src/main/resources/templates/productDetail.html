@@ -487,16 +487,11 @@
 	                        <span>&nbsp;</span>
 	                    <span>|</span>
 	                    <span>&nbsp;</span>
-	                        <div class="stars">
-							    <!-- Hiển thị sao vàng dựa trên rating -->
-							    <th:block th:each="i : ${#numbers.sequence(1, review.rating)}">
-							        <i class="fas fa-star"></i>
-							    </th:block>
-							    
-							    <!-- Hiển thị sao trống cho phần còn lại đến 5 sao -->
-							    <th:block th:each="i : ${#numbers.sequence(1, 5 - review.rating)}">
-							        <i class="far fa-star"></i>
-							    </th:block>
+							<div class="stars">
+								<!-- Hiển thị sao vàng dựa trên rating -->
+								<th:block th:each="i : ${#numbers.sequence(1, 5)}">
+									<i th:class="${i <= review.rating} ? 'fas fa-star' : 'far fa-star'"></i>
+								</th:block>
 							</div>
 	                    </div>
 	                    <p th:text="${review.reviewText}"></p>

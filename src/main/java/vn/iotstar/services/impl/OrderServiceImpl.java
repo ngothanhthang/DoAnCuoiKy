@@ -280,7 +280,7 @@ public class OrderServiceImpl implements OrderService{
         if (order != null && order.getStatus().equals("Đang duyệt")) 
         {
         	returnRequestRepository.deleteByOrderId(order.getId());
-            order.setStatus("Đã giao");  // Hoặc trạng thái từ chối phù hợp
+            order.setStatus("Từ chối trả");  // Hoặc trạng thái từ chối phù hợp
             return orderRepository.save(order);
         }
         return null;  // Trả về null nếu không thể từ chối
