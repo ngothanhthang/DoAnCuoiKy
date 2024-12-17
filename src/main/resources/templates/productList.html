@@ -244,7 +244,8 @@
 	                        <div class="card-body">
 	                            <h5 th:text="${product.name}" class="product-title card-title"></h5>
 	                            <p th:text="${product.description}" class="product-description card-text"></p>
-	                            <p><strong>Price: </strong><span th:text="${product.price}" class="product-price"></span></p>
+	                            <p><strong>Giá: </strong><span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}+ ' VNĐ'"></span></p>
+	                            
 	                            <!-- Thêm hiển thị số lượt bán và đánh giá trung bình -->
 	                        <div class="stars d-flex align-items-center">
 							    <!-- Hiển thị sao đầy -->

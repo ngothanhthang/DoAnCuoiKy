@@ -562,9 +562,9 @@
                 <img th:src="@{${item.product.imageUrl}}" alt="product image" style="width: 100px;">
             </td>
             <td th:text="${item.product.name}">Tên sản phẩm</td>
-            <td th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 2, 'POINT')} + ' VNĐ'">Giá</td>
+            <td th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Giá</td>
             <td th:text="${item.quantity}">Số lượng</td>
-            <td th:text="${#numbers.formatDecimal(item.price * item.quantity, 0, 'COMMA', 2, 'POINT')}">Tổng tiền</td>
+            <td th:text="${#numbers.formatDecimal(item.price * item.quantity, 0, 'COMMA', 0, 'POINT')}+ ' VNĐ'">Tổng tiền</td>
         </tr>
         </tbody>
     </table>
@@ -576,7 +576,7 @@
                     <span class="h5 mb-0">Tổng thanh toán:</span>
                     <div>
                         <span id="originalTotalAmount" class="h4 mb-0 text-primary"
-                              th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 2, 'POINT')} + ' VNĐ'"></span>
+                              th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
 
                         <span id="newTotalAmount" class="h4 mb-0 text-primary d-none"></span>
                     </div>
@@ -894,22 +894,22 @@
             window.location.href = `/order/purchases?orderId=${orderId}&selectedItem=${selectedItems}&paymentMethod=${paymentMethod}&newTotalAmount=${newTotalAmount}&voucherCode=${voucherCode}`;
         }
 
-        // Hàm định dạng số tiền để hiển thị
+     // Hàm định dạng số tiền để hiển thị
         function formatCurrency(amount) {
-            // Làm tròn đến 2 chữ số thập phân và định dạng theo tiếng Việt
-            return new Intl.NumberFormat('vi-VN', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(amount);
+            // Định dạng theo tiền tệ Việt Nam và làm tròn đến số nguyên gần nhất
+            return amount.toLocaleString('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).replace('.', ',').replace('₫', ''); // Loại bỏ ký hiệu ₫ dư thừa
         }
-
-        // Hàm chuyển đổi chuỗi tiền tệ thành số
+     // Hàm chuyển đổi chuỗi tiền tệ thành số
         function parseAmount(amountStr) {
-            // Loại bỏ tất cả dấu phẩy ngăn cách hàng nghìn và khoảng trắng
-            return parseFloat(amountStr.replace(/[.,\s]/g, '')) / 100;
-        }
-
-        // Cập nhật hàm xử lý voucher
+            // Loại bỏ ký hiệu tiền tệ và khoảng trắng
+        	return parseFloat(amountStr.replace(/,/g, '').replace(/\./g, ''));
+        }	
+     // Cập nhật hàm xử lý voucher
         document.getElementById('applyVoucher').addEventListener('click', function () {
             const voucherCode = document.getElementById('voucherCode').value;
             const originalAmountStr = document.getElementById('originalTotalAmount').textContent;
@@ -929,8 +929,8 @@
                         }
 
                         if (currentTotal >= discountAmount) {
-                            // Tính toán số tiền mới với độ chính xác 2 chữ số thập phân
-                            const newTotal = (currentTotal - discountAmount).toFixed(2);
+                        	
+                            const newTotal = currentTotal - discountAmount;
 
                             // Hiển thị thông tin voucher
                             const voucherInfo = document.getElementById('voucherInfo');
@@ -950,12 +950,12 @@
                             const newTotalAmountElement = document.getElementById('newTotalAmount');
 
                             originalTotalAmountElement.classList.add('strike-through');
-                            newTotalAmountElement.textContent = formatCurrency(newTotal);
+                            newTotalAmountElement.textContent = formatCurrency(newTotal) + 'VNĐ';
                             newTotalAmountElement.classList.remove('d-none');
 
                             alert('Áp dụng mã giảm giá thành công!');
                         } else {
-                            alert(`Mã giảm giá chỉ áp dụng cho đơn hàng tối thiểu ${formatCurrency(discountAmount)} VNĐ`);
+                        	alert(`Mã giảm giá chỉ áp dụng cho đơn hàng tối thiểu ${formatCurrency(discountAmount)}`);
                         }
                     } else {
                         alert('Mã giảm giá không hợp lệ');
@@ -988,7 +988,9 @@
             } else {
                 finalAmount = parseAmount(document.getElementById('originalTotalAmount').textContent);
             }
-
+			
+            finalAmount = Math.round(finalAmount);
+            
             // Log để kiểm tra giá trị
             console.log('Payment Method:', paymentMethod);
             console.log('Order ID:', orderId);
@@ -1001,7 +1003,7 @@
             url.searchParams.append('orderId', orderId);
             url.searchParams.append('selectedItem', selectedItems);
             url.searchParams.append('paymentMethod', paymentMethod);
-            url.searchParams.append('newTotalAmount', finalAmount.toFixed(2));
+            url.searchParams.append('newTotalAmount', finalAmount);
             url.searchParams.append('voucherCode', voucherCode || '');
 
             // Chuyển hướng đến URL mới

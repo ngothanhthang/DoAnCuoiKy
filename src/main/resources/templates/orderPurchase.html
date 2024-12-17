@@ -386,7 +386,7 @@
                                     <span>x</span><span th:text="${item.quantity}">Product Quantity</span>
                                 </div>
                             </div>
-                            <div class="order-item-total" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 2, 'POINT')}+ ' VNĐ'">Item Total</div>
+                            <div class="order-item-total" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}+ ' VNĐ'">Item Total</div>
                             <!-- Nút đánh giá cho từng item -->
 							<div th:if="${order.status == 'Đã giao' or order.status == 'Đang duyệt' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
 							    <button th:if="${item.reviewed}" class="order-return-button"
@@ -430,7 +430,7 @@
                             <div th:if="${order.paymentMethod == 'BANK' and order.imageUrl == null}">
                                 <button class="order-return-button payment-button"
                                         th:data-order-id="${order.id}"
-                                        th:data-amount="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 2, 'POINT')}"
+                                        th:data-amount="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')}"
                                         onclick="showPaymentQR(this)">
                                     <i class="fas fa-qrcode me-2"></i>Thanh toán QR
                                 </button>
@@ -447,7 +447,7 @@
     Trả hàng
 </button>
                         </div>
-                        <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 2, 'POINT')} + ' VNĐ'">Total Amount</span>
+                        <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Total Amount</span>
                     </div>
 
                     <div class="order-status"
@@ -602,21 +602,7 @@
             })
             .then(data => {
                 if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Thành công',
-                        text: 'Đã lưu ảnh thanh toán thành công!'
-                    }).then(() => {
-                        // Đóng modal một cách rõ ràng
-                        console.log(data); // Xử lý phản hồi từ server
-
-                        // Đóng modal sau khi thanh toán thành công
-                        var paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
-                        paymentModal.hide();  // Đóng modal
-
-                        // Làm mới trang
-                        window.location.reload();
-                    });
+                	window.location.href = '/order/purchase?status=1';
                 } else {
                     throw new Error(data.message || 'Không thể lưu ảnh thanh toán');
                 }

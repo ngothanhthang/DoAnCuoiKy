@@ -311,7 +311,7 @@
                     <h5>Mã đơn hàng: <span th:text="${order.id}"></span></h5>
                     <p><strong>Khách hàng:</strong> <span th:text="${order.user.username}"></span></p>
                     <p><strong>Ngày tạo:</strong> <span th:text="${formattedDates[iterStat.index]}"></span></p>
-                    <p><strong>Tổng tiền:</strong> <span th:text="${order.totalAmount}"></span> VND</p>
+                    <p><strong>Tổng tiền:</strong> <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')}"></span> VND</p>
 
                     <!-- Hiển thị địa chỉ mặc định -->
                     <p><strong>Địa chỉ:</strong>
