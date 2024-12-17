@@ -22,10 +22,13 @@ import vn.iotstar.dto.NotificationRequest;
 import vn.iotstar.entity.Address;
 import vn.iotstar.entity.Notification;
 import vn.iotstar.entity.Order;
+import vn.iotstar.entity.OrderItem;
+import vn.iotstar.entity.Product;
 import vn.iotstar.entity.User;
 import vn.iotstar.repository.NotificationRepository;
 import vn.iotstar.services.NotificationService;
 import vn.iotstar.services.OrderService;
+import vn.iotstar.services.ProductService;
 import vn.iotstar.services.UserService;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,10 +39,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/shipper")
 public class ShipperController {
 
-	@Autowired OrderService orderService;
-	@Autowired NotificationService notificationService;
-	@Autowired NotificationRepository notificationRepository;
-	@Autowired UserService userService;
+	@Autowired 
+	private OrderService orderService;
+	@Autowired 
+	private NotificationService notificationService;
+	@Autowired 
+	private NotificationRepository notificationRepository;
+	@Autowired 
+	private UserService userService;
+	@Autowired
+	private ProductService productService;
 	@GetMapping()
 	public String shipperHomePage()
 	{
@@ -159,28 +168,44 @@ public class ShipperController {
 	
 	@PostMapping("/complete-order/{orderId}")
 	public ResponseEntity<Map<String, Object>> completeOrder(@PathVariable Long orderId, HttpSession session) {
-		Long shipperId = (Long) session.getAttribute("user0");
+	    Long shipperId = (Long) session.getAttribute("user0");
 	    Map<String, Object> response = new HashMap<>();
 	    try {
 	        Order order = orderService.getOrderById(orderId);
 	        if (order != null && "Đã nhận hàng".equals(order.getStatus())) {
+	            List<OrderItem> orderItems = order.getOrderItems();
+	            for (OrderItem item : orderItems) {
+	                Product product = item.getProduct();
+	                int currentQuantity = product.getQuantity();
+	                int orderedQuantity = item.getQuantity();
+	              
+	                if (currentQuantity >= orderedQuantity) {
+	                    product.setQuantity(currentQuantity - orderedQuantity);
+	                    productService.save(product);
+	                } else {
+	                    response.put("success", false);
+	                    response.put("message", "Số lượng sản phẩm " + product.getName() + " trong kho không đủ.");
+	                    return ResponseEntity.ok(response);
+	                }
+	            }
+
 	            // Cập nhật trạng thái đơn hàng
-	        	order.setStatus("Đã giao");
-	        	orderService.save(order);
+	            order.setStatus("Đã giao");
+	            orderService.save(order);
+
 	            // Tạo thông báo đã giao
 	            Notification notification = new Notification();
 	            notification.setOrder(order);
 	            notification.setUser(order.getUser());
-	            String shipperName = order.getUser() != null ? order.getUser().getUsername() : "Không xác định";
-				User shipper = userService.findById(shipperId);
+	            User shipper = userService.findById(shipperId);
 	            String message = "Đơn hàng " + orderId + " đã được giao thành công bởi shipper " + shipper.getUsername() + ".";
 	            notification.setMessage(message);
 	            notification.setTimestamp(new Date());
 	            notification.setStatus("đã giao xong");
 	            notificationService.save(notification);
-	            
+
 	            response.put("success", true);
-	            response.put("message", "Thông báo đơn hàng giao thành công đã được gửi đến chủ shop");
+	            response.put("message", "Đơn hàng đã được giao thành công và số lượng sản phẩm đã được cập nhật.");
 	        } else {
 	            response.put("success", false);
 	            response.put("message", "Không tìm thấy đơn hàng hoặc trạng thái không hợp lệ.");
@@ -285,7 +310,6 @@ public class ShipperController {
 	    model.addAttribute("phoneNumbers", phoneNumbers);
 	    model.addAttribute("defaultAddresses", defaultAddresses);
 	    model.addAttribute("paymentMethod", paymentMethod);
-
 	    return "Shipper"; // Tên template Thymeleaf
 	}
 }
