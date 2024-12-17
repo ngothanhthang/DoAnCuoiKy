@@ -135,7 +135,7 @@ public class OrderViewController {
                 break;
             case "4":
                 // Trạng thái đã giao và đang duyệt
-                ordersPage = orderService.findOrdersByMultipleStatusesAndUserId(Arrays.asList("đã giao", "đang duyệt"), userId, pageable);
+                ordersPage = orderService.findOrdersByMultipleStatusesAndUserId(Arrays.asList("đã giao", "đang duyệt","từ chối trả"), userId, pageable);
                 break;
             case "5":
                 ordersPage = orderService.findOrdersByStatusAndUserId("hủy", userId, pageable);
