@@ -57,7 +57,7 @@
                                         <span th:if="${!user.isActive}" class="label label-danger">Tạm khóa</span>
                                     </td>
                                     <td>
-<!--                                        <a th:href="@{/admin/edit-user/{id}(id=${user.userId})}" class="btn btn-success">Chỉnh sửa</a>-->
+	                                    <a th:href="@{/admin/edit-user/{id}(id=${user.userId})}" class="btn btn-success">Chỉnh sửa</a>
                                         <a th:href="@{/admin/delete-user/{id}(id=${user.userId})}" class="btn btn-danger" onclick="return confirm('Bạn chắc chắn muốn xóa người dùng này?')">Xóa</a>
                                     </td>
                                 </tr>

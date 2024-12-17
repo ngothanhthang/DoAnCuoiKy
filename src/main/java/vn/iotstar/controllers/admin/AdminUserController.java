@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,27 +55,28 @@ public class AdminUserController {
 
     @PostMapping("/add-user")
     public String addUser(@RequestParam("username") String username,
-                          @RequestParam("password") String password,
-                          @RequestParam("email") String email,
-                          @RequestParam("role") String role,
-                          @RequestParam("isActive") Boolean isActive) {
-        try {
+                         @RequestParam("password") String password,
+                         @RequestParam("email") String email,
+                         @RequestParam("role") String roleName,
+                         @RequestParam("isActive") Boolean isActive) {
+    	// Debug để kiểm tra roleName
+        //System.out.println("Role name received: " + roleName);
+    	try {
+    		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             User user = new User();
             user.setUsername(username);
-            user.setPassword(password);
+            user.setPassword(encoder.encode(password));
             user.setEmail(email);
-
-            // Lấy đối tượng Role từ cơ sở dữ liệu dựa trên tên role
-            Role userRole = roleRepository.findByName(role);
-            System.out.println("User Role: " + userRole);
-            if (userRole != null) {
-                user.setRole(userRole);
-            } else {
-                throw new IllegalArgumentException("Invalid role: " + role);
+            
+            Role userRole = roleRepository.findByName(roleName);
+            //System.out.println("Found role: " + userRole.getName());
+            
+            if (userRole == null) {
+                throw new IllegalArgumentException("Invalid role: " + roleName);
             }
-
+            user.setRole(userRole);
             user.setIsActive(isActive);
-
+            
             userService.saveUser(user);
             return "redirect:/admin/admin_users";
         } catch (Exception e) {
@@ -95,17 +97,27 @@ public class AdminUserController {
 
     @PostMapping("/edit-user/{id}")
     public String updateUser(@PathVariable Long id,
-                              @RequestParam("username") String username,
-                              @RequestParam("password") String password,
-                              @RequestParam("email") String email,
-                              @RequestParam("role") Role role,
-                              @RequestParam("isActive") Boolean isActive) {
+                            @RequestParam("username") String username,
+                            @RequestParam("password") String password,
+                            @RequestParam("email") String email,
+                            @RequestParam("role") String roleName,
+                            @RequestParam("isActive") Boolean isActive) {
         try {
-            User user = userService.getUserById(id).orElseThrow(() -> new RuntimeException("User not found"));
+            User user = userService.getUserById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+                
             user.setUsername(username);
-            user.setPassword(password);
+            if (!password.isEmpty()) {
+            	BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            	user.setPassword(encoder.encode(password));
+            }
             user.setEmail(email);
-			user.setRole(role);
+            
+            Role userRole = roleRepository.findByName(roleName);
+            if (userRole == null) {
+                throw new IllegalArgumentException("Invalid role: " + roleName);
+            }
+            user.setRole(userRole);
             user.setIsActive(isActive);
 
             userService.saveUser(user);
