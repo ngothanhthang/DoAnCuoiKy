@@ -14,6 +14,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
 .navbar {
     position: fixed;
@@ -66,13 +67,12 @@
                     </a>
                 </div>
 
-                <!-- Tài khoản -->
                 <div class="nav-item">
-                    <a href="/address/info" class="nav-link">
-                        <i class="bi bi-person-circle"></i>
-                        <span class="nav-text">Tài khoản</span>
-                    </a>
-                </div>
+				    <a href="/address/info" class="nav-link">
+				        <i class="bi bi-geo-alt"></i>
+				        <span class="nav-text">Địa chỉ</span>
+				    </a>
+				</div>
 
                 <div class="nav-item cart-wrapper">
 				    <a th:if="${session.user0 != null}" href="/cart/view" class="cart-button">
