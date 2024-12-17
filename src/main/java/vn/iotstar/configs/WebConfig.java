@@ -10,7 +10,7 @@ public class WebConfig implements WebMvcConfigurer {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 	    // Thêm cấu hình để Spring Boot phục vụ tệp từ thư mục ngoài
 	    registry.addResourceHandler("/images/**")
-	            .addResourceLocations("file:/D:/WebCuoiKi/images/") // Đảm bảo đường dẫn khớp với thư mục lưu ảnh
+	            .addResourceLocations("file:/D:/WebCuoiKi/images/") // Đảm bảo đường dẫn khớp với thư mục lưu ảnh ( final)
 	    		.addResourceLocations("file:/D:/WebCuoiKi/reviews/");
 	}
 }
