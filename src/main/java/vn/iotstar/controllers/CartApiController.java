@@ -40,7 +40,6 @@ public class CartApiController {
         try {
             Long userId = (Long) session.getAttribute("user0");
             if (userId == null) {
-                userId = 1L;
             }
             
             Cart cart = cartService.getCartByUserId(userId);

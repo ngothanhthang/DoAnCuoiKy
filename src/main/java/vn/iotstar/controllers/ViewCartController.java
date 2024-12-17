@@ -27,7 +27,7 @@ public class ViewCartController {
     public String viewCart(HttpSession session, Model model) {
         Long userId = (Long) session.getAttribute("user0");
         if (userId == null) {
-            userId = 1L;
+        	return "redirect:/users/login";
         }
         List<Product> bestSellingProducts = productService.getBestSellingProducts();
 

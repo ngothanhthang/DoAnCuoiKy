@@ -218,6 +218,9 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
         }
+        .btn-inactive {
+    opacity: 0.5; /* Độ trong suốt để làm cho nút nhạt màu */
+}
     </style>
 </head>
 <body>
@@ -342,25 +345,25 @@
 
     <!-- Thanh điều hướng -->
     <div class="nav-buttons d-flex justify-content-center mb-4">
-        <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=0}" class="btn">
+            <a href="#" onclick="handleNavButtonClick(this); return false;" th:href="@{/order/purchase?status=0}" class="btn">
             <i class="fas fa-list"></i> Tất cả
         </a>
-        <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=1}" class="btn">
+        <a href="#" onclick="handleNavButtonClick(this); return false" th:href="@{/order/purchase?status=1}" class="btn">
             <i class="fas fa-list"></i> Mới
         </a>
-        <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=2}" class="btn">
+        <a href="#" onclick="handleNavButtonClick(this); return false" th:href="@{/order/purchase?status=2}" class="btn">
             <i class="fas fa-check-circle"></i> Đã xác nhận
         </a>
-        <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=3}" class="btn">
+        <a href="#" onclick="handleNavButtonClick(this); return false" th:href="@{/order/purchase?status=3}" class="btn">
             <i class="fas fa-truck-moving"></i> Đang giao
         </a>
-        <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=4}" class="btn">
+        <a href="#" onclick="handleNavButtonClick(this); return false" th:href="@{/order/purchase?status=4}" class="btn">
             <i class="fas fa-box"></i> Đã giao
         </a>
-        <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=5}" class="btn">
+        <a href="#" onclick="handleNavButtonClick(this); return false" th:href="@{/order/purchase?status=5}" class="btn">
             <i class="fas fa-ban"></i> Hủy
         </a>
-        <a href="#" onclick="saveScrollPosition()" th:href="@{/order/purchase?status=6}" class="btn">
+        <a href="#" onclick="handleNavButtonClick(this); return false" th:href="@{/order/purchase?status=6}" class="btn">
             <i class="fas fa-sync-alt"></i> Trả hàng/Hoàn tiền
         </a>
     </div>
@@ -839,8 +842,48 @@
             alert('Có lỗi xảy ra khi gửi yêu cầu trả hàng');
         });
     });
-    document.addEventListener('DOMContentLoaded', restoreScrollPosition);
+    function handleNavButtonClick(button) {
+        // Lấy tất cả các nút trong thanh điều hướng
+        var navButtons = document.querySelectorAll('.nav-buttons .btn');
 
+        // Xóa lớp 'btn-inactive' khỏi tất cả các nút
+        navButtons.forEach(function(btn) {
+            btn.classList.remove('btn-inactive');
+        });
+
+        // Thêm lớp 'btn-inactive' vào tất cả các nút khác ngoại trừ nút được nhấn
+        navButtons.forEach(function(btn) {
+            if (btn !== button) {
+                btn.classList.add('btn-inactive');
+            }
+        });
+
+        // Lưu vị trí cuộn và chuyển hướng
+        saveScrollPosition();
+        window.location.href = button.href;
+    }
+    function setActiveNavButton() {
+        // Lấy tất cả các nút trong thanh điều hướng
+        var navButtons = document.querySelectorAll('.nav-buttons .btn');
+
+        // Lấy URL hiện tại
+        var currentUrl = window.location.href;
+
+        // Duyệt qua các nút và kiểm tra URL tương ứng
+        navButtons.forEach(function(btn) {
+            if (currentUrl.includes(btn.getAttribute('href'))) {
+                // Xóa lớp 'btn-inactive' khỏi nút hiện tại
+                btn.classList.remove('btn-inactive');
+            } else {
+                // Thêm lớp 'btn-inactive' vào các nút khác
+                btn.classList.add('btn-inactive');
+            }
+        });
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        setActiveNavButton();
+        restoreScrollPosition();
+    });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/js/script.js}"></script>

@@ -238,6 +238,6 @@ public class OrderViewController {
             cartService.save(cart);
         }
         // Sau khi cập nhật, chuyển hướng đến trang danh sách đơn hàng
-        return "redirect:/order/purchase";
+        return "redirect:/order/purchase?status=1";
     }
 }
