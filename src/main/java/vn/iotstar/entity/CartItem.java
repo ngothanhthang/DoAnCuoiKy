@@ -1,30 +1,37 @@
 package vn.iotstar.entity;
-import jakarta.persistence.*;
-import lombok.*;
 
-import java.io.Serializable;
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-@Entity
-@Table(name = "CartItems")
-public class CartItem implements Serializable {/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "cart_item_id")
-    private Long id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cart_id", nullable = false)
-    private Cart cart;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
+public class CartItem {
+    private String id;
+    
+    @DBRef
     private Product product;
-
-    @Column(name = "quantity", nullable = false)
+    
     private int quantity;
+    
+    // Getters and setters
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 }

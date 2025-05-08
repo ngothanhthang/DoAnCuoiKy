@@ -28,11 +28,11 @@ public class ReviewController {
 	@Autowired
     private ReviewService reviewService;
 	@GetMapping("/review/{productId}")
-	public String showReviewForm(@PathVariable("productId") Long productId, Model model, HttpSession session) {
-	    Long userId = (Long) session.getAttribute("user0");
-	    if (userId == null) {
-	        userId = 1L; // Giá trị mặc định nếu userId không có trong session
-	    }
+	public String showReviewForm(@PathVariable("productId") String productId, Model model, HttpSession session) {
+	    String userId = (String) session.getAttribute("user0");
+//	    if (userId == null) {
+//	        userId = 1L; // Giá trị mặc định nếu userId không có trong session
+//	    }
 
 	    Product product = productService.getProductById(productId);
 	    Review existingReview = reviewService.findByUserIdAndProductId(userId, productId);

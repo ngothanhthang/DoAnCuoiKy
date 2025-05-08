@@ -31,7 +31,7 @@ public class ProfileController {
     @GetMapping("/profile")
     public String showProfile(Model model, HttpSession session) {
     	
-    	Long userId = (Long) session.getAttribute("user0");
+    	String userId = (String) session.getAttribute("user0");
         
         User user=userService.findById(userId);
         
@@ -51,7 +51,7 @@ public class ProfileController {
             HttpSession session,
             RedirectAttributes redirectAttributes
     ) {
-        Long userId = (Long) session.getAttribute("user0");
+        String userId = (String) session.getAttribute("user0");
         try {
             // Lấy user hiện tại
             User currentUser = userService.findById(userId);

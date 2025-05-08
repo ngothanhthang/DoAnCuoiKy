@@ -44,7 +44,7 @@ public class AddressController {
         }
         logger.info("Is Default: {}", orderIdLong);
         
-        Long userId = (Long) session.getAttribute("user0");
+        String userId = (String) session.getAttribute("user0");
         if (userId == null) {
             return "redirect:/users/login"; // Nếu không có userId trong session, giả sử là userId = 1
         }
@@ -81,7 +81,7 @@ public class AddressController {
     public String getAddressInfo(HttpSession session, Model model) {
         Logger logger = LoggerFactory.getLogger(this.getClass());
 
-        Long userId = (Long) session.getAttribute("user0");
+        String userId = (String) session.getAttribute("user0");
         if (userId == null) {
             return "redirect:/users/login";  // Nếu không có userId trong session, giả sử là userId = 1
         }
@@ -106,7 +106,7 @@ public class AddressController {
     		,RedirectAttributes redirectAttributes) {
     	Logger logger = LoggerFactory.getLogger(this.getClass());
         
-        Long userId = (Long) session.getAttribute("user0");
+        String userId = (String) session.getAttribute("user0");
         if (userId == null) {
             return "redirect:/users/login"; // Nếu không có userId trong session, giả sử là userId = 1
         }
@@ -139,7 +139,7 @@ public class AddressController {
     }
     
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteAddress(@PathVariable Long id, HttpSession session) {
+    public ResponseEntity<?> deleteAddress(@PathVariable String id, HttpSession session) {
         Logger logger = LoggerFactory.getLogger(this.getClass());
         logger.info("Deleting address with id: {}", id);
         try {
@@ -159,7 +159,7 @@ public class AddressController {
             }
             
             // Kiểm tra xem địa chỉ có thuộc về user hiện tại không
-            if (!address.getUser().getUserId().equals(userId)) {
+            if (!address.getUser().getId().equals(userId)) {
                 logger.error("Unauthorized deletion attempt for address id: {}", id);
                 return ResponseEntity.status(403).body("Không có quyền xóa địa chỉ này");
             }

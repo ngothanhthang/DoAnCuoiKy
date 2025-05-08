@@ -1,39 +1,54 @@
 package vn.iotstar.entity;
 
-import java.io.Serializable;
-import jakarta.persistence.*;
-import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-@Entity
-@Table(name = "Carts")
-public class Cart implements Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "cart_id")
-    private Long id;
-	
-	@ToString.Exclude
-	@EqualsAndHashCode.Exclude
-	@OneToOne(fetch = FetchType.LAZY)  // Thêm OneToOne để mỗi User chỉ có một Cart
-    @JoinColumn(name = "user_id", nullable = false, unique = true)  // Ràng buộc User chỉ có 1 Cart
+@Document(collection = "carts")
+public class Cart {
+    @Id
+    private String id;
+    
+    private String userId;
+    
+    @DBRef
     private User user;
+    
+    private List<CartItem> cartItems = new ArrayList<>();
+    
+    // Getters and setters
+    public String getId() {
+        return id;
+    }
 
-	@Column(name = "created_at")
-	private LocalDateTime createdAt = LocalDateTime.now();
-	 
-	@OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)  // Quan hệ 1-nhiều với CartItem
-	private List<CartItem> cartItems;  // Một Cart có thể có nhiều CartItem
+    public void setId(String id) {
+        this.id = id;
+    }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public List<CartItem> getCartItems() {
+        return cartItems;
+    }
+
+    public void setCartItems(List<CartItem> cartItems) {
+        this.cartItems = cartItems;
+    }
 }

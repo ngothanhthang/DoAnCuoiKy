@@ -117,9 +117,11 @@ public class AdminCategoryController {
 	@GetMapping("/edit-category/{id}")
 	public String getCategoryById(@PathVariable String id, Model model) 
     {
-    	Long categoryLongId = Long.parseLong(id);
-        Optional<Category> cate = categoryService.getCategoryById(categoryLongId);
-        
+		/*
+		 * Long categoryLongId = Long.parseLong(id); Optional<Category> cate =
+		 * categoryService.getCategoryById(categoryLongId);
+		 */
+		Optional<Category> cate = categoryService.getCategoryById(id);
         if (cate.isPresent()) {
             Category category = cate.get(); // Lấy đối tượng từ Optional 
             model.addAttribute("category", category);
@@ -131,7 +133,7 @@ public class AdminCategoryController {
 	
 	@PostMapping("/edit-category/{id}")
 	public String updateCategory(
-	        @PathVariable("id") Long id,
+	        @PathVariable("id") String id,
 	        @RequestParam("name") String name,
 	        @RequestParam("status") boolean status,
 	        @RequestParam(value = "image", required = false) MultipartFile imageFile,
@@ -161,15 +163,20 @@ public class AdminCategoryController {
 	    }
 	}
 	
+	/*
+	 * @GetMapping("/delete-category/{id}") public String delete(@PathVariable("id")
+	 * Long id) { try { this.categoryService.deleteCategoryById(id); return
+	 * "redirect:/admin/admin_categories"; } catch(Exception e) {
+	 * e.printStackTrace(); } return "redirect:/admin/admin_categories"; }
+	 */
 	@GetMapping("/delete-category/{id}")
-	public String delete(@PathVariable("id") Long id) {
-		try {
-			this.categoryService.deleteCategoryById(id);
-			return "redirect:/admin/admin_categories";
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		return "redirect:/admin/admin_categories";
+	public String delete(@PathVariable("id") String id) {
+	    try {
+	        this.categoryService.deleteCategoryById(id);
+	        return "redirect:/admin/admin_categories";
+	    } catch(Exception e) {
+	        e.printStackTrace();
+	    }
+	    return "redirect:/admin/admin_categories";
 	}
-	
 }

@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public User findById(Long userId) {
+    public User findById(String userId) {
         return userRepository.findById(userId).orElse(null);
     }
 
@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
         if(userRepository.existsByUsername(username)) {
             throw new DataIntegrityViolationException("Phone number already exists");
         }
-        Role role =roleRepository.findById(2L)
+        Role role =roleRepository.findById("1")
                 .orElseThrow(() -> new DataNotFoundException("Role not found"));
 //        if(role.getName().toUpperCase().equals(Role.ADMIN)) {
 //            throw new PermissionDenyException("You cannot register an admin account");
@@ -74,24 +74,42 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public String login(String username, String password) throws Exception {
+//        System.out.println("Login attempt for username: " + username);
+        
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if(optionalUser.isEmpty()) {
+//            System.out.println("User not found with username: " + username);
             throw new DataNotFoundException("Invalid phone number / password");
         }
-        //return optionalUser.get();//muốn trả JWT token ?
+        
         User existingUser = optionalUser.get();
+//        System.out.println("User found: " + existingUser.getUsername());
+        
         //check password
-        if(!passwordEncoder.matches(password, existingUser.getPassword())) {
+//        System.out.println("Raw password input: " + passwordEncoder.encode(password));
+//        System.out.println("Stored password hash: " + existingUser.getPassword());
+        boolean passwordMatches = passwordEncoder.matches(password, existingUser.getPassword());
+//        System.out.println("Password matches: " + passwordMatches);
+        
+        if(!passwordMatches) {
+//            System.out.println("Password verification failed");
             throw new BadCredentialsException("Wrong phone number or password");
         }
-
+        
+//        System.out.println("Authentication successful, generating token");
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 username, password,
                 existingUser.getAuthorities()
         );
-//        authenticationManager.authenticate(authenticationToken);
-        return jwtTokenUtil.generateToken(existingUser);
+        
+        // Debug authorities
+//        System.out.println("User authorities: " + existingUser.getAuthorities());
+        
+        String token = jwtTokenUtil.generateToken(existingUser);
+//        System.out.println("Token generated successfully");
+        return token;
     }
+
 
     @Override
     public void updateResetPasswordToken(String token, String email) throws CustomerNotFoundException{
@@ -142,12 +160,12 @@ public class UserServiceImpl implements UserService {
 	}
     
     @Override
-	public Optional<User> getUserById(Long id) {
+	public Optional<User> getUserById(String id) {
 		 return userRepository.findById(id);
 	}
     
     @Override
-	public void deleteUserById(Long id) {
+	public void deleteUserById(String id) {
 		userRepository.deleteById(id);
 		
 	}
@@ -157,5 +175,33 @@ public class UserServiceImpl implements UserService {
 	    Pageable pageable = PageRequest.of(page, 10);
 	    return userRepository.findByEmailContainingIgnoreCaseOrUsernameContainingIgnoreCase(keyword, keyword, pageable);
 	}
+	
+	@Override
+	public String getRoleNameByUserId(String userId) {
+	    Optional<User> userOptional = userRepository.findById(userId);
+	    if (userOptional.isPresent()) {
+	        User user = userOptional.get();
+	        Role role = user.getRole();
+	        return role != null ? role.getName() : null;
+	    }
+	    return null;
+	}
+
+	@Override
+	public Role getRoleByUserId(String userId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+//	@Override
+//	public Role getRoleByUserId(String userId) {
+//	    User user = userRepository.findById(userId).orElse(null);
+//	    if (user != null && user.getRoleId() != null) {
+//	        return roleRepository.findById(user.getRoleId()).orElse(null);
+//	    }
+//	    return null;
+//	}
+
+	
 }
 

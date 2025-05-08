@@ -1,7 +1,8 @@
 package vn.iotstar.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
 import vn.iotstar.entity.UserCoupon;
 
-public interface UserCouponRepository extends JpaRepository<UserCoupon, Long> {
+public interface UserCouponRepository extends MongoRepository<UserCoupon, String> {
 }

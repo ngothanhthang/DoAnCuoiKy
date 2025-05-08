@@ -11,23 +11,28 @@ import vn.iotstar.entity.Product;
 
 public interface ProductService {
 
-	Page<ProductDTO> getProductsByCategory(Long categoryId, int status, Pageable pageable);
+	// Thay đổi Long categoryId thành String cho MongoDB ObjectId
+	Page<ProductDTO> getProductsByCategory(String categoryId, int status, Pageable pageable);
 
 	List<Category> getAllCategories();
 
 	Page<Product> getProducts(int pageNumber);
 
-	Product getProductById(Long productId);
+	// Thay đổi Long productId thành String cho MongoDB ObjectId
+	Product getProductById(String productId);
 
 	Product save(Product product);
 
-	Product updateProduct(Long productId, Product productDetails);
+	// Thay đổi Long productId thành String cho MongoDB ObjectId
+	Product updateProduct(String productId, Product productDetails);
 
-	void deleteProduct(Long productId);
+	// Thay đổi Long productId thành String cho MongoDB ObjectId
+	void deleteProduct(String productId);
 
 	List<Product> getBestSellingProducts();
 
-	Page<ProductDTO> searchProductsByCategory(Long categoryId, String keyword, int status, Pageable pageable);
+	// Thay đổi Long categoryId thành String cho MongoDB ObjectId
+	Page<ProductDTO> searchProductsByCategory(String categoryId, String keyword, int status, Pageable pageable);
 	
 	Page<Product> getApprovedProducts(int pageNum);
 
@@ -35,9 +40,11 @@ public interface ProductService {
 	
 	Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
 	
-    Page<Product> findByIdContaining(Long id, Pageable pageable);
+    // Thay đổi Long id thành String cho MongoDB ObjectId
+    Page<Product> findByIdContaining(String id, Pageable pageable);
     //Page<Product> getProducts(int page);
     
-    Page<Product> findByProductId(Long id, Pageable pageable);
+    // Thay đổi Long id thành String cho MongoDB ObjectId
+    Page<Product> findByProductId(String id, Pageable pageable);
 
 }

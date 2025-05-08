@@ -53,11 +53,11 @@ public class OrderController {
 
     // Tạo đơn hàng từ giỏ hàng
     @PostMapping("/create")
-    public ResponseEntity<Long> createOrder(@RequestParam("selectedItems") List<Long> selectedItems, HttpSession session) {
-        Long userId = (Long) session.getAttribute("user0");
-        if (userId == null) {
-            userId = 1L;
-        }
+    public ResponseEntity<String> createOrder(@RequestParam("selectedItems") List<String> selectedItems, HttpSession session) {
+        String userId = (String) session.getAttribute("user0");
+		/*
+		 * if (userId == null) { userId = 1L; }
+		 */
 
         User user = userService.findById(userId);
         List<CartItem> cartItems = getCartItemsByIds(selectedItems, userId);
@@ -75,16 +75,16 @@ public class OrderController {
 
 
     // Lấy các CartItem từ giỏ hàng dựa trên ids đã chọn
-    private List<CartItem> getCartItemsByIds(List<Long> selectedItems, Long userId) {
+    private List<CartItem> getCartItemsByIds(List<String> selectedItems, String userId) {
         // Cần viết logic để lấy các CartItem theo ids và userId từ cơ sở dữ liệu
         return orderService.getCartItemsByIds(selectedItems, userId);
     }
 
     @PostMapping("/update-status")
     public ResponseEntity<?> updateOrderStatus(@RequestBody Map<String, Object> request, HttpSession session) {
-        Long userId = (Long) session.getAttribute("user0");
+        String userId = (String) session.getAttribute("user0");
         final Logger logger = LoggerFactory.getLogger(OrderController.class);
-        Long orderId = Long.valueOf(request.get("orderId").toString());
+        String orderId = String.valueOf(request.get("orderId").toString());
         String status = request.get("status").toString();
 
         Date currentDate = new Date();
@@ -124,7 +124,7 @@ public class OrderController {
     @PostMapping("/submit-review/{productId}")
     @ResponseBody
     public ResponseEntity<?> submitReview(
-            @PathVariable("productId") Long productId,
+            @PathVariable("productId") String productId,
             @RequestParam("rating") int rating,
             @RequestParam("reviewText") String reviewText,
             @RequestParam(value = "imageFile", required = false) MultipartFile[] imageFiles,
@@ -142,9 +142,9 @@ public class OrderController {
             }
             
             // Lấy thông tin người dùng từ session, nếu không có thì gán User mặc định với ID = 1
-            User user = userService.findById((Long) session.getAttribute("user0"));
+            User user = userService.findById((String) session.getAttribute("user0"));
             if (user == null) {
-                user = userService.findById(1L);  // Lấy User mặc định có ID = 1 từ cơ sở dữ liệu
+//                user = userService.findById(1L);  // Lấy User mặc định có ID = 1 từ cơ sở dữ liệu
             }
             
             // Khởi tạo các biến để lưu URL ảnh và video
@@ -199,7 +199,7 @@ public class OrderController {
             Product product = productService.getProductById(productId);
             
             if (user == null) {
-                user = userService.findById(1L);
+//                user = userService.findById(1L);
             }
 
             // Tìm kiếm đánh giá trước đó của user cho sản phẩm
@@ -241,7 +241,7 @@ public class OrderController {
     @PostMapping("/save-payment")
     public ResponseEntity<Map<String, Object>> savePayment(
             @RequestParam("paymentImage") MultipartFile imageFile,
-            @RequestParam("orderId") Long orderId) {
+            @RequestParam("orderId") String orderId) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -284,7 +284,7 @@ public class OrderController {
     }
     
     @PostMapping("/return-request")
-    public ResponseEntity<?> handleReturnRequest(@RequestParam("orderId") Long orderId,
+    public ResponseEntity<?> handleReturnRequest(@RequestParam("orderId") String orderId,
                                                   @RequestParam("returnReason") String returnReason,
                                                   @RequestParam(value = "returnImages", required = false) MultipartFile[] returnImages) throws IllegalStateException, IOException {
             // Tìm đơn hàng theo orderId

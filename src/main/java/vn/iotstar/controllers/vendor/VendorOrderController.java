@@ -105,7 +105,7 @@ public class VendorOrderController
 	    }
 	
 	@PostMapping("/vendor/order/confirm/{orderId}")
-    public ResponseEntity<ApiResponse> confirmOrder(@PathVariable("orderId") Long orderId)
+    public ResponseEntity<ApiResponse> confirmOrder(@PathVariable("orderId") String orderId)
 	{
 		
         Order order = orderService.confirmOrder(orderId); // Gọi service để xác nhận đơn hàng
@@ -124,7 +124,7 @@ public class VendorOrderController
 	
 	// controller chuyển duyệt đơn hàng đi giao:
 	@PostMapping("/vendor/order/approve-delivery/{orderId}")
-	public ResponseEntity<ApiResponse> approveDelivery(@PathVariable("orderId") Long orderId) {
+	public ResponseEntity<ApiResponse> approveDelivery(@PathVariable("orderId") String orderId) {
 	    try {
 	        Order order = orderService.approveDelivery(orderId); // Gọi service để duyệt đơn hàng đi giao
 
@@ -146,7 +146,7 @@ public class VendorOrderController
 	
 	//controller chấp nhận đơn hàng trả lại:
 	 @PostMapping("/vendor/order/accept/{orderId}")
-	    public ResponseEntity<ApiResponse> acceptOrder(@PathVariable("orderId") Long orderId) 
+	    public ResponseEntity<ApiResponse> acceptOrder(@PathVariable("orderId") String orderId) 
 	 {
 	        try {
 	            Order order = orderService.acceptOrder(orderId);  // Gọi service để chấp nhận đơn hàng
@@ -169,7 +169,7 @@ public class VendorOrderController
 	 
 	 //controller từ chối đơn hàng trả lại:
 	 @PostMapping("/vendor/order/reject/{orderId}")
-	    public ResponseEntity<ApiResponse> rejectOrder(@PathVariable("orderId") Long orderId) 
+	    public ResponseEntity<ApiResponse> rejectOrder(@PathVariable("orderId") String orderId) 
 	 {
 	        try {
 	            Order order = orderService.rejectOrder(orderId);  // Gọi service để từ chối đơn hàng
@@ -191,7 +191,7 @@ public class VendorOrderController
 	    }
 	 // Xác nhận đơn hàng đã giao:
 	 @PostMapping("/vendor/order/complete/{orderId}")
-	 public ResponseEntity<ApiResponse> confirmDeliveredOrder(@PathVariable("orderId") Long orderId) {
+	 public ResponseEntity<ApiResponse> confirmDeliveredOrder(@PathVariable("orderId") String orderId) {
 	     try {
 	         Order order = orderService.confirmDeliveredOrder(orderId);
 	         
@@ -296,7 +296,7 @@ public class VendorOrderController
 	 
 	 @GetMapping("/vendor/orders/{orderId}/details")
 	 @ResponseBody
-	 public ResponseEntity<?> getOrderDetails(@PathVariable Long orderId) 
+	 public ResponseEntity<?> getOrderDetails(@PathVariable String orderId) 
 	 {
 	     try
 	     {

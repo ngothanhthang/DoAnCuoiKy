@@ -1,37 +1,38 @@
 package vn.iotstar.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
-import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
 
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Entity
-@Table(name = "return_requests")
+@Document(collection = "return_requests")
 public class ReturnRequest {
+    
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @OneToOne
-    @JoinColumn(name = "order_id", nullable = false, unique = true)
+    @DBRef
+    @Field(name = "order")
     private Order order;
 
-    @Column(name = "reason", nullable = false)
+    @Field(name = "reason")
     private String reason;
 
-    @Column(name = "image_url")
+    @Field(name = "image_url")
     private String imageUrl; // Lưu trữ URL của ảnh
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    @Field(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    @Field(name = "updated_at")
+    private LocalDateTime updatedAt = LocalDateTime.now();
 }

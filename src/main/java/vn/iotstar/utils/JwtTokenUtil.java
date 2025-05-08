@@ -31,7 +31,7 @@ public class JwtTokenUtil {
         Map<String, Object> claims = new HashMap<>();
         //this.generateSecretKey();
         claims.put("username", user.getUsername());
-        claims.put("userId", user.getUserId());
+        claims.put("userId", user.getId());
         try {
             String token = Jwts.builder()
                     .setClaims(claims) //how to extract claims from this ?  Payload

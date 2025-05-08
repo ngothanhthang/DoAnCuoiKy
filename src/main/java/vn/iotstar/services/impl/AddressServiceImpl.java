@@ -15,13 +15,13 @@ public class AddressServiceImpl implements AddressService {
     private AddressRepository addressRepository;
 
     @Override
-    public List<Address> getAddressesByUserId(Long userId) {
-        return addressRepository.findByUserUserId(userId);
+    public List<Address> getAddressesByUserId(String userId) {
+        return addressRepository.findByUserId(userId);
     }
 
     @Override
-    public Address getDefaultAddress(Long userId) {
-        return addressRepository.findByUserUserIdAndIsDefaultTrue(userId);
+    public Address getDefaultAddress(String userId) {
+        return addressRepository.findByUserIdAndIsDefaultTrue(userId);
     }
 
     @Override
@@ -30,17 +30,17 @@ public class AddressServiceImpl implements AddressService {
     }
     
     @Override
-    public void deleteAddress(Long id) {
+    public void deleteAddress(String id) {
         addressRepository.deleteById(id);
     }
     
     @Override
-    public Address getDefaultAddressByUserId(Long userId) {
-        return addressRepository.findByUserUserIdAndIsDefaultTrue(userId);
+    public Address getDefaultAddressByUserId(String userId) {
+        return addressRepository.findByUserIdAndIsDefaultTrue(userId);
     }
     
     @Override
-    public Address getAddressById(Long id) {
+    public Address getAddressById(String id) {
         return addressRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy địa chỉ"));
     }

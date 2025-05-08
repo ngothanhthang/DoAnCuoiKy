@@ -13,46 +13,45 @@ import vn.iotstar.entity.User;
 
 public interface OrderService {
 
-	Order createOrder(User user, List<CartItem> cartItems);
+    Order createOrder(User user, List<CartItem> cartItems);
 
-	List<CartItem> getCartItemsByIds(List<Long> selectedItems, Long userId);
+    List<CartItem> getCartItemsByIds(List<String> selectedItems, String userId);
 
-	Order getOrderById(Long orderId);
+    Order getOrderById(String orderId);
 
-	Page<Order> findOrdersByStatusAndUserId(String status, Long userId, Pageable pageable);
+    Page<Order> findOrdersByStatusAndUserId(String status, String userId, Pageable pageable);
 
-	Page<Order> findOrdersByMultipleStatusesAndUserId(List<String> statuses, Long userId, Pageable pageable);
-	
-	Page<Order> findOrdersByUserId(Long userId, Pageable pageable);
+    Page<Order> findOrdersByMultipleStatusesAndUserId(List<String> statuses, String userId, Pageable pageable);
+    
+    Page<Order> findOrdersByUserId(String userId, Pageable pageable);
 
-	void save(Order order);
-	// th�m: 
+    void save(Order order);
 
-	boolean updateOrderStatus(Long orderId, String status);
-	
-	List<Order> getOrdersByStatus(String status);
-	
-	public List<Order> getAllOrders();
-	
-	Order confirmOrder(Long orderId);
-	
-	Order approveDelivery(Long orderId);
-	
-	List<Order> getOrdersByShipperAndStatus(Long shipperId, String status);
-	
-	Page<Order> getOrders(String search, String status, int page, int size);
+    boolean updateOrderStatus(String orderId, String status);
+    
+    List<Order> getOrdersByStatus(String status);
+    
+    List<Order> getAllOrders();
+    
+    Order confirmOrder(String orderId);
+    
+    Order approveDelivery(String orderId);
+    
+    List<Order> getOrdersByShipperAndStatus(String shipperId, String status);
+    
+    Page<Order> getOrders(String search, String status, int page, int size);
 
-	Order acceptOrder(Long orderId);
-	
-	Order rejectOrder(Long orderId);
-	
-	Order confirmDeliveredOrder(Long orderId);
-	
-	Page<Order> getAllOrdersWithPagination(Pageable pageable);
-	
+    Order acceptOrder(String orderId);
+    
+    Order rejectOrder(String orderId);
+    
+    Order confirmDeliveredOrder(String orderId);
+    
+    Page<Order> getAllOrdersWithPagination(Pageable pageable);
+    
     Page<Order> getOrdersByStatusWithPagination(String status, Pageable pageable);
     
     Page<Order> searchOrdersWithPagination(String keyword, Pageable pageable);
     
-    OrderDetailDTO getOrderDetail(Long orderId);
+    OrderDetailDTO getOrderDetail(String orderId);
 }

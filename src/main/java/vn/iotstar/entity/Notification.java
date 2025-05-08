@@ -1,51 +1,50 @@
 package vn.iotstar.entity;
-import org.hibernate.annotations.CreationTimestamp;
-import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Entity
-@Table(name = "notifications")
+@Document(collection = "notifications")
 public class Notification {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
     
     // Liên kết với shipper (User)
-    @ToString.Exclude  // Thêm vào
-    @EqualsAndHashCode.Exclude  // Thêm vào
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @DBRef
+    @Field(name = "user")
     private User user;
     
     // Liên kết với đơn hàng (Order)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
+    @DBRef
+    @Field(name = "order")
     private Order order;
     
     // Thời gian tạo thông báo
+    @Field(name = "timestamp")
+    private Date timestamp = new Date();
     
-    @Temporal(TemporalType.TIMESTAMP)
-    @CreationTimestamp
-    @Column(nullable = false)
-    private java.util.Date timestamp;
-    
-    // Nội dung thông báo (Kiểu TEXT)
-    @Lob
-    @Column(nullable = false)
+    // Nội dung thông báo
+    @Field(name = "message")
     private String message;
     
     // Trạng thái đã đọc
-    @Column(nullable = false)
+    @Field(name = "is_read")
     private boolean isRead = false;
     
-    @Column(nullable = false,name = "status", columnDefinition ="nvarchar(255)")
+    @Field(name = "status")
     private String status;
 }

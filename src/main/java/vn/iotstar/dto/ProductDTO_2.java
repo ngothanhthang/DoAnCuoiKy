@@ -3,16 +3,17 @@ package vn.iotstar.dto;
 import java.math.BigDecimal;
 
 public class ProductDTO_2 {
-	private Long id;
-	 private String name;
-	 private BigDecimal price;
-	 private int quantity;
-	 private String imageUrl;
-	 //danh mục
-	private Long CategoryId;
-	private String CategoryName;
+	private String id;  // Thay đổi từ Long sang String
+	private String name;
+	private BigDecimal price;
+	private int quantity;
+	private String imageUrl;
+	//danh mục
+	private String categoryId;  // Thay đổi từ Long sang String và sửa tên biến để tuân theo quy ước camelCase
+	private String categoryName;  // Sửa tên biến để tuân theo quy ước camelCase
 	private int status;
 	private String description;
+	
 	public String getDescription() {
 		return description;
 	}
@@ -20,17 +21,17 @@ public class ProductDTO_2 {
 		this.description = description;
 	}
 
-	 public Long getCategoryId() {
-		return CategoryId;
+	public String getCategoryId() {  // Thay đổi kiểu trả về và sửa tên phương thức
+		return categoryId;
 	}
-	public void setCategoryId(Long categoryId) {
-		CategoryId = categoryId;
+	public void setCategoryId(String categoryId) {  // Thay đổi kiểu tham số và sửa tên biến
+		this.categoryId = categoryId;
 	}
-	public String getCategoryName() {
-		return CategoryName;
+	public String getCategoryName() {  // Sửa tên phương thức
+		return categoryName;
 	}
-	public void setCategoryName(String categoryName) {
-		CategoryName = categoryName;
+	public void setCategoryName(String categoryName) {  // Sửa tên biến
+		this.categoryName = categoryName;
 	}
 	
 	public String getName() {
@@ -39,10 +40,10 @@ public class ProductDTO_2 {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public Long getId() {
+	public String getId() {  // Thay đổi kiểu trả về
 		return id;
 	}
-	public void setId(Long id) {
+	public void setId(String id) {  // Thay đổi kiểu tham số
 		this.id = id;
 	}
 	public BigDecimal getPrice() {
@@ -68,5 +69,35 @@ public class ProductDTO_2 {
 	}
 	public void setStatus(int status) {
 		this.status = status;
+	}
+	
+	// Thêm các phương thức hỗ trợ để tương thích ngược với code cũ
+	
+	// Phương thức này giúp chuyển đổi từ String ID sang Long nếu cần
+	public Long getIdAsLong() {
+		try {
+			return id != null ? Long.parseLong(id) : null;
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+	
+	// Phương thức này giúp chuyển đổi từ String categoryId sang Long nếu cần
+	public Long getCategoryIdAsLong() {
+		try {
+			return categoryId != null ? Long.parseLong(categoryId) : null;
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+	
+	// Phương thức này cho phép set ID bằng Long (tương thích ngược)
+	public void setId(Long id) {
+		this.id = id != null ? id.toString() : null;
+	}
+	
+	// Phương thức này cho phép set categoryId bằng Long (tương thích ngược)
+	public void setCategoryId(Long categoryId) {
+		this.categoryId = categoryId != null ? categoryId.toString() : null;
 	}
 }

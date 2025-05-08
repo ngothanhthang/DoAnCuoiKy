@@ -33,7 +33,7 @@ public class PaymentController {
 
     @GetMapping("/check-status")
     @ResponseBody
-    public Map<String, String> checkPaymentStatus(@RequestParam Long orderId) {
+    public Map<String, String> checkPaymentStatus(@RequestParam String orderId) {
         Map<String, String> response = new HashMap<>();
         
         try {

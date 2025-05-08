@@ -1,27 +1,31 @@
 package vn.iotstar.entity;
-import jakarta.persistence.*;
-import lombok.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "user_coupons")
+@Document(collection = "user_coupons")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserCoupon {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @DBRef
+    @Field(name = "user")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_id", nullable = false)
+    @DBRef
+    @Field(name = "coupon")
     private Coupon coupon;
 
-    @Column(name = "used_at")
+    @Field(name = "used_at")
     private LocalDateTime usedAt;
 }

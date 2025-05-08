@@ -30,9 +30,9 @@ public class DashBoardService {
 	
 	// tổng doanh thu:
 	public BigDecimal getTotalRevenue() {
-        return orderRepository.sumTotalRevenue(); // Lấy tổng doanh thu từ các đơn hàng đã hoàn thành
+        Double total = orderRepository.sumTotalRevenue();
+        return total != null ? new BigDecimal(total) : BigDecimal.ZERO;
     }
-	
 	/*
 	 * //tổng số khách hàng: public long getTotalCustomers() { return
 	 * userRepository.countUsersByRole(); }

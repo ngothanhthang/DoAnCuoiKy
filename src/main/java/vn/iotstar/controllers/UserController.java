@@ -118,19 +118,32 @@ public class UserController {
         try {
             String token = userService.login(userLoginDTO.getUsername(), userLoginDTO.getPassword());
             HttpSession session = getCurrentSession();
-            Optional<User> user = getUser(userLoginDTO.getUsername());
-            Long userId = user.get().getUserId();
-            String userName=user.get().getUsername();
-            Role role = user.get().getRole();
-            session.setAttribute("user0", userId);
-            session.setAttribute("userName", userName);
-            // Trả về token dưới dạng JSON
-            return ResponseEntity.ok(new LoginResponse(token, role.getName()));
+            Optional<User> userOptional = getUser(userLoginDTO.getUsername());
+            
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                String userId = user.getId();
+                String userName = user.getUsername();
+                
+                session.setAttribute("user0", userId);
+                session.setAttribute("userName", userName);
+                
+                // Lấy trực tiếp roleName từ userId
+                String roleName = userService.getRoleNameByUserId(userId);
+                System.out.println("User ID: " + userId);
+                System.out.println("Username: " + userName);
+                System.out.println("Role Name: " + roleName);
+                // Trả về token dưới dạng JSON
+                return ResponseEntity.ok(new LoginResponse(token, roleName));
+            } else {
+                return ResponseEntity.badRequest().body(new ErrorResponse("User not found"));
+            }
         } catch (Exception e) {
             // Trả về lỗi dưới dạng JSON
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
     }
+
 
     private HttpSession getCurrentSession() {
         return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest().getSession();

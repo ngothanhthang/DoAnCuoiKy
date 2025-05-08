@@ -2,18 +2,18 @@ package vn.iotstar.dto;
 
 public class NotificationRequest 
 {
-	private Long orderId;  // Mã đơn hàng
-    public Long getOrderId() {
+	private String orderId;  // Mã đơn hàng
+    public String getOrderId() {
 		return orderId;
 	}
-	public void setOrderId(Long orderId) {
+	public void setOrderId(String orderId) {
 		this.orderId = orderId;
 	}
-	private Long shipperId;  // ID của shipper
-	public Long getShipperId() {
+	private String shipperId;  // ID của shipper
+	public String getShipperId() {
 		return shipperId;
 	}
-	public void setShipperId(Long shipperId) {
+	public void setShipperId(String shipperId) {
 		this.shipperId = shipperId;
 	}
 }

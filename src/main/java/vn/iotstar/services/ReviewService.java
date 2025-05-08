@@ -8,13 +8,13 @@ import vn.iotstar.entity.User;
 
 public interface ReviewService {
 
-	void saveReview(Review review);
+    void saveReview(Review review);
 
-	List<Review> findReviewsByOrderId(Long orderId);
+    List<Review> findReviewsByOrderId(String orderId);
 
-	Review findByUserAndProduct(User user, Product product);
-	
-	 boolean hasUserReviewedProduct(Long userId, Long productId);
+    Review findByUserAndProduct(User user, Product product);
+    
+    boolean hasUserReviewedProduct(String userId, String productId);
 
-	Review findByUserIdAndProductId(Long userId, Long productId);
+    Review findByUserIdAndProductId(String userId, String productId);
 }

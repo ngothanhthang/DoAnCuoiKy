@@ -79,7 +79,7 @@ public class VendorController {
             @RequestParam("quantity") int quantity,
             @RequestParam("status") int status,
             @RequestParam("image") MultipartFile imageFile,
-            @RequestParam("category") Long categoryId,
+            @RequestParam("category") String categoryId,
             @RequestParam("description") String description) 
     		
     {
@@ -139,8 +139,8 @@ public class VendorController {
     @GetMapping("/get-product/{productId}")
     public ResponseEntity<ProductDTO_2> getProductById(@PathVariable String productId) 
     {
-    	Long productLongId = Long.parseLong(productId);
-        ProductDTO_2 product = productDTOService.getProductById(productLongId);
+    	String productLongId = productId;
+        ProductDTO_2 product = productDTOService.getProductById(productId);
         //Category abc =product.getCategory();
         if (product != null)
         {
@@ -160,14 +160,14 @@ public class VendorController {
             @RequestParam("quantity") int quantity,
             @RequestParam("status") int status,
             @RequestParam(value = "image", required = false) MultipartFile imageFile,
-            @RequestParam("category") Long categoryId,
+            @RequestParam("category") String categoryId,
             @RequestParam("description") String description) {
         try {
             // Chuyển productId từ String sang Long
-            Long productLongId = Long.parseLong(productId);  // Chuyển đổi String sang Long
+            String productLongId = productId;  // Chuyển đổi String sang Long
 
             // Tìm sản phẩm theo ID
-            Product existingProduct = productService.getProductById(productLongId);
+            Product existingProduct = productService.getProductById(productId);
             // Tìm category theo ID
             Category category = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new RuntimeException("Category not found"));
@@ -221,9 +221,9 @@ public class VendorController {
     @DeleteMapping("/delete-product/{productId}")
     public ResponseEntity<ApiResponse> deleteProduct(@PathVariable String productId) {
         try {
-        	 Long productLongId = Long.parseLong(productId);  
+        	 String productLongId = productId;
             // Gọi service để xóa sản phẩm
-            productService.deleteProduct(productLongId);
+            productService.deleteProduct(productId);
             
             // Tạo thông báo thành công
             ApiResponse response = new ApiResponse(true, "Sản phẩm đã được xóa thành công!", null);
@@ -302,7 +302,7 @@ public class VendorController {
             Page<Product> productPage;
 
             if (keyword.matches("\\d+")) {
-                Long productId = Long.parseLong(keyword);
+                String productId = keyword;
                 productPage = productService.findByProductId(productId, pageable);
             } else {
                 productPage = productService.findByNameContainingIgnoreCase(keyword, pageable);

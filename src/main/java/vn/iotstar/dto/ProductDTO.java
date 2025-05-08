@@ -13,14 +13,14 @@ import lombok.NoArgsConstructor;
 @Data
 public class ProductDTO {
 
-    private Long id;
+    private String id;
     private String name;
     private int status;
     private String description;
     private BigDecimal price;
     private int quantity;
     private String imageUrl;
-    private Long categoryId;
+    private String categoryId;
     private String categoryName;
 	/*
 	 * private Long vendorId; private String vendorName;

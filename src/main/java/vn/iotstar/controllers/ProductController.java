@@ -47,7 +47,7 @@ public class ProductController {
 
  // Hiển thị sản phẩm theo danh mục với phân trang
     @GetMapping("/category")
-    public String getProductsByCategory(@RequestParam("categoryId") Long categoryId,
+    public String getProductsByCategory(@RequestParam("categoryId") String categoryId,
                                          @RequestParam(value = "status", defaultValue = "1") int status,
                                          @RequestParam(value = "page", defaultValue = "0") int page,
                                          @RequestParam(value = "size", defaultValue = "5") int size,
@@ -102,30 +102,29 @@ public class ProductController {
 
 
  // Hiển thị chi tiết sản phẩm
- @GetMapping("/product")
- public String getProductDetails(@RequestParam("productId") Long productId, Model model, HttpSession session) {
-     Long userId = (Long) session.getAttribute("user0");
-     final User user;
-     boolean isLiked = false;
+    @GetMapping("/product")
+    public String getProductDetails(@RequestParam("productId") String productId, Model model, HttpSession session) {
+        String userId = (String) session.getAttribute("user0");
+        User user = null;
+        boolean isLiked = false;
 
-     if (userId != null) {
-         user = userRepository.findByUserId(userId);
-     } else {
-         user = null;
-     }
+        if (userId != null) {
+            user = userRepository.findById(userId).orElse(null);
+        }
 
-     Product product = productService.getProductById(productId);
-
-     // Lấy danh sách đánh giá của sản phẩm
-     List<Review> reviews = product.getReviews();
-
-     int totalLikes = product.getProductLikes().size();
-
-     // Kiểm tra xem người dùng đã like sản phẩm chưa (nếu đã đăng nhập)
-     if (user != null) {
-         isLiked = product.getProductLikes().stream()
-                 .anyMatch(like -> like.getUser().getUserId().equals(user.getUserId()));
-     }
+        Product product = productService.getProductById(productId);
+        
+        // Lấy danh sách đánh giá của sản phẩm
+        List<Review> reviews = product.getReviews();
+        
+        int totalLikes = product.getProductLikes().size();
+        
+        // Kiểm tra xem người dùng đã like sản phẩm chưa (nếu đã đăng nhập)
+        if (user != null) {
+            final User finalUser = user; // Tạo biến final để sử dụng trong lambda
+            isLiked = product.getProductLikes().stream()
+                    .anyMatch(like -> like.getUser().getId().equals(finalUser.getId()));
+        }
 
      // Tính tổng số đánh giá và điểm trung bình
      int totalReviews = reviews.size();

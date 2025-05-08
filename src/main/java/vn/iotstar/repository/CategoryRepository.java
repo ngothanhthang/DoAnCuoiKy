@@ -1,12 +1,15 @@
 package vn.iotstar.repository;
 
-import java.util.Optional;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import vn.iotstar.entity.Category;
 
-public interface CategoryRepository extends JpaRepository<Category, Long> {
-    // Tìm danh mục theo id, sửa kiểu trả về thành Optional<Category>
-    @Override
-    Optional<Category> findById(Long categoryId);
+@Repository
+public interface CategoryRepository extends MongoRepository<Category, String> {
+    // Phương thức tìm theo tên
+    Category findByName(String name);
+    
+    // Phương thức tìm theo status
+    java.util.List<Category> findByStatus(boolean status);
 }

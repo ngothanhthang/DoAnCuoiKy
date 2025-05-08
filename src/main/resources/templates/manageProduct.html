@@ -233,15 +233,17 @@
 			                <span th:if="${product.productStatus == 1}" class="badge bg-success">Đã duyệt</span>
 			                <span th:if="${product.productStatus == 0}" class="badge bg-warning">Chưa duyệt</span>
 			            </td>
-			            <td>
-			                <button class="btn btn-warning btn-sm" 
-			                        th:onclick="'openEditProductModal(' + ${product.id} + ')'">
-			                    <i class="fas fa-edit"></i> Sửa
-			                </button>
-			                <button class="btn btn-danger btn-sm" 
-			                        th:onclick="'deleteProduct(' + ${product.id} + ')'">
-			                    <i class="fas fa-trash"></i> Xóa
-			                </button>
+			            <td><button class="btn btn-warning btn-sm" 
+        th:attr="data-product-id=${product.id}"
+        onclick="openEditProductModal(this.getAttribute('data-product-id'))">
+    <i class="fas fa-edit"></i> Sửa
+</button>
+<button class="btn btn-danger btn-sm" 
+        th:attr="data-product-id=${product.id}"
+        onclick="deleteProduct(this.getAttribute('data-product-id'))">
+    <i class="fas fa-trash"></i> Xóa
+</button>
+
 			            </td>
 			        </tr>
 			    </tbody>

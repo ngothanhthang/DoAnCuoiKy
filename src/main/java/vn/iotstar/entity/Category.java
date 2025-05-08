@@ -1,38 +1,36 @@
 package vn.iotstar.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
+import lombok.*;
 import java.io.Serializable;
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Entity
-@Table(name = "Categories")
+@Document(collection = "categories")
 public class Category implements Serializable {
-
     private static final long serialVersionUID = 1L;
-
+    
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "category_id")
-    private Long id;
-
-    @Column(name = "category_name", nullable = false, columnDefinition = "nvarchar(255)")
+    private String id;
+    
+    @Field(name = "category_name")
     private String name;
-
-    @Column(name = "images", nullable = false, columnDefinition = "varchar(255)")
+    
+    @Field(name = "images")
     private String images;
-
-    @Column(name = "status", nullable = false)
+    
+    @Field(name = "status")
     private boolean status;
-
-    @Column(name = "description", columnDefinition = "TEXT")
+    
+    @Field(name = "description")
     private String description;
     
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @DBRef
     private List<Product> products;
-
 }

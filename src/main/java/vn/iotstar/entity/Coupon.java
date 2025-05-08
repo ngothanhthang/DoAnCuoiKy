@@ -1,39 +1,43 @@
 package vn.iotstar.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.io.Serializable;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.index.Indexed;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.hibernate.annotations.CreationTimestamp;
 
-@Entity
-@Table(name = "coupons")
+@Document(collection = "coupons")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Coupon {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(name = "code", nullable = false, unique = true)
+    @Indexed(unique = true)
+    @Field(name = "code")
     private String code;
 
-    @Column(name = "discount_amount", nullable = false)
+    @Field(name = "discount_amount")
     private BigDecimal discountAmount;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
-    @Column(name = "expiry_date")
+    @Field(name = "expiry_date")
     private LocalDateTime expiryDate;
 
-    @Column(name = "quantity", nullable = false)
+    @Field(name = "quantity")
     private Integer quantity;
 
-    @OneToMany(mappedBy = "coupon", fetch = FetchType.LAZY)
+    // Sử dụng DBRef để tham chiếu đến các đơn hàng
+    // Hoặc bạn có thể sử dụng cách lưu ID thay vì DBRef tùy theo thiết kế
+    @DBRef(lazy = true)
     private List<Order> orders;
 }

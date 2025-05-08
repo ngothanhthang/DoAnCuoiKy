@@ -25,9 +25,9 @@ public class LikeController {
     private ProductLikeRepository productLikeRepository;
 	
     @PostMapping("/product")
-    public String likeProduct(@RequestParam("productId") Long productId, HttpSession session) {
+    public String likeProduct(@RequestParam("productId") String productId, HttpSession session) {
         // Lấy user có id = 1 từ database
-        User user = userRepository.findByUserId((Long) session.getAttribute("user0")); // Tìm user có id = 1
+        User user = userRepository.findById((String) session.getAttribute("user0")).orElse(null); 
         
         if (user == null) {
             // Nếu không tìm thấy user, có thể hiển thị lỗi hoặc thông báo gì đó

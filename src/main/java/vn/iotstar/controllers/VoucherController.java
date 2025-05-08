@@ -35,10 +35,10 @@ public class VoucherController {
         	if (voucher.getQuantity() <= 0) {
                 return ResponseEntity.badRequest().body(Collections.singletonMap("message", "Mã giảm giá đã hết."));
             }
-        	Long userId = (Long) session.getAttribute("user0");
-            if (userId == null) {
-                userId = 1L;
-            }
+        	String userId = (String) session.getAttribute("user0");
+//            if (userId == null) {
+//                userId = 1L;
+//            }
             User user = userService.findById(userId);
         	boolean alreadyUsed = user.getUserCoupons().stream()
                     .anyMatch(uc -> uc.getCoupon().equals(voucher));

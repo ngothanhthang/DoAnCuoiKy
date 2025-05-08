@@ -6,16 +6,16 @@ import vn.iotstar.entity.Address;
 
 public interface AddressService {
 
-	List<Address> getAddressesByUserId(Long userId);
+	List<Address> getAddressesByUserId(String userId);
 
-	Address getDefaultAddress(Long userId);
+	Address getDefaultAddress(String userId);
 
 	Address saveAddress(Address address);
 
-	Address getDefaultAddressByUserId(Long userId);
+	Address getDefaultAddressByUserId(String userId);
 
-	void deleteAddress(Long id);
+	void deleteAddress(String id);
 
-	Address getAddressById(Long id);
+	Address getAddressById(String id);
 
 }

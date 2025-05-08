@@ -12,33 +12,33 @@ import vn.iotstar.repository.ReviewRepository;
 import vn.iotstar.services.ReviewService;
 
 @Service
-public class ReviewServiceImpl implements ReviewService{
-	@Autowired
+public class ReviewServiceImpl implements ReviewService {
+    @Autowired
     private ReviewRepository reviewRepository;
-	
-	@Override
-	public List<Review> findReviewsByOrderId(Long orderId) {
+    
+    @Override
+    public List<Review> findReviewsByOrderId(String orderId) {
+        // Giả sử chúng ta cần tìm tất cả các đánh giá liên quan đến một đơn hàng
         return reviewRepository.findByProductId(orderId);
     }
-	
-	@Override
-	public void saveReview(Review review) {
+    
+    @Override
+    public void saveReview(Review review) {
         reviewRepository.save(review);
     }
-	
-	@Override
+    
+    @Override
     public Review findByUserAndProduct(User user, Product product) {
         return reviewRepository.findByUserAndProduct(user, product);
     }
-	
-	@Override
-    public boolean hasUserReviewedProduct(Long userId, Long productId) {
-        return reviewRepository.existsByUserUserIdAndProductId(userId, productId);
+    
+    @Override
+    public boolean hasUserReviewedProduct(String userId, String productId) {
+        return reviewRepository.existsByUserIdAndProductId(userId, productId);
     }
-	
-	 @Override
-	    public Review findByUserIdAndProductId(Long userId, Long productId) {
-	        return reviewRepository.findByUserUserIdAndProductId(userId, productId);
-	    }
-
+    
+    @Override
+    public Review findByUserIdAndProductId(String userId, String productId) {
+        return reviewRepository.findByUserIdAndProductId(userId, productId);
+    }
 }

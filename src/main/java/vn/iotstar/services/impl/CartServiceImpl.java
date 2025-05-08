@@ -2,16 +2,23 @@ package vn.iotstar.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+
 import vn.iotstar.entity.Cart;
 import vn.iotstar.entity.CartItem;
 import vn.iotstar.entity.Product;
 import vn.iotstar.entity.User;
 import vn.iotstar.repository.CartRepository;
-import vn.iotstar.repository.CartItemRepository;
 import vn.iotstar.repository.ProductRepository;
 import vn.iotstar.repository.UserRepository;
 import vn.iotstar.services.CartService;
+
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -20,17 +27,16 @@ public class CartServiceImpl implements CartService {
     private CartRepository cartRepository;
 
     @Autowired
-    private CartItemRepository cartItemRepository;
-
-    @Autowired
     private ProductRepository productRepository;
 
     @Autowired
-    private UserRepository userRepository; // Thêm UserRepository để lấy thông tin người dùng
+    private UserRepository userRepository;
+    
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
-    // Triển khai phương thức addToCart
     @Override
-    public Cart addToCart(Long userId, Long productId, int quantity) {
+    public Cart addToCart(String userId, String productId, int quantity) {
         // Truy vấn người dùng từ UserRepository
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
@@ -40,12 +46,14 @@ public class CartServiceImpl implements CartService {
         User user = userOpt.get();
 
         // Kiểm tra xem giỏ hàng của người dùng đã tồn tại chưa
-        Cart cart = cartRepository.findByUserUserId(userId);
+        Cart cart = cartRepository.findByUserId(userId);
 
         if (cart == null) {
             // Nếu giỏ hàng không tồn tại, tạo mới giỏ hàng cho người dùng
             cart = new Cart();
-            cart.setUser(user);  // Gán người dùng vào giỏ hàng
+            cart.setUser(user);
+            cart.setUserId(userId);
+            cart.setCartItems(new ArrayList<>());
             cart = cartRepository.save(cart);
         }
 
@@ -57,68 +65,85 @@ public class CartServiceImpl implements CartService {
 
         Product product = productOpt.get();
 
-        // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
-        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId);
+        // Tìm cartItem trong giỏ hàng
+        boolean itemExists = false;
+        for (CartItem item : cart.getCartItems()) {
+            if (item.getProduct().getId().equals(productId)) {
+                // Nếu sản phẩm đã có trong giỏ hàng, cập nhật số lượng
+                item.setQuantity(item.getQuantity() + quantity);
+                itemExists = true;
+                break;
+            }
+        }
 
-        if (cartItem != null) {
-            // Nếu sản phẩm đã có trong giỏ hàng, cập nhật số lượng
-            cartItem.setQuantity(cartItem.getQuantity() + quantity);
-        } else {
+        if (!itemExists) {
             // Nếu sản phẩm chưa có trong giỏ hàng, tạo mới CartItem
-            cartItem = new CartItem();
-            cartItem.setCart(cart);
+            CartItem cartItem = new CartItem();
+            cartItem.setId(UUID.randomUUID().toString()); // Tạo ID mới cho CartItem
             cartItem.setProduct(product);
             cartItem.setQuantity(quantity);
+            cart.getCartItems().add(cartItem);
         }
 
-        // Lưu CartItem vào cơ sở dữ liệu
-        cartItemRepository.save(cartItem);
-
-        return cart;
+        // Lưu Cart vào cơ sở dữ liệu
+        return cartRepository.save(cart);
     }
     
     @Override
-    public Cart getCartByUserId(Long userId) {
-        return cartRepository.findByUserUserId(userId);
+    public Cart getCartByUserId(String userId) {
+        return cartRepository.findByUserId(userId);
     }
     
     @Override
-    public void changeQuantity(Long cartItemId, int change) {
-        // Lấy đối tượng CartItem từ database
-        CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+    public void changeQuantity(String cartItemId, int change) {
+        // Tìm cart chứa cartItem với ID cụ thể
+        Query query = new Query(Criteria.where("cartItems._id").is(cartItemId));
+        Cart cart = mongoTemplate.findOne(query, Cart.class);
         
-        // Cập nhật số lượng mới
-        int newQuantity = cartItem.getQuantity() + change;
-        if (newQuantity > 0) {
-            cartItem.setQuantity(newQuantity);
-
-            // Lưu lại thay đổi số lượng sản phẩm
-            cartItemRepository.save(cartItem);
+        if (cart != null) {
+            for (CartItem item : cart.getCartItems()) {
+                if (item.getId().equals(cartItemId)) {
+                    int newQuantity = item.getQuantity() + change;
+                    if (newQuantity > 0) {
+                        item.setQuantity(newQuantity);
+                        cartRepository.save(cart);
+                    }
+                    break;
+                }
+            }
         }
     }
     
     @Override
- // Xóa sản phẩm khỏi giỏ hàng
-    public void removeItemFromCart(Long cartItemId) {
-        CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(() -> new RuntimeException("Cart item not found"));
-        cartItemRepository.delete(cartItem);  // Xóa sản phẩm khỏi giỏ hàng
+    public void removeItemFromCart(String cartItemId) {
+        // Tìm cart chứa cartItem với ID cụ thể
+        Query query = new Query(Criteria.where("cartItems._id").is(cartItemId));
+        Cart cart = mongoTemplate.findOne(query, Cart.class);
+        
+        if (cart != null) {
+            cart.getCartItems().removeIf(item -> item.getId().equals(cartItemId));
+            cartRepository.save(cart);
+        }
     }
     
     @Override
- // Phương thức để lấy CartItem theo itemId
-    public CartItem getItemById(Long itemId) {
-        return cartItemRepository.findById(itemId).orElseThrow(() -> new RuntimeException("Cart item not found"));
+    public CartItem getItemById(String itemId) {
+        Query query = new Query(Criteria.where("cartItems._id").is(itemId));
+        Cart cart = mongoTemplate.findOne(query, Cart.class);
+        
+        if (cart != null) {
+            for (CartItem item : cart.getCartItems()) {
+                if (item.getId().equals(itemId)) {
+                    return item;
+                }
+            }
+        }
+        
+        throw new RuntimeException("Cart item not found");
     }
     
     @Override
- // Phương thức để lưu giỏ hàng sau khi đã thay đổi
     public void save(Cart cart) {
-        // Lưu lại các mục trong giỏ hàng
-        for (CartItem item : cart.getCartItems()) {
-            cartItemRepository.save(item);  // Lưu các mục trong giỏ hàng
-        }
-        // Lưu lại chính giỏ hàng
         cartRepository.save(cart);
     }
     
@@ -128,26 +153,22 @@ public class CartServiceImpl implements CartService {
     }
     
     @Override
- // Tính tổng số lượng sản phẩm trong giỏ hàng
-    public int getTotalCartItemCount(User user) {
-        Cart cart = findCartByUser(user);
-        if (cart == null || cart.getCartItems() == null) {
-            return 0; // Nếu không có giỏ hàng hoặc không có sản phẩm, trả về 0
-        }
-
-        // Tính tổng số lượng sản phẩm trong giỏ hàng
-        return cart.getCartItems().stream()
-                .mapToInt(CartItem::getQuantity)  // Lấy số lượng của từng CartItem
-                .sum();  // Tính tổng số lượng
+    public int getTotalCartItemCount(Optional<User> user) {
+        return user.map(this::findCartByUser)
+                .map(Cart::getCartItems)
+                .map(items -> items.stream()
+                        .mapToInt(CartItem::getQuantity)
+                        .sum())
+                .orElse(0);
     }
+
     
     @Override
-    public int getCartItemCount(Long userId) {
-        Cart cart = cartRepository.findByUserUserId(userId);
+    public int getCartItemCount(String userId) {
+        Cart cart = cartRepository.findByUserId(userId);
         if (cart != null && cart.getCartItems() != null) {
             return cart.getCartItems().size();
         }
         return 0;
     }
-
 }

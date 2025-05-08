@@ -128,7 +128,7 @@ public class ShipperController {
 	
 	@GetMapping("/confirmed-orders")
 	public String getConfirmedOrders(Model model, HttpSession session) {
-		Long shipperId = (Long) session.getAttribute("user0");
+		String shipperId = (String) session.getAttribute("user0");
 		List<Order> confirmedOrders = orderService.getOrdersByShipperAndStatus(shipperId, "Đã nhận hàng");
 		List<String> formattedDates = new ArrayList<>();
         List<String> phoneNumbers = new ArrayList<>();
@@ -167,8 +167,8 @@ public class ShipperController {
 	}
 	
 	@PostMapping("/complete-order/{orderId}")
-	public ResponseEntity<Map<String, Object>> completeOrder(@PathVariable Long orderId, HttpSession session) {
-	    Long shipperId = (Long) session.getAttribute("user0");
+	public ResponseEntity<Map<String, Object>> completeOrder(@PathVariable String orderId, HttpSession session) {
+		String shipperId = (String) session.getAttribute("user0");
 	    Map<String, Object> response = new HashMap<>();
 	    try {
 	        Order order = orderService.getOrderById(orderId);
@@ -220,11 +220,11 @@ public class ShipperController {
 	
 	@GetMapping("/completed-orders")
 	public String getCompletedOrders(Model model, HttpSession session) {
-		Long shipperId = (Long) session.getAttribute("user0");
+		String shipperId = (String) session.getAttribute("user0");
 	    
 	    // Lấy các đơn hàng đã hoàn thành của shipper
 	    List<Order> completedOrders = notificationRepository
-	            .findDistinctOrdersByUser_UserIdAndOrderStatus(shipperId, "Đã nhận hàng")
+	            .findDistinctOrdersByUserIdAndOrderStatus(shipperId, "Đã nhận hàng")
 	            .stream()
 	            .map(Notification::getOrder)
 	            .distinct()
@@ -270,7 +270,7 @@ public class ShipperController {
 	@GetMapping("/in-progress-orders")
 	public String getShippingOrders(Model model, HttpSession session) {
 	    // Lấy ID của shipper từ session
-	    Long shipperId = (Long) session.getAttribute("user0");
+	    String shipperId = (String) session.getAttribute("user0");
 	    
 	    // Lấy danh sách đơn hàng đang giao bởi shipper này
 	    List<Order> shippingOrders = orderService.getOrdersByShipperAndStatus(shipperId, "Đang giao");

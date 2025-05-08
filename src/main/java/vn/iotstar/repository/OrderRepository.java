@@ -3,71 +3,93 @@ package vn.iotstar.repository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.mongodb.repository.Aggregation;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import vn.iotstar.entity.Order;
 
-public interface OrderRepository extends JpaRepository<Order, Long>
+public interface OrderRepository extends MongoRepository<Order, String>
 {
-	 Page<Order> findByStatusAndUserUserId(String status, Long userId, Pageable pageable);
+    @Query("{'status': ?0, 'user.$id': ?1}")
+    Page<Order> findByStatusAndUserUserId(String status, String userId, Pageable pageable);
 
-	 Page<Order> findByStatusInAndUserUserId(List<String> statuses, Long userId, Pageable pageable);
+    @Query("{'status': {$in: ?0}, 'user.$id': ?1}")
+    Page<Order> findByStatusInAndUserUserId(List<String> statuses, String userId, Pageable pageable);
 
-	 Page<Order> findByUserUserId(Long userId, Pageable pageable);
-	 
-	 Page<Order> findByUserUserIdAndStatusNot(Long userId, String status, Pageable pageable);
-	 
-	 List<Order> findByStatus(String status);
-	 
-	 Order findOrderById(Long id);
-	 
-	 List<Order> findByIdInAndStatus(List<Long> orderIds, String status);
-	 
-	// Lấy tổng số đơn hàng
-	 long countByStatus(String status);
-	 
-	 //Lấy tổng doanh thu
-	 @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status = 'Đã giao'")
-	 BigDecimal sumTotalRevenue();
-	 
-	 @Query("SELECT o FROM Order o JOIN o.user u WHERE " +
-	           "(:search IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :search, '%')) " +
-	           "OR CAST(o.id AS string) LIKE CONCAT('%', :search, '%')) " +
-	           "AND o.status = :status")
-	    Page<Order> findBySearchCriteria(@Param("search") String search, 
-	                                   @Param("status") String status, 
-	                                   Pageable pageable);
+    @Query("{'user.$id': ?0}")
+    Page<Order> findByUserUserId(String userId, Pageable pageable);
+    
+    @Query("{'user.$id': ?0, 'status': {$ne: ?1}}")
+    Page<Order> findByUserUserIdAndStatusNot(String userId, String status, Pageable pageable);
+    
+    List<Order> findByStatus(String status);
+    
+    Optional<Order> findById(String id);
+    
+    @Query("{'_id': {$in: ?0}, 'status': ?1}")
+    List<Order> findByIdInAndStatus(List<String> orderIds, String status);
+    
+    // Lấy tổng số đơn hàng
+    long countByStatus(String status);
+    
+    // Lấy tổng doanh thu - Thay đổi kiểu trả về từ BigDecimal sang Double
+    @Aggregation(pipeline = {
+        "{ $match: { status: 'Đã giao' } }",
+        "{ $group: { _id: null, total: { $sum: '$totalAmount' } } }"
+    })
+    Double sumTotalRevenue();
+    
+    @Query("{ $and: [ " +
+           "{ $or: [ " +
+           "   { 'user.username': { $regex: ?0, $options: 'i' } }, " +
+           "   { '_id': { $regex: ?0, $options: 'i' } } " +
+           "] }, " +
+           "{ 'status': ?1 } " +
+           "] }")
+    Page<Order> findBySearchCriteria(String search, String status, Pageable pageable);
 
-	   // Thêm phương thức đếm số đơn hàng theo trạng thái
-	   @Query("SELECT COUNT(o) FROM Order o WHERE o.status = :status") 
-	   long countByStatusAndHavePage(@Param("status") String status);
+    // Thêm phương thức đếm số đơn hàng theo trạng thái
+    @Query(value = "{ 'status': ?0 }", count = true)
+    long countByStatusAndHavePage(String status);
 
-	   // Thêm phương thức lấy tổng doanh thu theo trạng thái
-	   @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status = :status")
-	   BigDecimal sumTotalAmountByStatus(@Param("status") String status);
+    // Thêm phương thức lấy tổng doanh thu theo trạng thái - Thay đổi kiểu trả về từ BigDecimal sang Double
+    @Aggregation(pipeline = {
+        "{ $match: { status: ?0 } }",
+        "{ $group: { _id: null, total: { $sum: '$totalAmount' } } }"
+    })
+    Double sumTotalAmountByStatus(String status);
 
-	   // Thêm phương thức lấy đơn hàng mới nhất
-	   @Query("SELECT o FROM Order o ORDER BY o.createdAt DESC")
-	   List<Order> findLatestOrders(Pageable pageable);
+    // Sửa phương thức lấy đơn hàng mới nhất
+    @Query(value = "{}", sort = "{ 'createdAt': -1 }")
+    List<Order> findLatestOrders(Pageable pageable);
+    
+    // Hoặc thay thế bằng phương thức có tên tuân theo quy tắc đặt tên
+    // List<Order> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
-	   @Query("SELECT o FROM Order o JOIN o.user u WHERE " +
-	           "LOWER(u.username) LIKE LOWER(CONCAT('%', :search, '%')) " +
-	           "OR CAST(o.id AS string) LIKE CONCAT('%', :search, '%')")
-	    Page<Order> findBySearchOnly(@Param("search") String search, Pageable pageable);
-	   
-	   Page<Order> findByStatus(String status, Pageable pageable);
-	   
-	   @Query("SELECT o FROM Order o WHERE o.id = :id OR LOWER(o.user.username) LIKE LOWER(CONCAT('%', :username, '%'))")
-	   Page<Order> searchOrders(@Param("id") Long id, @Param("username") String username, Pageable pageable);
-	   
-	   List<Order> findByCreatedAtBetweenAndStatus(
-		        LocalDateTime startDate, 
-		        LocalDateTime endDate, 
-		        String status
-		    );
+    @Query("{ $or: [ " +
+           "{ 'user.username': { $regex: ?0, $options: 'i' } }, " +
+           "{ '_id': { $regex: ?0, $options: 'i' } } " +
+           "] }")
+    Page<Order> findBySearchOnly(String search, Pageable pageable);
+    
+    Page<Order> findByStatus(String status, Pageable pageable);
+    
+    @Query("{ $or: [ " +
+           "{ '_id': ?0 }, " +
+           "{ 'user.username': { $regex: ?1, $options: 'i' } } " +
+           "] }")
+    Page<Order> searchOrders(String id, String username, Pageable pageable);
+    
+    @Query("{ 'createdAt': { $gte: ?0, $lte: ?1 }, 'status': ?2 }")
+    List<Order> findByCreatedAtBetweenAndStatus(
+        LocalDateTime startDate, 
+        LocalDateTime endDate, 
+        String status
+    );
 }

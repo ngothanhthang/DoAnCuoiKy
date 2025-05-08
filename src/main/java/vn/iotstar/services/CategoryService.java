@@ -7,21 +7,20 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CategoryService {
-
-    // Lấy tất cả danh mục
     List<Category> getAllCategories();
-
-    // Lấy danh mục theo ID
-    Optional<Category> getCategoryById(Long id);
-
-    // Lấy danh sách danh mục với phân trang
+    
+    Optional<Category> getCategoryById(String id); // Đã chuyển từ Long sang String
+    
     Page<Category> getCategoriesPage(int page, int size);
-
-    // Lưu danh mục mới
+    
+    Page<Category> getCategories(int pageNumber);
+    
     Category saveCategory(Category category);
-
-    // Xóa danh mục theo ID
-    void deleteCategoryById(Long id);
-
-	Page<Category> getCategories(int pageNumber);
+    
+    void deleteCategoryById(String id); // Đã chuyển từ Long sang String
+    
+    // Thêm các phương thức mới
+    Category findByName(String name);
+    
+    List<Category> findByStatus(boolean status);
 }

@@ -61,7 +61,7 @@ public class AdminProductController {
     
     // Duyệt sản phẩm
     @GetMapping("/approve-product/{id}")
-    public String approveProduct(@PathVariable Long id) {
+    public String approveProduct(@PathVariable String id) {
         Product product= productService.getProductById(id);
         
         product.setProductStatus(1); // Đặt trạng thái đã duyệt
@@ -72,7 +72,7 @@ public class AdminProductController {
     
     // Xóa sản phẩm
     @GetMapping("/delete-product/{id}")
-    public String deleteProduct(@PathVariable Long id) {
+    public String deleteProduct(@PathVariable String id) {
         productService.deleteProduct(id);
         return "redirect:/admin/products/approved";
     }

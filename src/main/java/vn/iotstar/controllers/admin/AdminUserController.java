@@ -86,7 +86,7 @@ public class AdminUserController {
     }
 
     @GetMapping("/edit-user/{id}")
-    public String edit(@PathVariable Long id, Model model) {
+    public String edit(@PathVariable String id, Model model) {
         Optional<User> userOptional = userService.getUserById(id);
         if (userOptional.isPresent()) {
             model.addAttribute("user", userOptional.get());
@@ -96,7 +96,7 @@ public class AdminUserController {
     }
 
     @PostMapping("/edit-user/{id}")
-    public String updateUser(@PathVariable Long id,
+    public String updateUser(@PathVariable String id,
                             @RequestParam("username") String username,
                             @RequestParam("password") String password,
                             @RequestParam("email") String email,
@@ -129,7 +129,7 @@ public class AdminUserController {
     }
 
     @GetMapping("/delete-user/{id}")
-    public String deleteUser(@PathVariable Long id) {
+    public String deleteUser(@PathVariable String id) {
         try {
             userService.deleteUserById(id);
             return "redirect:/admin/admin_users";

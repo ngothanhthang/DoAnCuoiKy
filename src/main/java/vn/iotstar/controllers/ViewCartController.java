@@ -25,7 +25,7 @@ public class ViewCartController {
  // Xem giỏ hàng
     @GetMapping("/view")
     public String viewCart(HttpSession session, Model model) {
-        Long userId = (Long) session.getAttribute("user0");
+        String userId = (String) session.getAttribute("user0");
         if (userId == null) {
         	return "redirect:/users/login";
         }
@@ -41,14 +41,14 @@ public class ViewCartController {
     }
     
     @GetMapping("/increaseQuantity")
-    public String increaseQuantity(@RequestParam Long cartItemId) {
+    public String increaseQuantity(@RequestParam String cartItemId) {
         // Tăng số lượng sản phẩm trong giỏ hàng
         cartService.changeQuantity(cartItemId, 1); // Thêm 1 vào số lượng
         return "redirect:/cart/view";
     }
 
     @GetMapping("/decreaseQuantity")
-    public String decreaseQuantity(@RequestParam Long cartItemId) {
+    public String decreaseQuantity(@RequestParam String cartItemId) {
         // Giảm số lượng sản phẩm trong giỏ hàng
         cartService.changeQuantity(cartItemId, -1); // Giảm 1 vào số lượng
         return "redirect:/cart/view";
@@ -56,7 +56,7 @@ public class ViewCartController {
     
  // Xử lý xóa sản phẩm khỏi giỏ hàng
     @GetMapping("/delete")
-    public String deleteCartItem(@RequestParam("cartItemId") Long cartItemId) {
+    public String deleteCartItem(@RequestParam("cartItemId") String cartItemId) {
         try {
             cartService.removeItemFromCart(cartItemId);  // Gọi service để xóa sản phẩm khỏi giỏ hàng
             return "redirect:/cart/view";  // Sau khi xóa, chuyển hướng lại trang giỏ hàng

@@ -3,6 +3,8 @@
 
 package vn.iotstar.services;
 
+import java.util.Optional;
+
 import vn.iotstar.entity.Cart;
 import vn.iotstar.entity.CartItem;
 import vn.iotstar.entity.User;
@@ -10,21 +12,21 @@ import vn.iotstar.entity.User;
 public interface CartService {
 
     // Phương thức thêm sản phẩm vào giỏ hàng
-    Cart addToCart(Long userId, Long productId, int quantity);
+    Cart addToCart(String userId, String productId, int quantity);
 
-	Cart getCartByUserId(Long userId);
+	Cart getCartByUserId(String userId);
 
-	void changeQuantity(Long cartItemId, int change);
+	void changeQuantity(String cartItemId, int change);
 
-	void removeItemFromCart(Long cartItemId);
+	void removeItemFromCart(String cartItemId);
 
-	CartItem getItemById(Long itemId);
+	CartItem getItemById(String itemId);
 
 	void save(Cart cart);
 
 	Cart findCartByUser(User user);
 
-	int getTotalCartItemCount(User user);
+	int getTotalCartItemCount(Optional<User> user);
 
-	int getCartItemCount(Long userId);
+	int getCartItemCount(String userId);
 }

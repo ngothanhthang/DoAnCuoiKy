@@ -27,10 +27,10 @@ public class CartApiController {
     
     @GetMapping("/count")
     public ResponseEntity<Integer> getCartItemCount(HttpSession session) {
-        Long userId = (Long) session.getAttribute("user0");
-        if (userId == null) {
-            userId = 1L; // Giá trị mặc định
-        }
+        String userId = (String) session.getAttribute("user0");
+		/*
+		 * if (userId == null) { userId = 1L; // Giá trị mặc định }
+		 */
         int count = cartService.getCartItemCount(userId);
         return ResponseEntity.ok(count);
     }
@@ -38,7 +38,7 @@ public class CartApiController {
     @GetMapping("/getCartItems")
     public ResponseEntity<Map<String, Object>> getCartItems(HttpSession session) {
         try {
-            Long userId = (Long) session.getAttribute("user0");
+            String userId = (String) session.getAttribute("user0");
             if (userId == null) {
             }
             

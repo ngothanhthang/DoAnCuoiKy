@@ -1,19 +1,22 @@
 package vn.iotstar.dto;
 
 public class CategoryDTO_2 {
-	private Long id;
+    private String id;  // Thay đổi từ Long sang String
     private String name;
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
     
+    public String getId() {  // Thay đổi kiểu trả về
+        return id;
+    }
+    
+    public void setId(String id) {  // Thay đổi kiểu tham số
+        this.id = id;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
 }

@@ -30,7 +30,6 @@ import vn.iotstar.entity.Order;
 import vn.iotstar.entity.OrderItem;
 import vn.iotstar.entity.User;
 import vn.iotstar.entity.UserCoupon;
-import vn.iotstar.repository.CartItemRepository;
 import vn.iotstar.repository.UserRepository;
 import vn.iotstar.services.AddressService;
 import vn.iotstar.services.CartItemService;
@@ -53,8 +52,7 @@ public class OrderViewController {
     private OrderService orderService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private CartItemService cartItemService;
+    
     @Autowired
     private AddressService addressService;
     @Autowired
@@ -71,19 +69,20 @@ public class OrderViewController {
     private ReviewService reviewService;
     
     @GetMapping("/summary/{orderId}")
-    public String orderSummary(@PathVariable("orderId") Long orderId, @RequestParam(required = false) List<Long> selectedItems, Model model, HttpSession session) {
+    public String orderSummary(@PathVariable("orderId") String orderId, @RequestParam(required = false) List<Long> selectedItems, Model model, HttpSession session) {
     	// Khởi tạo Logger
         Logger logger = LoggerFactory.getLogger(OrderController.class);
      // In thử selectedItems vào log để xem kết quả
         logger.info("Selected items: " + (selectedItems != null ? selectedItems.toString() : "No selected items"));
-        Long userId = (Long) session.getAttribute("user0");
-        if (userId == null) {
-            userId = 1L;  // Giả sử là userId = 1 nếu không tìm thấy
-        }
+        String userId = (String) session.getAttribute("user0");
+		/*
+		 * if (userId == null) { userId = 1L; // Giả sử là userId = 1 nếu không tìm thấy
+		 * }
+		 */
 
         // Kiểm tra quyền truy cập: đảm bảo đơn hàng thuộc về người dùng
         Order order = orderService.getOrderById(orderId);
-        if (order == null || !order.getUser().getUserId().equals(userId)) {
+        if (order == null || !order.getUser().getId().equals(userId)) {
             model.addAttribute("message", "Không tìm thấy đơn hàng hoặc bạn không có quyền truy cập.");
             return "error";  // Trang lỗi nếu không hợp lệ
         }
@@ -112,9 +111,9 @@ public class OrderViewController {
             HttpSession session) {
 
         // Lấy userId từ session
-        Long userId = (Long) session.getAttribute("user0");
+        String userId = (String) session.getAttribute("user0");
         if (userId == null) {
-            userId = 1L; // Giá trị mặc định nếu userId không có trong session
+            userId = "1"; // Giá trị mặc định nếu userId không có trong session
         }
 
         // Khởi tạo đối tượng Pageable
@@ -169,16 +168,16 @@ public class OrderViewController {
 
     
 	@GetMapping("/purchases")
-    public String updateOrderStatus(@RequestParam("orderId") Long orderId,
-                                    @RequestParam("selectedItem") List<Long> selectedItems,
+    public String updateOrderStatus(@RequestParam("orderId") String orderId,
+                                    @RequestParam("selectedItem") List<String> selectedItems,
                                     @RequestParam("paymentMethod") String paymentMethod,
                                     @RequestParam("newTotalAmount") BigDecimal newTotalAmount,
                                     @RequestParam(value = "voucherCode", required = false) String voucherCode,
                                     Model model,
                                     HttpSession session) {
-    	Long userId = (Long) session.getAttribute("user0");
+    	String userId = (String) session.getAttribute("user0");
         if (userId == null) {
-            userId = 1L;
+            userId = "1";
         }
         User user = userService.findById(userId);
         // Lấy đơn hàng theo orderId
@@ -211,7 +210,8 @@ public class OrderViewController {
             order.setPaymentMethod(paymentMethod);
             order.setTotalAmount(newTotalAmount);
             orderService.save(order);
-         // Tạo thông báo mới sau khi cập nhật trạng thái đơn hàng
+            
+            // Tạo thông báo mới sau khi cập nhật trạng thái đơn hàng
             Notification notification = new Notification();
             Date date = new Date();
             // Cập nhật thông tin cho notification
@@ -224,19 +224,27 @@ public class OrderViewController {
             
             // Lưu thông báo vào cơ sở dữ liệu
             notificationService.save(notification);  // Lưu thông báo vào DB
-            
-        }     
+        }
+
         Cart cart = cartService.getCartByUserId(userId);
 
-        if (cart != null) {
+        if (cart != null && cart.getCartItems() != null) {
+            // Tạo một bản sao của danh sách các CartItem để tránh ConcurrentModificationException
+            List<CartItem> updatedCartItems = new ArrayList<>(cart.getCartItems());
+            
             // Duyệt qua danh sách selectedItems và xóa các sản phẩm trong giỏ hàng
-
-            for (Long selectedItemId : selectedItems) {
-               cartItemService.deleteCardItem(selectedItemId);
+            for (String selectedItemId : selectedItems) {
+                // Xóa CartItem khỏi danh sách dựa trên ID
+                updatedCartItems.removeIf(item -> item.getId().equals(selectedItemId));
             }
+            
+            // Cập nhật danh sách CartItems trong giỏ hàng
+            cart.setCartItems(updatedCartItems);
+            
             // Lưu lại giỏ hàng sau khi xóa sản phẩm
             cartService.save(cart);
         }
+
         // Sau khi cập nhật, chuyển hướng đến trang danh sách đơn hàng
         return "redirect:/order/purchase?status=1";
     }
