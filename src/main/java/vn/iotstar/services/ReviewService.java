@@ -14,7 +14,5 @@ public interface ReviewService {
 
     Review findByUserAndProduct(User user, Product product);
     
-    boolean hasUserReviewedProduct(String userId, String productId);
-
     Review findByUserIdAndProductId(String userId, String productId);
 }

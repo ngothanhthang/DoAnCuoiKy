@@ -233,17 +233,37 @@ public class OrderServiceImpl implements OrderService{
 
     @Override
     public List<Order> getOrdersByShipperAndStatus(String shipperId, String status) {
+        // In ra shipperId và status để kiểm tra
+        System.out.println("Debug - Shipper ID: " + shipperId);
+        System.out.println("Debug - Status: " + status);
+
         // Tìm các notification của shipper và status đã nhận giao
         List<Notification> notifications = notificationRepository.findByUserIdAndStatus(shipperId, "đã nhận giao");
         
+        // In ra số lượng notifications
+        System.out.println("Debug - Notifications count: " + notifications.size());
+
         // Lấy các orderId từ notifications
         List<String> orderIds = notifications.stream()
-                .map(notification -> notification.getOrder().getId())
+                .map(notification -> {
+                    // In ra thông tin từng notification
+                    System.out.println("Debug - Notification Order ID: " + notification.getOrder().getId());
+                    return notification.getOrder().getId();
+                })
                 .collect(Collectors.toList());
         
+        // In ra danh sách orderIds
+        System.out.println("Debug - Order IDs: " + orderIds);
+
         // Trả về các order có id nằm trong danh sách và có status được chỉ định
-        return orderRepository.findByIdInAndStatus(orderIds, status);
+        List<Order> orders = orderRepository.findByIdInAndStatus(orderIds, status);
+        
+        // In ra số lượng orders cuối cùng
+        System.out.println("Debug - Final Orders count: " + orders.size());
+
+        return orders;
     }
+
 
     @Override
     public Page<Order> getOrders(String search, String status, int page, int size) {

@@ -32,9 +32,11 @@ public class AddressController {
 
     // Hiển thị form thêm hoặc cập nhật địa chỉ
     @PostMapping("/save")
-    public String saveAddress(@ModelAttribute Address address, @RequestParam String orderId, @RequestParam List<String> selectedItems, @RequestParam boolean isDefault, HttpSession session, Model model
+    public String saveAddress(@ModelAttribute Address address, @RequestParam  String orderId, @RequestParam List<String> selectedItems, @RequestParam boolean isDefault, HttpSession session, Model model
     		,RedirectAttributes redirectAttributes) {
+    	
     	Logger logger = LoggerFactory.getLogger(this.getClass());
+    	logger.info("orderid", orderId);
     	Long orderIdLong;
         try {
             orderIdLong = Long.parseLong(orderId);

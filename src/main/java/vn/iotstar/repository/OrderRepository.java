@@ -16,16 +16,17 @@ import vn.iotstar.entity.Order;
 
 public interface OrderRepository extends MongoRepository<Order, String>
 {
-    @Query("{'status': ?0, 'user.$id': ?1}")
-    Page<Order> findByStatusAndUserUserId(String status, String userId, Pageable pageable);
+	@Query("{'status': ?0, 'user.$id': ObjectId(?1)}")
+	Page<Order> findByStatusAndUserUserId(String status, String userId, Pageable pageable);
 
-    @Query("{'status': {$in: ?0}, 'user.$id': ?1}")
+
+    @Query("{'status': {$in: ?0}, 'user.$id': ObjectId(?1)}")
     Page<Order> findByStatusInAndUserUserId(List<String> statuses, String userId, Pageable pageable);
 
-    @Query("{'user.$id': ?0}")
+    @Query("{'user.$id': ObjectId(?0)}")
     Page<Order> findByUserUserId(String userId, Pageable pageable);
     
-    @Query("{'user.$id': ?0, 'status': {$ne: ?1}}")
+    @Query("{'user.$id': ObjectId(?0), 'status': {$ne: ?1}}")
     Page<Order> findByUserUserIdAndStatusNot(String userId, String status, Pageable pageable);
     
     List<Order> findByStatus(String status);

@@ -35,11 +35,13 @@ public interface ReviewRepository extends MongoRepository<Review, String> {
     Review findByUserAndProduct(User user, Product product);
     
     // Kiểm tra đánh giá tồn tại theo userId và productId
-    @Query("{ 'user.$id': ?0, 'product.$id': ?1 }")
-    boolean existsByUserIdAndProductId(String userId, String productId);
+    @Query(value = "{ 'user.$id': ObjectId(?0), 'product.$id': ObjectId(?1) }", count = true)
+    long countByUserIdAndProductId(String userId, String productId);
+
+
     
     // Tìm đánh giá theo userId và productId
-    @Query("{ 'user.$id': ?0, 'product.$id': ?1 }")
+    @Query("{ 'user.$id': ObjectId(?0), 'product.$id': ObjectId(?1) }")
     Review findByUserIdAndProductId(String userId, String productId);
 }
 

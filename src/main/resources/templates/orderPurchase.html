@@ -445,7 +445,7 @@
                         </div>
                     </div>
                     <div class="order-total">
-                        <div th:if="${order.status == 'Đang giao' or order.status == 'Đã nhận hàng' && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
+                        <div th:if="${order.status == 'Đang giao' or order.status == 'Đã nhận hàng' && order.createdAt != null && T(java.time.LocalDate).now().minusDays(15).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
                             <button class="order-return-button confirm-delivery-button"
                                     th:class="${order.status == 'Đã nhận hàng' ? 'order-return-button disabled' : 'order-return-button'}"
                                     th:text="${order.status == 'Đã nhận hàng' ? 'Đã nhận hàng' : 'Xác nhận'}"
@@ -474,7 +474,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div th:if="${order.status == 'Đã giao' or order.status == 'Đang duyệt' && T(java.time.LocalDate).now().minusDays(7).isBefore(T(java.time.LocalDate).from(order.createdAt))}">
+                        <div th:if="${order != null and ((order.status == 'Đã giao') or (order.status == 'Đang duyệt' and order.createdAt != null and T(java.time.LocalDate).now().minusDays(7).isBefore(T(java.time.LocalDate).from(order.createdAt))))}">
                             <button class="order-return-button"
                                     th:class="${order.status == 'Đang duyệt' ? 'order-return-button disabled' : 'order-return-button'}"
                                     th:text="${order.status == 'Đang duyệt' ? 'Đang duyệt' : 'Trả hàng'}"

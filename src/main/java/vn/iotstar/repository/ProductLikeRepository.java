@@ -9,4 +9,5 @@ import vn.iotstar.entity.User;
 
 public interface ProductLikeRepository extends MongoRepository<ProductLike, String>{
 	 ProductLike findByProductAndUser(Product product, User user);
+	 long countByProduct_Id(String productId);
 }

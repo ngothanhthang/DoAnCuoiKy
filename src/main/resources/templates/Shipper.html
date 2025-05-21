@@ -193,19 +193,21 @@
                     <div class="btn-group" role="group" aria-label="Order Actions">
                         <!-- Nút Nhận Giao, chỉ hiển thị nếu trạng thái là 'Đã xác nhận' -->
                         <a th:if="${order.status == 'Đã xác nhận'}"
-                           href="javascript:void(0);"
-                           class="btn btn-primary"
-                           th:onclick="|receiveOrder(${order.id})|">
-                            <i class="fas fa-truck"></i> Nhận Giao
-                        </a>
+						   th:data-order-id="${order.id}"
+						   href="javascript:void(0);"
+						   class="btn btn-primary receive-order-btn">
+						    <i class="fas fa-truck"></i> Nhận Giao
+						</a>
 
                         <!-- New Hoàn Thành button -->
                         <a th:if="${order.status == 'Đã nhận hàng'}"
-                           href="javascript:void(0);"
-                           class="btn btn-success"
-                           th:onclick="|completeOrder(${order.id})|">
-                            <i class="fas fa-check"></i> Xác nhận giao xong
-                        </a>
+   th:href="@{#}"
+   class="btn btn-success"
+   th:data-order-id="${order.id}"
+   onclick="completeOrder(this.getAttribute('data-order-id'))">
+    <i class="fas fa-check"></i> Xác nhận giao xong
+</a>
+
 
                     </div>
                 </div>
@@ -223,6 +225,15 @@
 
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const receiveOrderButtons = document.querySelectorAll('.receive-order-btn');
+    receiveOrderButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-order-id');
+            receiveOrder(orderId);
+        });
+    });
+});
     function receiveOrder(orderId) {
         // Giả sử shipperId lấy từ session hoặc từ API
         let shipperId = '[[${session.user0}]]';

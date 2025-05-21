@@ -9,6 +9,7 @@ import lombok.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -47,17 +48,40 @@ public class Product implements Serializable {
     private LocalDateTime createdAt = LocalDateTime.now();
     
     @DBRef(lazy = true)
-    private List<OrderItem> orderItems;
+    private List<OrderItem> orderItems = new ArrayList<>();
     
     @DBRef(lazy = true)
-    private List<Review> reviews;
+    private List<Review> reviews = new ArrayList<>();
     
     @DBRef(lazy = true)
-    private List<ProductLike> productLikes;
+    private List<ProductLike> productLikes = new ArrayList<>();
 
     @Field("product_status")
     private int productStatus;
+    
+    // Thêm các phương thức getter an toàn
+    public List<OrderItem> getOrderItems() {
+        if (orderItems == null) {
+            orderItems = new ArrayList<>();
+        }
+        return orderItems;
+    }
+    
+    public List<Review> getReviews() {
+        if (reviews == null) {
+            reviews = new ArrayList<>();
+        }
+        return reviews;
+    }
+    
+    public List<ProductLike> getProductLikes() {
+        if (productLikes == null) {
+            productLikes = new ArrayList<>();
+        }
+        return productLikes;
+    }
 }
+
 
 /*
  * package vn.iotstar.entity;

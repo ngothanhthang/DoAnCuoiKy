@@ -22,7 +22,12 @@ import java.util.List;
 @Document(collection = "users")
 @Builder
 public class User implements UserDetails {
-    @Id
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	@Id
     private String id;
 
     private String username;

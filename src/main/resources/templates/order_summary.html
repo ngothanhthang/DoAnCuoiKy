@@ -797,43 +797,51 @@
         document.getElementById('selectedItem').value = selectedItems.join(','); */
 
         // Lấy orderId từ URL
-        var url = window.location.href;  // Lấy URL hiện tại
-        var urlWithoutQuery = url.split('?')[0];  // Cắt URL để loại bỏ phần query string (bỏ qua ?selectedItems=18)
-        var segments = urlWithoutQuery.split('/');  // Tách URL đã cắt theo dấu "/"
+        function getOrderIdFromUrl() {
+    // Lấy URL hiện tại
+    var url = window.location.href;
+    
+    // Tách URL theo dấu "/"
+    var segments = url.split('/');
+    
+    // orderId là phần tử cuối cùng trước dấu "?" (nếu có)
+    var lastSegment = segments[segments.length - 1];
+    
+    // Nếu phần cuối có chứa "?", cắt phần trước "?"
+    if (lastSegment.includes('?')) {
+        lastSegment = lastSegment.split('?')[0];
+    }
+    
+    // Kiểm tra nếu phần cuối không phải là "summary" (trường hợp URL không có orderId)
+    if (lastSegment === "summary") {
+        return '';
+    }
+    
+    console.log("Extracted Order ID:", lastSegment);
+    return String(lastSegment); // Đảm bảo trả về chuỗi
+}
+        
 
-        // Lấy orderId từ URL (vẫn giữ nguyên cách cũ)
-        var orderId = segments.find(function (segment) {
-            return !isNaN(segment) && segment !== '' && segment !== 'summary';
+        document.addEventListener('DOMContentLoaded', function() {
+            var orderId = getOrderIdFromUrl();
+            console.log("Extracted Order ID:", orderId); 
+            document.getElementById("orderId").value = orderId || '';
         });
-        // Lấy URL hiện tại
-        var url = window.location.href;
 
-        // Tách URL trước dấu "?" để lấy phần đường dẫn chính
-        var urlWithoutQuery = url.split('?')[0];
+// Lấy orderId
+var orderId = getOrderIdFromUrl();
+console.log("Extracted Order ID:",orderId); 
 
-        // Tách URL theo dấu "/" để lấy orderId
-        var segments = urlWithoutQuery.split('/');
+// Gán giá trị orderId vào ô input
+document.getElementById("orderId").value = orderId;
 
-        // Lấy orderId từ URL (phần cuối trước query string)
-        var orderId = segments.find(function (segment) {
-            return !isNaN(segment) && segment !== '' && segment !== 'summary';
-        });
-        // Lấy phần query string (sau dấu "?")
-        var queryString = url.split('?')[1];
+// Lấy selectedItems từ query string
+var urlParams = new URLSearchParams(window.location.search);
+var selectedItems = urlParams.getAll('selectedItems');
 
-        // Tách query string theo dấu "&"
-        var queryParams = queryString ? queryString.split('&') : [];
+// Gán giá trị selectedItems vào input hidden
+document.getElementById('selectedItems').value = selectedItems.join(',');
 
-        // Lấy tất cả các giá trị của selectedItems
-        var selectedItems = queryParams
-            .filter(function (param) {
-                return param.startsWith('selectedItems=');
-            })
-            .map(function (param) {
-                return param.split('=')[1];
-            });
-        // Gán giá trị selectedItems vào input hidden dưới dạng chuỗi "21,22"
-        document.getElementById('selectedItems').value = selectedItems.join(',');
         // Gán giá trị orderId vào ô input
         document.getElementById("orderId").value = orderId || '';
 
@@ -880,7 +888,7 @@
             isDefaultHidden.value = this.checked ? 'true' : 'false';
         });
 
-        function submitOrder() {
+        /* function submitOrder() {
             const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
             const orderId = document.getElementById('orderId').value;
             const selectedItems = document.getElementById('selectedItems').value;
@@ -891,7 +899,7 @@
             document.getElementById('voucherCodeInput').value = voucherCode;
             // Chuyển hướng với thêm tham số paymentMethod
             window.location.href = `/order/purchases?orderId=${orderId}&selectedItem=${selectedItems}&paymentMethod=${paymentMethod}&newTotalAmount=${newTotalAmount}&voucherCode=${voucherCode}`;
-        }
+        } */
 
      // Hàm định dạng số tiền để hiển thị
         function formatCurrency(amount) {
@@ -975,7 +983,7 @@
             }
 
             const paymentMethod = paymentMethodElement.value;
-            const orderId = document.getElementById('orderId').value;
+            const orderId = String(document.getElementById('orderId').value);
             const selectedItems = document.getElementById('selectedItems').value;
             const voucherCode = document.getElementById('voucherCode').value;
 

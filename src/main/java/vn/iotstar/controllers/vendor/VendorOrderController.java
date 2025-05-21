@@ -4,6 +4,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -63,8 +64,10 @@ public class VendorOrderController
 
 	        // Xử lý dữ liệu cho từng đơn hàng trong trang hiện tại
 	        for (Order order : orderPage.getContent()) {
-	            String formattedDate = order.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-	            formattedDates.add(formattedDate);
+	        	String formattedDate = Optional.ofNullable(order.getCreatedAt())
+	                    .map(createdAt -> createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+	                    .orElse("Chưa xác định"); // Giá trị mặc định nếu createdAt null
+	                formattedDates.add(formattedDate);
 	            
 	            String phoneNumber = null;
 	            Address defaultAddress = null;

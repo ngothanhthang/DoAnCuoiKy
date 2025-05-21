@@ -18,10 +18,10 @@ public interface NotificationRepository extends MongoRepository<Notification, St
     
     // Tìm thông báo theo userId và trạng thái
     // Lưu ý: Trong MongoDB, cần sử dụng id của user thay vì userId
-    @Query("{'user.$id': ?0, 'status': ?1}")
+    @Query("{'user.$id': ObjectId(?0), 'status': ?1}")
     List<Notification> findByUserIdAndStatus(String userId, String status);
     
     // Tìm các thông báo phân biệt theo userId và trạng thái đơn hàng
-    @Query("{'user.$id': ?0, 'order.status': ?1}")
+    @Query("{'user.$id': ObjectId(?0), 'order.status': ?1}")
     List<Notification> findDistinctOrdersByUserIdAndOrderStatus(String userId, String orderStatus);
 }

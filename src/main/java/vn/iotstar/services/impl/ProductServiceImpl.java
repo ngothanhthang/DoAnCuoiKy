@@ -19,8 +19,13 @@ import vn.iotstar.repository.CategoryRepository;
 import vn.iotstar.repository.ProductRepository;
 import vn.iotstar.services.ProductService;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,63 +43,162 @@ public class ProductServiceImpl implements ProductService {
     private MongoTemplate mongoTemplate;
 
     // Lấy sản phẩm theo danh mục, status và phân trang
+    @Override
     public Page<ProductDTO> getProductsByCategory(String categoryId, int status, Pageable pageable) {
-        // Tạo các stage cho aggregation pipeline
-        MatchOperation matchStage = Aggregation.match(
-            Criteria.where("category.$id").is(new ObjectId(categoryId))
-                .and("status").is(status)
-                .and("product_status").is(1)  // Sửa thành product_status và giá trị 0
-        );
-        
-        // Sắp xếp theo thứ tự được chỉ định trong pageable
-        SortOperation sortStage = null;
-        if (pageable.getSort().isSorted()) {
-            List<AggregationOperation> sortOperations = new ArrayList<>();
-            pageable.getSort().forEach(order -> {
-                Direction direction = order.getDirection().isAscending() ? Direction.ASC : Direction.DESC;
-                sortOperations.add(Aggregation.sort(direction, order.getProperty()));
-            });
-            if (!sortOperations.isEmpty()) {
-                sortStage = (SortOperation) sortOperations.get(0);
-            }
-        } else {
-            // Mặc định sắp xếp theo thời gian tạo giảm dần nếu không có sắp xếp được chỉ định
-            sortStage = Aggregation.sort(Sort.Direction.DESC, "created_at");
+        // Tạo ObjectId từ categoryId
+        ObjectId categoryObjectId;
+        try {
+            categoryObjectId = new ObjectId(categoryId);
+        } catch (Exception e) {
+            System.out.println("Invalid categoryId format: " + e.getMessage());
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
         }
         
-        // Thêm stage phân trang
-        SkipOperation skipStage = Aggregation.skip(pageable.getOffset());
-        LimitOperation limitStage = Aggregation.limit(pageable.getPageSize());
+        // Tạo criteria
+        Criteria criteria = new Criteria();
+        List<Criteria> conditions = new ArrayList<>();
+        
+        // Thêm điều kiện category
+        conditions.add(Criteria.where("category.$id").is(categoryObjectId));
+        
+        // Thêm điều kiện status nếu khác -1 (giả sử -1 là "tất cả status")
+        if (status != -1) {
+            conditions.add(Criteria.where("status").is(status));
+        }
+        
+        // Luôn thêm điều kiện product_status
+        conditions.add(Criteria.where("product_status").is(1));
+        
+        // Kết hợp tất cả điều kiện
+        criteria.andOperator(conditions.toArray(new Criteria[0]));
+        
+        // Tạo match stage với criteria đã xây dựng
+        MatchOperation matchStage = Aggregation.match(criteria);
+        
+        // Các stage lookup giữ nguyên
+        LookupOperation lookupReviews = Aggregation.lookup("reviews", "_id", "product.$id", "reviewsData");
+        LookupOperation lookupOrderItems = Aggregation.lookup("orderItems", "_id", "product.$id", "orderItemsData");
+        
+        // Projection stage
+        ProjectionOperation projectStage = Aggregation.project()
+            .and("_id").as("id")
+            .and("product_name").as("name")
+            .and("status").as("status")
+            .and("description").as("description")
+            .and("price").as("price")
+            .and("quantity").as("quantity")
+            .and("image_url").as("imageUrl")
+            .and("category.$id").as("categoryId")
+            .and("category.name").as("categoryName")
+            .and("created_at").as("createdAt")
+            .andExpression("{ $avg: '$reviewsData.rating' }").as("averageRating")
+            .andExpression("{ $sum: '$orderItemsData.quantity' }").as("totalSold");
         
         // Tạo aggregation pipeline
         List<AggregationOperation> operations = new ArrayList<>();
         operations.add(matchStage);
-        if (sortStage != null) {
+        operations.add(lookupReviews);
+        operations.add(lookupOrderItems);
+        operations.add(projectStage);
+        
+        // Thêm sorting nếu có
+        if (pageable.getSort().isSorted()) {
+            SortOperation sortStage = Aggregation.sort(pageable.getSort());
             operations.add(sortStage);
         }
-        operations.add(skipStage);
-        operations.add(limitStage);
+        
+        // Thêm phân trang
+        operations.add(Aggregation.skip((long) pageable.getPageNumber() * pageable.getPageSize()));
+        operations.add(Aggregation.limit(pageable.getPageSize()));
         
         Aggregation aggregation = Aggregation.newAggregation(operations);
         
-        // Thực hiện truy vấn
-        AggregationResults<ProductDTO> results = mongoTemplate.aggregate(
-            aggregation, "products", ProductDTO.class
+        // Thực hiện aggregation và ghi log kết quả
+        AggregationResults<Document> results = mongoTemplate.aggregate(
+            aggregation, "products", Document.class
         );
+                
+        // Đếm tổng số sản phẩm với cùng criteria
+        long total = mongoTemplate.count(Query.query(criteria), "products");
+        System.out.println("Total count: " + total);
         
-        // Lấy danh sách kết quả
-        List<ProductDTO> productList = results.getMappedResults();
+        // Map kết quả
+        List<ProductDTO> productDTOs = results.getMappedResults().stream()
+            .map(doc -> {
+                ProductDTO dto = new ProductDTO();
+                
+                // Xử lý ID
+                Object idObj = doc.get("id");
+                if (idObj instanceof ObjectId) {
+                    dto.setId(((ObjectId) idObj).toHexString());
+                } else if (idObj instanceof String) {
+                    dto.setId((String) idObj);
+                } else {
+                    dto.setId(idObj != null ? idObj.toString() : null);
+                }
+                
+                // Các trường khác giữ nguyên như phiên bản trước
+                dto.setName(doc.getString("name"));
+                dto.setStatus(doc.getInteger("status", 0));
+                dto.setDescription(doc.getString("description"));
+                
+             // Xử lý price là int32
+                Object priceObj = doc.get("price");
+                if (priceObj != null) {
+                    if (priceObj instanceof Integer) {
+                        // Chuyển đổi trực tiếp từ Integer sang BigDecimal
+                        dto.setPrice(BigDecimal.valueOf((Integer) priceObj));
+                    } else if (priceObj instanceof Long) {
+                        // Nếu là Long
+                        dto.setPrice(BigDecimal.valueOf((Long) priceObj));
+                    } else {
+                        // Các trường hợp khác, chuyển sang BigDecimal
+                        dto.setPrice(new BigDecimal(priceObj.toString()));
+                    }
+                } else {
+                    // Nếu giá trị price là null
+                    dto.setPrice(BigDecimal.ZERO);
+                }
+                
+                dto.setQuantity(doc.getInteger("quantity", 0));
+                dto.setImageUrl(doc.getString("imageUrl"));
+                
+                // Xử lý categoryId
+                Object categoryIdObj = doc.get("categoryId");
+                if (categoryIdObj instanceof ObjectId) {
+                    dto.setCategoryId(((ObjectId) categoryIdObj).toHexString());
+                } else if (categoryIdObj instanceof String) {
+                    dto.setCategoryId((String) categoryIdObj);
+                } else {
+                    dto.setCategoryId(categoryIdObj != null ? categoryIdObj.toString() : null);
+                }
+                
+                dto.setCategoryName(doc.getString("categoryName"));
+                
+                // Xử lý createdAt
+                Object createdAtObj = doc.get("createdAt");
+                if (createdAtObj != null) {
+                    if (createdAtObj instanceof LocalDateTime) {
+                        dto.setCreatedAt((LocalDateTime) createdAtObj);
+                    } else if (createdAtObj instanceof Date) {
+                        dto.setCreatedAt(((Date) createdAtObj).toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDateTime());
+                    }
+                }
+                
+                Double averageRating = doc.getDouble("averageRating");
+                dto.setAverageRating(averageRating != null ? Math.round(averageRating * 10.0) / 10.0 : 0.0);
+                
+                dto.setTotalSold(doc.getInteger("totalSold", 0));
+                
+                return dto;
+            })
+            .collect(Collectors.toList());
         
-        // Đếm tổng số sản phẩm thỏa mãn điều kiện (không có phân trang)
-        Aggregation countAggregation = Aggregation.newAggregation(matchStage);
-        AggregationResults<Document> countResults = mongoTemplate.aggregate(
-            countAggregation, "products", Document.class
-        );
-        long total = countResults.getMappedResults().size();
-        
-        // Tạo và trả về Page
-        return new PageImpl<>(productList, pageable, total);
+        return new PageImpl<>(productDTOs, pageable, total);
     }
+
 
 
     // Lấy tất cả các danh mục
@@ -183,29 +287,58 @@ public class ProductServiceImpl implements ProductService {
     
     @Override
     public Page<ProductDTO> searchProductsByCategory(String categoryId, String keyword, int status, Pageable pageable) {
-        // Tương tự như getProductsByCategory nhưng thêm điều kiện tìm kiếm theo keyword
-        MatchOperation matchStage = Aggregation.match(
-            Criteria.where("category.$id").is(categoryId)
-                .and("status").is(status)
-                .and("productStatus").is(1)
-                .and("name").regex(keyword, "i")
-        );
+        System.out.println("Searching with categoryId=" + categoryId + ", keyword=" + keyword + ", status=" + status);
         
-        // Các stage còn lại tương tự như getProductsByCategory
+        // Tạo ObjectId từ categoryId nếu cần
+        ObjectId categoryObjectId;
+        try {
+            categoryObjectId = new ObjectId(categoryId);
+        } catch (Exception e) {
+            System.out.println("Invalid categoryId format: " + e.getMessage());
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
+        }
+        
+        // Tạo criteria phù hợp với cấu trúc thực tế
+        Criteria criteria = new Criteria();
+        List<Criteria> conditions = new ArrayList<>();
+        
+        // Thêm điều kiện category
+        conditions.add(Criteria.where("category.$id").is(categoryObjectId));
+        
+        // Thêm điều kiện status nếu khác -1 (giả sử -1 là "tất cả status")
+        if (status != -1) {
+            conditions.add(Criteria.where("status").is(status));
+        }
+        
+        // Luôn thêm điều kiện product_status
+        conditions.add(Criteria.where("product_status").is(1));
+        
+        // Thêm điều kiện keyword nếu không rỗng
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            conditions.add(Criteria.where("product_name").regex(keyword, "i"));
+        }
+        
+        // Kết hợp tất cả điều kiện
+        criteria.andOperator(conditions.toArray(new Criteria[0]));
+        
+        // Tạo match stage với criteria đã xây dựng
+        MatchOperation matchStage = Aggregation.match(criteria);
+        
+        // Các stage khác giữ nguyên
         LookupOperation lookupReviews = Aggregation.lookup("reviews", "_id", "product.$id", "reviewsData");
         LookupOperation lookupOrderItems = Aggregation.lookup("orderItems", "_id", "product.$id", "orderItemsData");
         
         ProjectionOperation projectStage = Aggregation.project()
             .and("_id").as("id")
-            .and("name").as("name")
+            .and("product_name").as("name")
             .and("status").as("status")
             .and("description").as("description")
             .and("price").as("price")
             .and("quantity").as("quantity")
-            .and("imageUrl").as("imageUrl")
-            .and("category").as("category")
-            .and("createdAt").as("createdAt")
-            .and("productStatus").as("productStatus")
+            .and("image_url").as("imageUrl")
+            .and("category.$id").as("categoryId")
+            .and("category.name").as("categoryName")
+            .and("created_at").as("createdAt")
             .andExpression("{ $avg: '$reviewsData.rating' }").as("averageRating")
             .andExpression("{ $sum: '$orderItemsData.quantity' }").as("totalSold");
         
@@ -218,42 +351,95 @@ public class ProductServiceImpl implements ProductService {
             Aggregation.limit(pageable.getPageSize())
         );
         
+        // Thực hiện aggregation và ghi log kết quả
         AggregationResults<Document> results = mongoTemplate.aggregate(
             aggregation, "products", Document.class
         );
-        
-        long total = mongoTemplate.count(Query.query(
-            Criteria.where("category.$id").is(categoryId)
-                .and("status").is(status)
-                .and("productStatus").is(1)
-                .and("name").regex(keyword, "i")
-        ), Product.class);
-        
-        List<ProductDTO> productDTOs = results.getMappedResults().stream()
-            .map(doc -> {
-                Product product = mongoTemplate.getConverter().read(Product.class, doc);
-                Double averageRating = doc.get("averageRating", Double.class);
-                Integer totalSold = doc.get("totalSold", Integer.class);
                 
-                return new ProductDTO(
-                    product.getId(),
-                    product.getName(),
-                    product.getStatus(),
-                    product.getDescription(),
-                    product.getPrice(),
-                    product.getQuantity(),
-                    product.getImageUrl(),
-                    product.getCategory().getId(),
-                    product.getCategory().getName(),
-                    product.getCreatedAt(),
-                    averageRating != null ? Math.round(averageRating * 10.0) / 10.0 : 0,
-                    totalSold != null ? totalSold : 0
-                );
-            })
-            .collect(Collectors.toList());
+        // Đếm tổng số sản phẩm với cùng criteria
+        long total = mongoTemplate.count(Query.query(criteria), "products");
+        System.out.println("Total count: " + total);
         
-        return new PageImpl<>(productDTOs, pageable, total);
-    }
+        // Map kết quả như trước
+        List<ProductDTO> productDTOs = results.getMappedResults().stream()
+                .map(doc -> {
+                    // In ra document để debug
+                    System.out.println("Document: " + doc);
+                    
+                    ProductDTO dto = new ProductDTO();
+                    
+                    // Sửa lỗi ClassCastException - Xử lý id đúng cách
+                    Object idObj = doc.get("id");
+                    if (idObj instanceof ObjectId) {
+                        dto.setId(((ObjectId) idObj).toHexString());
+                    } else if (idObj instanceof String) {
+                        dto.setId((String) idObj);
+                    } else {
+                        dto.setId(idObj != null ? idObj.toString() : null);
+                    }
+                    
+                    dto.setName(doc.getString("name"));
+                    dto.setStatus(doc.getInteger("status", 0));
+                    dto.setDescription(doc.getString("description"));
+                    
+                 // Xử lý price là int32
+                    Object priceObj = doc.get("price");
+                    if (priceObj != null) {
+                        if (priceObj instanceof Integer) {
+                            // Chuyển đổi trực tiếp từ Integer sang BigDecimal
+                            dto.setPrice(BigDecimal.valueOf((Integer) priceObj));
+                        } else if (priceObj instanceof Long) {
+                            // Nếu là Long
+                            dto.setPrice(BigDecimal.valueOf((Long) priceObj));
+                        } else {
+                            // Các trường hợp khác, chuyển sang BigDecimal
+                            dto.setPrice(new BigDecimal(priceObj.toString()));
+                        }
+                    } else {
+                        // Nếu giá trị price là null
+                        dto.setPrice(BigDecimal.ZERO);
+                    }
+
+                    
+                    dto.setQuantity(doc.getInteger("quantity", 0));
+                    dto.setImageUrl(doc.getString("imageUrl"));
+                    
+                    // Xử lý categoryId tương tự như id
+                    Object categoryIdObj = doc.get("categoryId");
+                    if (categoryIdObj instanceof ObjectId) {
+                        dto.setCategoryId(((ObjectId) categoryIdObj).toHexString());
+                    } else if (categoryIdObj instanceof String) {
+                        dto.setCategoryId((String) categoryIdObj);
+                    } else {
+                        dto.setCategoryId(categoryIdObj != null ? categoryIdObj.toString() : null);
+                    }
+                    
+                    dto.setCategoryName(doc.getString("categoryName"));
+                    
+                    // Xử lý createdAt
+                    Object createdAtObj = doc.get("createdAt");
+                    if (createdAtObj != null) {
+                        if (createdAtObj instanceof LocalDateTime) {
+                            dto.setCreatedAt((LocalDateTime) createdAtObj);
+                        } else if (createdAtObj instanceof Date) {
+                            dto.setCreatedAt(((Date) createdAtObj).toInstant()
+                                .atZone(ZoneId.systemDefault())
+                                .toLocalDateTime());
+                        }
+                    }
+                    
+                    Double averageRating = doc.getDouble("averageRating");
+                    dto.setAverageRating(averageRating != null ? Math.round(averageRating * 10.0) / 10.0 : 0.0);
+                    
+                    dto.setTotalSold(doc.getInteger("totalSold", 0));
+                    
+                    return dto;
+                })
+                .collect(Collectors.toList());
+            
+            return new PageImpl<>(productDTOs, pageable, total);
+        }
+
     
     @Override
     public Page<Product> getApprovedProducts(int pageNum) {

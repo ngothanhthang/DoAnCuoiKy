@@ -39,7 +39,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             }
             final String authHeader = request.getHeader("Authorization");
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                if (!response.isCommitted()) { // Thêm kiểm tra này
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                }
                 return;
             }
             final String token = authHeader.substring(7);
@@ -54,11 +56,15 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 }
             }
-            filterChain.doFilter(request, response); //enable bypass
-        }catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            // Thêm kiểm tra này trước khi gọi sendError
+            if (!response.isCommitted()) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+            }
         }
     }
+
 
     private boolean isBypassToken(@NonNull HttpServletRequest request) {
         final List<Pair<String, String>> bypassTokens = Arrays.asList(

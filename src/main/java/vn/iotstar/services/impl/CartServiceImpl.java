@@ -116,6 +116,7 @@ public class CartServiceImpl implements CartService {
     
     @Override
     public void removeItemFromCart(String cartItemId) {
+    	System.out.println("Removing cart item with ID: " + cartItemId);
         // Tìm cart chứa cartItem với ID cụ thể
         Query query = new Query(Criteria.where("cartItems._id").is(cartItemId));
         Cart cart = mongoTemplate.findOne(query, Cart.class);

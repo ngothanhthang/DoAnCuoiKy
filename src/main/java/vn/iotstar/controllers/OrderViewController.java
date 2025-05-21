@@ -30,6 +30,7 @@ import vn.iotstar.entity.Order;
 import vn.iotstar.entity.OrderItem;
 import vn.iotstar.entity.User;
 import vn.iotstar.entity.UserCoupon;
+import vn.iotstar.repository.ReviewRepository;
 import vn.iotstar.repository.UserRepository;
 import vn.iotstar.services.AddressService;
 import vn.iotstar.services.CartItemService;
@@ -63,13 +64,16 @@ public class OrderViewController {
     private CouponService couponService;
     
     @Autowired
+    private ReviewRepository reviewRepository;
+    
+    @Autowired
     private UserCouponService userCouponService;
     
     @Autowired
     private ReviewService reviewService;
     
     @GetMapping("/summary/{orderId}")
-    public String orderSummary(@PathVariable("orderId") String orderId, @RequestParam(required = false) List<Long> selectedItems, Model model, HttpSession session) {
+    public String orderSummary(@PathVariable("orderId") String orderId, @RequestParam(required = false) List<String> selectedItems, Model model, HttpSession session) {
     	// Khởi tạo Logger
         Logger logger = LoggerFactory.getLogger(OrderController.class);
      // In thử selectedItems vào log để xem kết quả
@@ -124,33 +128,37 @@ public class OrderViewController {
 
         switch (status) {
             case "1":
-                ordersPage = orderService.findOrdersByStatusAndUserId("chờ xác nhận", userId, pageable);
+                ordersPage = orderService.findOrdersByStatusAndUserId("Chờ xác nhận", userId, pageable);
                 break;
             case "2":
-                ordersPage = orderService.findOrdersByStatusAndUserId("đã xác nhận", userId, pageable);
+                ordersPage = orderService.findOrdersByStatusAndUserId("Đã xác nhận", userId, pageable);
                 break;
             case "3":
-                ordersPage = orderService.findOrdersByMultipleStatusesAndUserId(Arrays.asList("đang giao", "Đã nhận hàng"), userId, pageable);
+                ordersPage = orderService.findOrdersByMultipleStatusesAndUserId(Arrays.asList("Đang giao", "Đã nhận hàng"), userId, pageable);
                 break;
             case "4":
                 // Trạng thái đã giao và đang duyệt
-                ordersPage = orderService.findOrdersByMultipleStatusesAndUserId(Arrays.asList("đã giao", "đang duyệt","Từ chối trả"), userId, pageable);
+                ordersPage = orderService.findOrdersByMultipleStatusesAndUserId(Arrays.asList("Đã giao", "Đang duyệt","Từ chối trả"), userId, pageable);
                 break;
             case "5":
-                ordersPage = orderService.findOrdersByStatusAndUserId("hủy", userId, pageable);
+                ordersPage = orderService.findOrdersByStatusAndUserId("Hủy", userId, pageable);
                 break;
             case "6":
-                ordersPage = orderService.findOrdersByStatusAndUserId("trả hàng", userId, pageable);
+                ordersPage = orderService.findOrdersByStatusAndUserId("Trả hàng", userId, pageable);
                 break;
             case "0":
             default:
                 ordersPage = orderService.findOrdersByUserId(userId, pageable);
                 break;
         }
+        Logger logger = LoggerFactory.getLogger(getClass());
+	    
+	    // In ra tất cả các giá trị nhận được
         
         for (Order order : ordersPage.getContent()) {
             for (OrderItem item : order.getOrderItems()) {
-                boolean reviewed = reviewService.hasUserReviewedProduct(userId, item.getProduct().getId());
+            	boolean reviewed = reviewRepository.countByUserIdAndProductId(userId, item.getProduct().getId()) > 0;
+       	    
                 item.setReviewed(reviewed);
             }
         }
@@ -175,6 +183,15 @@ public class OrderViewController {
                                     @RequestParam(value = "voucherCode", required = false) String voucherCode,
                                     Model model,
                                     HttpSession session) {
+		  // Thêm logger để debug
+	    Logger logger = LoggerFactory.getLogger(getClass());
+	    
+	    // In ra tất cả các giá trị nhận được
+	    logger.info("orderId: {}", orderId);
+	    logger.info("selectedItems: {}", selectedItems);
+	    logger.info("paymentMethod: {}", paymentMethod);
+	    logger.info("newTotalAmount: {}", newTotalAmount);
+	    logger.info("voucherCode: {}", voucherCode);
     	String userId = (String) session.getAttribute("user0");
         if (userId == null) {
             userId = "1";

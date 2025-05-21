@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpSession;
@@ -70,8 +71,10 @@ public class ShipperController {
 	    // Duyệt qua danh sách các đơn hàng
 	    for (Order order : confirmedOrders) {
 	        // Định dạng ngày tạo đơn hàng
-	        String formattedDate = order.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-	        formattedDates.add(formattedDate);
+        	String formattedDate = Optional.ofNullable(order.getCreatedAt())
+                    .map(createdAt -> createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .orElse("Chưa xác định"); // Giá trị mặc định nếu createdAt null
+                formattedDates.add(formattedDate);
 	        
 	        // Lấy số điện thoại từ địa chỉ mặc định
 	        String phoneNumber = null;
@@ -136,8 +139,10 @@ public class ShipperController {
         List<String> paymentMethod= new ArrayList<>();
         for (Order order : confirmedOrders) {
             // Format order creation date
-            String formattedDate = order.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            formattedDates.add(formattedDate);
+        	String formattedDate = Optional.ofNullable(order.getCreatedAt())
+                    .map(createdAt -> createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .orElse("Chưa xác định"); // Giá trị mặc định nếu createdAt null
+                formattedDates.add(formattedDate);
             
             // Get phone number from default address
             String phoneNumber = null;
@@ -283,8 +288,10 @@ public class ShipperController {
 
 	    for (Order order : shippingOrders) {
 	        // Định dạng ngày
-	        String formattedDate = order.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-	        formattedDates.add(formattedDate);
+	    	String formattedDate = Optional.ofNullable(order.getCreatedAt())
+                    .map(createdAt -> createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .orElse("Chưa xác định"); // Giá trị mặc định nếu createdAt null
+                formattedDates.add(formattedDate);
 
 	        // Lấy số điện thoại và địa chỉ mặc định
 	        String phoneNumber = null;

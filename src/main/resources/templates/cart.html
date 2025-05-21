@@ -644,11 +644,12 @@ a.card {
 								</button>
 								<input type="number" name="quantity" th:value="${item.quantity}" min="1" readonly>
 								<button type="button" class="btn-quantity" 
-    th:onclick="|increaseQuantity(event, ${item.id})|"
-    th:data-max-quantity="${item.product.quantity}"
-    th:classappend="${item.quantity >= item.product.quantity} ? 'disabled' : ''">
-    <i class="bi bi-plus"></i>
-</button>
+								    th:onclick="|window.location='@{/cart/increaseQuantity?(cartItemId=${item.id})}#scroll-' + Math.round(window.scrollY)|"
+								    th:data-max-quantity="${item.product.quantity}"
+								    th:classappend="${item.quantity >= item.product.quantity} ? 'disabled' : ''">
+								    <i class="bi bi-plus"></i>
+								</button>
+
 	                        </div>
 	                    </td>
 	                    <td>
@@ -657,9 +658,11 @@ a.card {
 	                        </div>
 	                    </td>
 	                    <td>
-	                        <button type="button" class="btn-delete" th:onclick="|deleteItem(${item.id})|">
-	                            <i class="bi bi-trash"></i>
-	                        </button>
+		                        <button type="button" class="btn-delete" th:data-item-id="${item.id}">
+								    <i class="bi bi-trash"></i>
+								</button>
+
+
 	                    </td>
 	                </tr>
 	            </tbody>
@@ -707,6 +710,13 @@ a.card {
     
 
    <script>
+   $(document).ready(function() {
+	    $('.btn-delete').click(function() {
+	        var cartItemId = $(this).data('item-id');
+	        deleteItem(cartItemId);
+	    });
+	});
+
    function deleteItem(cartItemId) {
 	    if (confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
 	        window.location.href = '/cart/delete?cartItemId=' + cartItemId + '#scroll-' + Math.round(window.scrollY);

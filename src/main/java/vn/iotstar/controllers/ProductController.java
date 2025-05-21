@@ -15,6 +15,7 @@ import vn.iotstar.entity.Product;
 import vn.iotstar.entity.ProductLike;
 import vn.iotstar.entity.Review;
 import vn.iotstar.entity.User;
+import vn.iotstar.repository.ReviewRepository;
 import vn.iotstar.repository.UserRepository;
 import vn.iotstar.services.ProductService;
 
@@ -27,6 +28,8 @@ public class ProductController {
     private ProductService productService;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private ReviewRepository reviewRepository;
     
     // Trang chủ
     @GetMapping("/")
@@ -69,10 +72,10 @@ public class ProductController {
                 sort = Sort.by(Sort.Order.desc("averageRating"));  // Average rating đã được tính trong service
                 break;
             case "price_low_to_high":
-                sort = Sort.by(Sort.Order.asc("price"));  // Average rating đã được tính trong service
+                sort = Sort.by(Sort.Order.desc("price"));  // Average rating đã được tính trong service
                 break;
             case "price_high_to_low":
-                sort = Sort.by(Sort.Order.desc("price"));  // Average rating đã được tính trong service
+                sort = Sort.by(Sort.Order.asc("price"));  // Average rating đã được tính trong service
                 break;
             default:
                 sort = Sort.by(Sort.Order.desc("createdAt"));
@@ -115,7 +118,7 @@ public class ProductController {
         Product product = productService.getProductById(productId);
         
         // Lấy danh sách đánh giá của sản phẩm
-        List<Review> reviews = product.getReviews();
+        List<Review> reviews = reviewRepository.findByProductId(productId);
         
         int totalLikes = product.getProductLikes().size();
         
@@ -146,6 +149,9 @@ public class ProductController {
      model.addAttribute("averageRating", averageRating);
      model.addAttribute("totalSoldQuantity", totalSoldQuantity);
      model.addAttribute("isLiked", isLiked);
+  // Thêm dòng này vào phương thức getProductDetails
+     model.addAttribute("reviews", reviews);
+
 
      return "productDetail"; // Trang chi tiết sản phẩm
  }

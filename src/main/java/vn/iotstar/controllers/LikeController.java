@@ -2,6 +2,7 @@ package vn.iotstar.controllers;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -56,9 +57,36 @@ public class LikeController {
         }
 
         // Lấy lại thông tin sản phẩm sau khi cập nhật lượt thích
-        int totalLikes = product.getProductLikes().size();
+        long totalLikes = productLikeRepository.countByProduct_Id(productId);
 
         // Trả về số lượt thích mới (JSON)
         return String.valueOf(totalLikes);
     }
+    @GetMapping("/product/count")
+    public String getProductLikeCount(@RequestParam("productId") String productId) {
+        long totalLikes = productLikeRepository.countByProduct_Id(productId);
+        return String.valueOf(totalLikes);
+    }
+    
+    @GetMapping("/product/status")
+    public String checkLikeStatus(@RequestParam("productId") String productId, HttpSession session) {
+        String userId = (String) session.getAttribute("user0");
+        if (userId == null) {
+            return "false";
+        }
+        
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return "false";
+        }
+        
+        Product product = productService.getProductById(productId);
+        if (product == null) {
+            return "false";
+        }
+        
+        ProductLike existingLike = productLikeRepository.findByProductAndUser(product, user);
+        return existingLike != null ? "true" : "false";
+    }
+
 }

@@ -29,19 +29,48 @@ public class ReviewController {
     private ReviewService reviewService;
 	@GetMapping("/review/{productId}")
 	public String showReviewForm(@PathVariable("productId") String productId, Model model, HttpSession session) {
+	    // Log thông tin đầu vào
+	    
+	    // Lấy userId từ session
 	    String userId = (String) session.getAttribute("user0");
-//	    if (userId == null) {
-//	        userId = 1L; // Giá trị mặc định nếu userId không có trong session
-//	    }
-
-	    Product product = productService.getProductById(productId);
-	    Review existingReview = reviewService.findByUserIdAndProductId(userId, productId);
-
-	    model.addAttribute("product", product);
-	    model.addAttribute("existingReview", existingReview);
-
-	    return "reviewPage"; // Tên của view hiển thị form đánh giá
+	    
+	    // Kiểm tra nếu userId null
+	    if (userId == null) {
+	        // Có thể chuyển hướng đến trang đăng nhập hoặc xử lý khác
+	        // return "redirect:/login";
+	    }
+	    
+	    // Lấy thông tin sản phẩm
+	    try {
+	        Product product = productService.getProductById(productId);
+	        
+	        if (product == null) {
+	            // Có thể xử lý trường hợp không tìm thấy sản phẩm
+	            // return "error";
+	        }
+	        
+	        model.addAttribute("product", product);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        // return "error";
+	    }
+	    
+	    // Tìm review hiện có
+	    try {
+	        if (userId != null) {
+	            Review existingReview = reviewService.findByUserIdAndProductId(userId, productId);
+	            
+	            model.addAttribute("existingReview", existingReview);
+	        } else {
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        // Vẫn tiếp tục vì người dùng có thể chưa có review
+	    }
+	    
+	    return "reviewPage";
 	}
+
 	/*
 	 * @PostMapping("/review/{orderId}") public String submitReview(@PathVariable
 	 * Long orderId, @RequestParam int rating, @RequestParam String comment) { // Xử
